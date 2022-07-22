@@ -1,0 +1,352 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"recall.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.verify,"ax",%progbits
+  16              		.align	1
+  17              		.global	verify
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	verify:
+  25              	.LVL0:
+  26              	.LFB3:
+  27              		.file 1 "recall.c"
+   1:recall.c      **** #include "hal.h"
+   2:recall.c      **** #include <stdint.h>
+   3:recall.c      **** #include <stdlib.h>
+   4:recall.c      **** #include <stdio.h>
+   5:recall.c      **** #include "../simpleserial/simpleserial.h"
+   6:recall.c      **** 
+   7:recall.c      **** // DUMMY VAL
+   8:recall.c      **** uint8_t correct_mem[] = {5, 14, 80, 74, 112, 89, 140, 29, 192, 139, 103, 171, 25, 182, 68, 244};
+   9:recall.c      **** 
+  10:recall.c      **** uint8_t verify(uint8_t* data, uint8_t dlen) {
+  28              		.loc 1 10 45 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  11:recall.c      ****   uint8_t mem_different = 0;
+  32              		.loc 1 11 3 view .LVU1
+  12:recall.c      ****   uint8_t zero = 0, one = 1;
+  33              		.loc 1 12 3 view .LVU2
+  10:recall.c      ****   uint8_t mem_different = 0;
+  34              		.loc 1 10 45 is_stmt 0 view .LVU3
+  35 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 32
+  38              		.cfi_offset 0, -32
+  39              		.cfi_offset 1, -28
+  40              		.cfi_offset 2, -24
+  41              		.cfi_offset 4, -20
+  42              		.cfi_offset 5, -16
+  43              		.cfi_offset 6, -12
+  44              		.cfi_offset 7, -8
+  45              		.cfi_offset 14, -4
+  46              		.loc 1 12 11 view .LVU4
+  47 0002 0022     		movs	r2, #0
+  48 0004 6B46     		mov	r3, sp
+  49 0006 9A71     		strb	r2, [r3, #6]
+  50              		.loc 1 12 21 view .LVU5
+  51 0008 6B46     		mov	r3, sp
+  52 000a 0132     		adds	r2, r2, #1
+  53 000c DA71     		strb	r2, [r3, #7]
+  13:recall.c      **** 
+  14:recall.c      ****   trigger_high();
+  54              		.loc 1 14 3 is_stmt 1 view .LVU6
+  10:recall.c      ****   uint8_t mem_different = 0;
+  55              		.loc 1 10 45 is_stmt 0 view .LVU7
+  56 000e 0400     		movs	r4, r0
+  57              		.loc 1 14 3 view .LVU8
+  58 0010 FFF7FEFF 		bl	trigger_high
+  59              	.LVL1:
+  15:recall.c      ****   uint32_t seed = HAL_GetTick();
+  60              		.loc 1 15 3 is_stmt 1 view .LVU9
+  61              		.loc 1 15 19 is_stmt 0 view .LVU10
+  62 0014 FFF7FEFF 		bl	HAL_GetTick
+  63              	.LVL2:
+  16:recall.c      ****   srand(seed);
+  64              		.loc 1 16 3 is_stmt 1 view .LVU11
+  65 0018 FFF7FEFF 		bl	srand
+  66              	.LVL3:
+  17:recall.c      ****   uint8_t r = rand() & 0xFF;
+  67              		.loc 1 17 3 view .LVU12
+  68              		.loc 1 17 15 is_stmt 0 view .LVU13
+  69 001c FFF7FEFF 		bl	rand
+  70              	.LVL4:
+  71 0020 1022     		movs	r2, #16
+  72              		.loc 1 17 11 view .LVU14
+  73 0022 C3B2     		uxtb	r3, r0
+  74              	.LVL5:
+  18:recall.c      ****   for(uint8_t i=0;i<sizeof(correct_mem); i++){
+  75              		.loc 1 18 3 is_stmt 1 view .LVU15
+  76              	.LBB2:
+  77              		.loc 1 18 7 view .LVU16
+  78              		.loc 1 18 19 view .LVU17
+  79 0024 1848     		ldr	r0, .L11
+  80 0026 9446     		mov	ip, r2
+  81 0028 2100     		movs	r1, r4
+  82              	.LBE2:
+  17:recall.c      ****   uint8_t r = rand() & 0xFF;
+  83              		.loc 1 17 11 is_stmt 0 view .LVU18
+  84 002a 2200     		movs	r2, r4
+  85 002c 0500     		movs	r5, r0
+  86 002e A444     		add	ip, ip, r4
+  87              	.LVL6:
+  88              	.L2:
+  89              	.LBB3:
+  19:recall.c      ****     correct_mem[i] ^= r;
+  90              		.loc 1 19 5 is_stmt 1 discriminator 3 view .LVU19
+  91              		.loc 1 19 20 is_stmt 0 discriminator 3 view .LVU20
+  92 0030 2E78     		ldrb	r6, [r5]
+  93 0032 5E40     		eors	r6, r3
+  94 0034 2E70     		strb	r6, [r5]
+  20:recall.c      ****     data[i]^=r;
+  95              		.loc 1 20 5 is_stmt 1 discriminator 3 view .LVU21
+  96              		.loc 1 20 12 is_stmt 0 discriminator 3 view .LVU22
+  97 0036 1678     		ldrb	r6, [r2]
+  98 0038 0135     		adds	r5, r5, #1
+  99              	.LVL7:
+ 100              		.loc 1 20 12 discriminator 3 view .LVU23
+ 101 003a 5E40     		eors	r6, r3
+ 102 003c 1670     		strb	r6, [r2]
+  18:recall.c      ****   for(uint8_t i=0;i<sizeof(correct_mem); i++){
+ 103              		.loc 1 18 42 is_stmt 1 discriminator 3 view .LVU24
+  18:recall.c      ****   for(uint8_t i=0;i<sizeof(correct_mem); i++){
+ 104              		.loc 1 18 19 discriminator 3 view .LVU25
+ 105 003e 0132     		adds	r2, r2, #1
+  18:recall.c      ****   for(uint8_t i=0;i<sizeof(correct_mem); i++){
+ 106              		.loc 1 18 3 is_stmt 0 discriminator 3 view .LVU26
+ 107 0040 6245     		cmp	r2, ip
+ 108 0042 F5D1     		bne	.L2
+ 109 0044 0022     		movs	r2, #0
+ 110              	.LBE3:
+  11:recall.c      ****   uint8_t zero = 0, one = 1;
+ 111              		.loc 1 11 11 view .LVU27
+ 112 0046 1500     		movs	r5, r2
+ 113              	.LVL8:
+ 114              	.L3:
+ 115              	.LBB4:
+  21:recall.c      ****   }
+  22:recall.c      ****   for (uint8_t i = 0; i < sizeof(correct_mem); i++) {
+  23:recall.c      **** 
+  24:recall.c      ****     // if (correct_mem[i] != data[i]) {
+  25:recall.c      ****     //   mem_different = 1;
+  26:recall.c      ****     //   break;
+  27:recall.c      ****     // }
+  28:recall.c      **** 
+  29:recall.c      ****     // counter measure: remove if else block
+  30:recall.c      ****     mem_different |= (correct_mem[i] != data[i]); //2 2 3 4
+ 116              		.loc 1 30 5 is_stmt 1 discriminator 3 view .LVU28
+ 117              		.loc 1 30 38 is_stmt 0 discriminator 3 view .LVU29
+ 118 0048 0F4E     		ldr	r6, .L11
+ 119 004a A75C     		ldrb	r7, [r4, r2]
+ 120 004c 965D     		ldrb	r6, [r2, r6]
+ 121 004e 0132     		adds	r2, r2, #1
+ 122              	.LVL9:
+ 123              		.loc 1 30 38 discriminator 3 view .LVU30
+ 124 0050 F61B     		subs	r6, r6, r7
+ 125 0052 771E     		subs	r7, r6, #1
+ 126 0054 BE41     		sbcs	r6, r6, r7
+ 127              		.loc 1 30 19 discriminator 3 view .LVU31
+ 128 0056 3543     		orrs	r5, r6
+ 129              	.LVL10:
+  22:recall.c      **** 
+ 130              		.loc 1 22 48 is_stmt 1 discriminator 3 view .LVU32
+  22:recall.c      **** 
+ 131              		.loc 1 22 23 discriminator 3 view .LVU33
+  22:recall.c      **** 
+ 132              		.loc 1 22 3 is_stmt 0 discriminator 3 view .LVU34
+ 133 0058 102A     		cmp	r2, #16
+ 134 005a F5D1     		bne	.L3
+ 135              	.LVL11:
+ 136              	.L4:
+  22:recall.c      **** 
+ 137              		.loc 1 22 3 discriminator 3 view .LVU35
+ 138              	.LBE4:
+ 139              	.LBB5:
+  31:recall.c      ****   }
+  32:recall.c      ****   for(uint8_t i=0;i<sizeof(correct_mem); i++){
+  33:recall.c      ****     correct_mem[i] ^= r;
+ 140              		.loc 1 33 5 is_stmt 1 discriminator 3 view .LVU36
+ 141              		.loc 1 33 20 is_stmt 0 discriminator 3 view .LVU37
+ 142 005c 0278     		ldrb	r2, [r0]
+ 143 005e 5A40     		eors	r2, r3
+ 144 0060 0270     		strb	r2, [r0]
+  34:recall.c      ****     data[i]^=r;
+ 145              		.loc 1 34 5 is_stmt 1 discriminator 3 view .LVU38
+ 146              		.loc 1 34 12 is_stmt 0 discriminator 3 view .LVU39
+ 147 0062 0A78     		ldrb	r2, [r1]
+ 148 0064 0130     		adds	r0, r0, #1
+ 149              	.LVL12:
+ 150              		.loc 1 34 12 discriminator 3 view .LVU40
+ 151 0066 5A40     		eors	r2, r3
+ 152 0068 0A70     		strb	r2, [r1]
+  32:recall.c      ****     correct_mem[i] ^= r;
+ 153              		.loc 1 32 42 is_stmt 1 discriminator 3 view .LVU41
+  32:recall.c      ****     correct_mem[i] ^= r;
+ 154              		.loc 1 32 19 discriminator 3 view .LVU42
+ 155 006a 0131     		adds	r1, r1, #1
+  32:recall.c      ****     correct_mem[i] ^= r;
+ 156              		.loc 1 32 3 is_stmt 0 discriminator 3 view .LVU43
+ 157 006c 6145     		cmp	r1, ip
+ 158 006e F5D1     		bne	.L4
+ 159              	.LBE5:
+  35:recall.c      ****   }
+  36:recall.c      ****   trigger_low();
+ 160              		.loc 1 36 3 is_stmt 1 view .LVU44
+ 161 0070 FFF7FEFF 		bl	trigger_low
+ 162              	.LVL13:
+  37:recall.c      **** 
+  38:recall.c      ****   if (mem_different) {
+ 163              		.loc 1 38 3 view .LVU45
+  39:recall.c      ****     simpleserial_put('r', 1, &zero);
+ 164              		.loc 1 39 5 is_stmt 0 view .LVU46
+ 165 0074 6B46     		mov	r3, sp
+ 166 0076 9A1D     		adds	r2, r3, #6
+  38:recall.c      ****     simpleserial_put('r', 1, &zero);
+ 167              		.loc 1 38 6 view .LVU47
+ 168 0078 002D     		cmp	r5, #0
+ 169 007a 00D1     		bne	.L10
+  40:recall.c      ****   } else {
+  41:recall.c      ****     simpleserial_put('r', 1, &one); // GOAL
+ 170              		.loc 1 41 5 is_stmt 1 view .LVU48
+ 171 007c DA1D     		adds	r2, r3, #7
+ 172              	.L10:
+ 173 007e 7220     		movs	r0, #114
+ 174 0080 0121     		movs	r1, #1
+ 175 0082 FFF7FEFF 		bl	simpleserial_put
+ 176              	.LVL14:
+  42:recall.c      ****   }
+  43:recall.c      **** }
+ 177              		.loc 1 43 1 is_stmt 0 view .LVU49
+ 178              		@ sp needed
+ 179              	.LVL15:
+ 180              	.LVL16:
+ 181              		.loc 1 43 1 view .LVU50
+ 182 0086 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 183              	.L12:
+ 184              		.align	2
+ 185              	.L11:
+ 186 0088 00000000 		.word	.LANCHOR0
+ 187              		.cfi_endproc
+ 188              	.LFE3:
+ 190              		.section	.text.startup.main,"ax",%progbits
+ 191              		.align	1
+ 192              		.global	main
+ 193              		.syntax unified
+ 194              		.code	16
+ 195              		.thumb_func
+ 196              		.fpu softvfp
+ 198              	main:
+ 199              	.LFB4:
+  44:recall.c      **** 
+  45:recall.c      **** int main(void) {
+ 200              		.loc 1 45 16 is_stmt 1 view -0
+ 201              		.cfi_startproc
+ 202              		@ Volatile: function does not return.
+ 203              		@ args = 0, pretend = 0, frame = 0
+ 204              		@ frame_needed = 0, uses_anonymous_args = 0
+  46:recall.c      ****   platform_init();
+ 205              		.loc 1 46 3 view .LVU52
+  45:recall.c      ****   platform_init();
+ 206              		.loc 1 45 16 is_stmt 0 view .LVU53
+ 207 0000 10B5     		push	{r4, lr}
+ 208              	.LCFI1:
+ 209              		.cfi_def_cfa_offset 8
+ 210              		.cfi_offset 4, -8
+ 211              		.cfi_offset 14, -4
+ 212              		.loc 1 46 3 view .LVU54
+ 213 0002 FFF7FEFF 		bl	platform_init
+ 214              	.LVL17:
+  47:recall.c      ****   init_uart();
+ 215              		.loc 1 47 3 is_stmt 1 view .LVU55
+ 216 0006 FFF7FEFF 		bl	init_uart
+ 217              	.LVL18:
+  48:recall.c      ****   trigger_setup();
+ 218              		.loc 1 48 3 view .LVU56
+ 219 000a FFF7FEFF 		bl	trigger_setup
+ 220              	.LVL19:
+  49:recall.c      ****   simpleserial_init();
+ 221              		.loc 1 49 3 view .LVU57
+ 222 000e FFF7FEFF 		bl	simpleserial_init
+ 223              	.LVL20:
+  50:recall.c      **** 
+  51:recall.c      ****   simpleserial_addcmd('a', 16, verify);
+ 224              		.loc 1 51 3 view .LVU58
+ 225 0012 1021     		movs	r1, #16
+ 226 0014 6120     		movs	r0, #97
+ 227 0016 034A     		ldr	r2, .L15
+ 228 0018 FFF7FEFF 		bl	simpleserial_addcmd
+ 229              	.LVL21:
+ 230              	.L14:
+  52:recall.c      **** 
+  53:recall.c      ****   while(1) {
+ 231              		.loc 1 53 3 discriminator 1 view .LVU59
+  54:recall.c      ****     simpleserial_get();
+ 232              		.loc 1 54 5 discriminator 1 view .LVU60
+ 233 001c FFF7FEFF 		bl	simpleserial_get
+ 234              	.LVL22:
+  53:recall.c      ****     simpleserial_get();
+ 235              		.loc 1 53 8 discriminator 1 view .LVU61
+ 236 0020 FCE7     		b	.L14
+ 237              	.L16:
+ 238 0022 C046     		.align	2
+ 239              	.L15:
+ 240 0024 00000000 		.word	verify
+ 241              		.cfi_endproc
+ 242              	.LFE4:
+ 244              		.global	correct_mem
+ 245              		.data
+ 246              		.set	.LANCHOR0,. + 0
+ 249              	correct_mem:
+ 250 0000 050E504A 		.ascii	"\005\016PJpY\214\035\300\213g\253\031\266D\364"
+ 250      70598C1D 
+ 250      C08B67AB 
+ 250      19B644F4 
+ 251              		.text
+ 252              	.Letext0:
+ 253              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 254              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 255              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 256              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 257              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 258              		.file 7 "/usr/include/newlib/stdlib.h"
+ 259              		.file 8 ".././hal/hal.h"
+ 260              		.file 9 ".././hal/stm32f0/stm32f0_hal.h"
+ 261              		.file 10 "../simpleserial/simpleserial.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 recall.c
+     /tmp/ccyJrUEm.s:16     .text.verify:0000000000000000 $t
+     /tmp/ccyJrUEm.s:24     .text.verify:0000000000000000 verify
+     /tmp/ccyJrUEm.s:186    .text.verify:0000000000000088 $d
+     /tmp/ccyJrUEm.s:191    .text.startup.main:0000000000000000 $t
+     /tmp/ccyJrUEm.s:198    .text.startup.main:0000000000000000 main
+     /tmp/ccyJrUEm.s:240    .text.startup.main:0000000000000024 $d
+     /tmp/ccyJrUEm.s:249    .data:0000000000000000 correct_mem
+
+UNDEFINED SYMBOLS
+trigger_high
+HAL_GetTick
+srand
+rand
+trigger_low
+simpleserial_put
+platform_init
+init_uart
+trigger_setup
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get

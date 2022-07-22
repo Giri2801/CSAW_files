@@ -1,0 +1,1939 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"simpleserial-rsa-arm.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.myrand,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	myrand:
+  25              	.LVL0:
+  26              	.LFB9:
+  27              		.file 1 "simpleserial-rsa-arm.c"
+   1:simpleserial-rsa-arm.c **** /*
+   2:simpleserial-rsa-arm.c ****     This file is part of the ChipWhisperer Example Targets
+   3:simpleserial-rsa-arm.c ****     Copyright (C) 2016-2017 NewAE Technology Inc.
+   4:simpleserial-rsa-arm.c **** 
+   5:simpleserial-rsa-arm.c ****     This program is free software: you can redistribute it and/or modify
+   6:simpleserial-rsa-arm.c ****     it under the terms of the GNU General Public License as published by
+   7:simpleserial-rsa-arm.c ****     the Free Software Foundation, either version 3 of the License, or
+   8:simpleserial-rsa-arm.c ****     (at your option) any later version.
+   9:simpleserial-rsa-arm.c **** 
+  10:simpleserial-rsa-arm.c ****     This program is distributed in the hope that it will be useful,
+  11:simpleserial-rsa-arm.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  12:simpleserial-rsa-arm.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  13:simpleserial-rsa-arm.c ****     GNU General Public License for more details.
+  14:simpleserial-rsa-arm.c **** 
+  15:simpleserial-rsa-arm.c ****     You should have received a copy of the GNU General Public License
+  16:simpleserial-rsa-arm.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  17:simpleserial-rsa-arm.c **** */
+  18:simpleserial-rsa-arm.c **** 
+  19:simpleserial-rsa-arm.c **** #include "hal.h"
+  20:simpleserial-rsa-arm.c **** #include "simpleserial.h"
+  21:simpleserial-rsa-arm.c **** #include <string.h>
+  22:simpleserial-rsa-arm.c **** #include <stdint.h>
+  23:simpleserial-rsa-arm.c **** #include <stdlib.h>
+  24:simpleserial-rsa-arm.c **** 
+  25:simpleserial-rsa-arm.c **** #if defined(__arm__)
+  26:simpleserial-rsa-arm.c **** 
+  27:simpleserial-rsa-arm.c **** #include "mbedtls/rsa.h"
+  28:simpleserial-rsa-arm.c **** #include "mbedtls/sha256.h"
+  29:simpleserial-rsa-arm.c **** #include "mbedtls/oid.h"
+  30:simpleserial-rsa-arm.c **** uint8_t sig_chunk_1(uint8_t *pt, uint8_t len);
+  31:simpleserial-rsa-arm.c **** uint8_t sig_chunk_2(uint8_t *pt, uint8_t len);
+  32:simpleserial-rsa-arm.c **** #define mbedtls_calloc calloc
+  33:simpleserial-rsa-arm.c **** #define mbedtls_free free
+  34:simpleserial-rsa-arm.c **** 
+  35:simpleserial-rsa-arm.c **** static int myrand( void *rng_state, unsigned char *output, size_t len )
+  36:simpleserial-rsa-arm.c **** {
+  28              		.loc 1 36 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  37:simpleserial-rsa-arm.c ****      size_t i;
+  32              		.loc 1 37 6 view .LVU1
+  38:simpleserial-rsa-arm.c **** 
+  39:simpleserial-rsa-arm.c ****      if( rng_state != NULL )
+  33              		.loc 1 39 6 view .LVU2
+  40:simpleserial-rsa-arm.c ****           rng_state  = NULL;
+  41:simpleserial-rsa-arm.c **** 
+  42:simpleserial-rsa-arm.c ****      for( i = 0; i < len; ++i )
+  34              		.loc 1 42 18 view .LVU3
+  36:simpleserial-rsa-arm.c ****      size_t i;
+  35              		.loc 1 36 1 is_stmt 0 view .LVU4
+  36 0000 70B5     		push	{r4, r5, r6, lr}
+  37              	.LCFI0:
+  38              		.cfi_def_cfa_offset 16
+  39              		.cfi_offset 4, -16
+  40              		.cfi_offset 5, -12
+  41              		.cfi_offset 6, -8
+  42              		.cfi_offset 14, -4
+  43              		.loc 1 42 6 view .LVU5
+  44 0002 002A     		cmp	r2, #0
+  45 0004 07D0     		beq	.L2
+  46 0006 0C00     		movs	r4, r1
+  47 0008 8D18     		adds	r5, r1, r2
+  48              	.LVL1:
+  49              	.L3:
+  43:simpleserial-rsa-arm.c ****           output[i] = rand();
+  50              		.loc 1 43 11 is_stmt 1 discriminator 3 view .LVU6
+  51              		.loc 1 43 23 is_stmt 0 discriminator 3 view .LVU7
+  52 000a FFF7FEFF 		bl	rand
+  53              	.LVL2:
+  54              		.loc 1 43 21 discriminator 3 view .LVU8
+  55 000e 2070     		strb	r0, [r4]
+  42:simpleserial-rsa-arm.c ****           output[i] = rand();
+  56              		.loc 1 42 27 is_stmt 1 discriminator 3 view .LVU9
+  57              	.LVL3:
+  42:simpleserial-rsa-arm.c ****           output[i] = rand();
+  58              		.loc 1 42 18 discriminator 3 view .LVU10
+  59 0010 0134     		adds	r4, r4, #1
+  60              	.LVL4:
+  42:simpleserial-rsa-arm.c ****           output[i] = rand();
+  61              		.loc 1 42 6 is_stmt 0 discriminator 3 view .LVU11
+  62 0012 AC42     		cmp	r4, r5
+  63 0014 F9D1     		bne	.L3
+  64              	.LVL5:
+  65              	.L2:
+  44:simpleserial-rsa-arm.c **** 
+  45:simpleserial-rsa-arm.c ****      return( 0 );
+  66              		.loc 1 45 6 is_stmt 1 view .LVU12
+  46:simpleserial-rsa-arm.c **** }
+  67              		.loc 1 46 1 is_stmt 0 view .LVU13
+  68 0016 0020     		movs	r0, #0
+  69              		@ sp needed
+  70 0018 70BD     		pop	{r4, r5, r6, pc}
+  71              		.cfi_endproc
+  72              	.LFE9:
+  74 001a C046     		.section	.text.sig_chunk_1,"ax",%progbits
+  75              		.align	1
+  76              		.p2align 2,,3
+  77              		.global	sig_chunk_1
+  78              		.syntax unified
+  79              		.code	16
+  80              		.thumb_func
+  81              		.fpu softvfp
+  83              	sig_chunk_1:
+  84              	.LVL6:
+  85              	.LFB14:
+  47:simpleserial-rsa-arm.c **** 
+  48:simpleserial-rsa-arm.c **** /*
+  49:simpleserial-rsa-arm.c ****  * Example RSA-1024 keypair, for test purposes
+  50:simpleserial-rsa-arm.c ****  */
+  51:simpleserial-rsa-arm.c **** #define RSA_KEY_LEN 128
+  52:simpleserial-rsa-arm.c **** 
+  53:simpleserial-rsa-arm.c **** #define RSA_N   "9292758453063D803DD603D5E777D788" \
+  54:simpleserial-rsa-arm.c ****                 "8ED1D5BF35786190FA2F23EBC0848AEA" \
+  55:simpleserial-rsa-arm.c ****                 "DDA92CA6C3D80B32C4D109BE0F36D6AE" \
+  56:simpleserial-rsa-arm.c ****                 "7130B9CED7ACDF54CFC7555AC14EEBAB" \
+  57:simpleserial-rsa-arm.c ****                 "93A89813FBF3C4F8066D2D800F7C38A8" \
+  58:simpleserial-rsa-arm.c ****                 "1AE31942917403FF4946B0A83D3D3E05" \
+  59:simpleserial-rsa-arm.c ****                 "EE57C6F5F5606FB5D4BC6CD34EE0801A" \
+  60:simpleserial-rsa-arm.c ****                 "5E94BB77B07507233A0BC7BAC8F90F79"
+  61:simpleserial-rsa-arm.c **** 
+  62:simpleserial-rsa-arm.c **** #define RSA_E   "10001"
+  63:simpleserial-rsa-arm.c **** 
+  64:simpleserial-rsa-arm.c **** #define RSA_D   "24BF6185468786FDD303083D25E64EFC" \
+  65:simpleserial-rsa-arm.c ****                 "66CA472BC44D253102F8B4A9D3BFA750" \
+  66:simpleserial-rsa-arm.c ****                 "91386C0077937FE33FA3252D28855837" \
+  67:simpleserial-rsa-arm.c ****                 "AE1B484A8A9A45F7EE8C0C634F99E8CD" \
+  68:simpleserial-rsa-arm.c ****                 "DF79C5CE07EE72C7F123142198164234" \
+  69:simpleserial-rsa-arm.c ****                 "CABB724CF78B8173B9F880FC86322407" \
+  70:simpleserial-rsa-arm.c ****                 "AF1FEDFDDE2BEB674CA15F3E81A1521E" \
+  71:simpleserial-rsa-arm.c ****                 "071513A1E85B5DFA031F21ECAE91A34D"
+  72:simpleserial-rsa-arm.c **** 
+  73:simpleserial-rsa-arm.c **** #define RSA_P   "C36D0EB7FCD285223CFB5AABA5BDA3D8" \
+  74:simpleserial-rsa-arm.c ****                 "2C01CAD19EA484A87EA4377637E75500" \
+  75:simpleserial-rsa-arm.c ****                 "FCB2005C5C7DD6EC4AC023CDA285D796" \
+  76:simpleserial-rsa-arm.c ****                 "C3D9E75E1EFC42488BB4F1D13AC30A57"
+  77:simpleserial-rsa-arm.c **** 
+  78:simpleserial-rsa-arm.c **** #define RSA_Q   "C000DF51A7C77AE8D7C7370C1FF55B69" \
+  79:simpleserial-rsa-arm.c ****                 "E211C2B9E5DB1ED0BF61D0D9899620F4" \
+  80:simpleserial-rsa-arm.c ****                 "910E4168387E3C30AA1E00C339A79508" \
+  81:simpleserial-rsa-arm.c ****                 "8452DD96A9A5EA5D9DCA68DA636032AF"
+  82:simpleserial-rsa-arm.c **** 
+  83:simpleserial-rsa-arm.c **** #define RSA_DP  "C1ACF567564274FB07A0BBAD5D26E298" \
+  84:simpleserial-rsa-arm.c ****                 "3C94D22288ACD763FD8E5600ED4A702D" \
+  85:simpleserial-rsa-arm.c ****                 "F84198A5F06C2E72236AE490C93F07F8" \
+  86:simpleserial-rsa-arm.c ****                 "3CC559CD27BC2D1CA488811730BB5725"
+  87:simpleserial-rsa-arm.c **** 
+  88:simpleserial-rsa-arm.c **** #define RSA_DQ  "4959CBF6F8FEF750AEE6977C155579C7" \
+  89:simpleserial-rsa-arm.c ****                 "D8AAEA56749EA28623272E4F7D0592AF" \
+  90:simpleserial-rsa-arm.c ****                 "7C1F1313CAC9471B5C523BFE592F517B" \
+  91:simpleserial-rsa-arm.c ****                 "407A1BD76C164B93DA2D32A383E58357"
+  92:simpleserial-rsa-arm.c **** 
+  93:simpleserial-rsa-arm.c **** #define RSA_QP  "9AE7FBC99546432DF71896FC239EADAE" \
+  94:simpleserial-rsa-arm.c ****                 "F38D18D2B2F0E2DD275AA977E2BF4411" \
+  95:simpleserial-rsa-arm.c ****                 "F5A3B2A5D33605AEBBCCBA7FEB9F2D2F" \
+  96:simpleserial-rsa-arm.c ****                 "A74206CEC169D74BF5A8C50D6F48EA08"
+  97:simpleserial-rsa-arm.c **** 
+  98:simpleserial-rsa-arm.c **** #define PT_LEN  24
+  99:simpleserial-rsa-arm.c **** #define RSA_PT  "\xAA\xBB\xCC\x03\x02\x01\x00\xFF\xFF\xFF\xFF\xFF" \
+ 100:simpleserial-rsa-arm.c ****                 "\x11\x22\x33\x0A\x0B\x0C\xCC\xDD\xDD\xDD\xDD\xDD"
+ 101:simpleserial-rsa-arm.c **** 
+ 102:simpleserial-rsa-arm.c **** const char MESSAGE[] =  "Hello World!";
+ 103:simpleserial-rsa-arm.c **** 
+ 104:simpleserial-rsa-arm.c **** 
+ 105:simpleserial-rsa-arm.c **** mbedtls_rsa_context rsa_ctx;
+ 106:simpleserial-rsa-arm.c **** unsigned char rsa_plaintext[PT_LEN];
+ 107:simpleserial-rsa-arm.c **** unsigned char rsa_decrypted[PT_LEN];
+ 108:simpleserial-rsa-arm.c **** unsigned char rsa_ciphertext[RSA_KEY_LEN];
+ 109:simpleserial-rsa-arm.c **** 
+ 110:simpleserial-rsa-arm.c **** /*
+ 111:simpleserial-rsa-arm.c ****  * Do an RSA private key operation
+ 112:simpleserial-rsa-arm.c ****  */
+ 113:simpleserial-rsa-arm.c **** static int simpleserial_mbedtls_rsa_private( mbedtls_rsa_context *ctx,
+ 114:simpleserial-rsa-arm.c ****                  int (*f_rng)(void *, unsigned char *, size_t),
+ 115:simpleserial-rsa-arm.c ****                  void *p_rng,
+ 116:simpleserial-rsa-arm.c ****                  const unsigned char *input,
+ 117:simpleserial-rsa-arm.c ****                  unsigned char *output )
+ 118:simpleserial-rsa-arm.c **** {
+ 119:simpleserial-rsa-arm.c ****     int ret;
+ 120:simpleserial-rsa-arm.c ****     size_t olen;
+ 121:simpleserial-rsa-arm.c ****     mbedtls_mpi T, T1, T2;
+ 122:simpleserial-rsa-arm.c ****     mbedtls_mpi P1, Q1, R;
+ 123:simpleserial-rsa-arm.c ****     mbedtls_mpi *DP = &ctx->DP;
+ 124:simpleserial-rsa-arm.c ****     mbedtls_mpi *DQ = &ctx->DQ;
+ 125:simpleserial-rsa-arm.c **** 
+ 126:simpleserial-rsa-arm.c ****     /* Make sure we have private key info, prevent possible misuse */
+ 127:simpleserial-rsa-arm.c ****     if( ctx->P.p == NULL || ctx->Q.p == NULL || ctx->D.p == NULL )
+ 128:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 129:simpleserial-rsa-arm.c **** 
+ 130:simpleserial-rsa-arm.c ****     mbedtls_mpi_init( &T ); mbedtls_mpi_init( &T1 ); mbedtls_mpi_init( &T2 );
+ 131:simpleserial-rsa-arm.c ****     mbedtls_mpi_init( &P1 ); mbedtls_mpi_init( &Q1 ); mbedtls_mpi_init( &R );
+ 132:simpleserial-rsa-arm.c **** 
+ 133:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_read_binary( &T, input, ctx->len ) );
+ 134:simpleserial-rsa-arm.c ****     if( mbedtls_mpi_cmp_mpi( &T, &ctx->N ) >= 0 )
+ 135:simpleserial-rsa-arm.c ****     {
+ 136:simpleserial-rsa-arm.c ****         ret = MBEDTLS_ERR_MPI_BAD_INPUT_DATA;
+ 137:simpleserial-rsa-arm.c ****         goto cleanup;
+ 138:simpleserial-rsa-arm.c ****     }
+ 139:simpleserial-rsa-arm.c **** 
+ 140:simpleserial-rsa-arm.c ****     /*
+ 141:simpleserial-rsa-arm.c ****      * Faster decryption using the CRT
+ 142:simpleserial-rsa-arm.c ****      *
+ 143:simpleserial-rsa-arm.c ****      * T1 = input ^ dP mod P
+ 144:simpleserial-rsa-arm.c ****      * T2 = input ^ dQ mod Q
+ 145:simpleserial-rsa-arm.c ****      */
+ 146:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_exp_mod( &T1, &T, DP, &ctx->P, &ctx->RP ) );
+ 147:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_exp_mod( &T2, &T, DQ, &ctx->Q, &ctx->RQ ) );
+ 148:simpleserial-rsa-arm.c **** 
+ 149:simpleserial-rsa-arm.c ****     /*
+ 150:simpleserial-rsa-arm.c ****      * T = (T1 - T2) * (Q^-1 mod P) mod P
+ 151:simpleserial-rsa-arm.c ****      */
+ 152:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_sub_mpi( &T, &T1, &T2 ) );
+ 153:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mul_mpi( &T1, &T, &ctx->QP ) );
+ 154:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mod_mpi( &T, &T1, &ctx->P ) );
+ 155:simpleserial-rsa-arm.c **** 
+ 156:simpleserial-rsa-arm.c ****     /*
+ 157:simpleserial-rsa-arm.c ****      * T = T2 + T * Q
+ 158:simpleserial-rsa-arm.c ****      */
+ 159:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mul_mpi( &T1, &T, &ctx->Q ) );
+ 160:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_add_mpi( &T, &T2, &T1 ) );
+ 161:simpleserial-rsa-arm.c **** 
+ 162:simpleserial-rsa-arm.c ****     olen = ctx->len;
+ 163:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( &T, output, olen ) );
+ 164:simpleserial-rsa-arm.c **** 
+ 165:simpleserial-rsa-arm.c **** cleanup:
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &T ); mbedtls_mpi_free( &T1 ); mbedtls_mpi_free( &T2 );
+ 167:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 168:simpleserial-rsa-arm.c **** 
+ 169:simpleserial-rsa-arm.c ****     if( ret != 0 )
+ 170:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_PRIVATE_FAILED + ret );
+ 171:simpleserial-rsa-arm.c **** 
+ 172:simpleserial-rsa-arm.c ****     return( 0 );
+ 173:simpleserial-rsa-arm.c **** }
+ 174:simpleserial-rsa-arm.c **** 
+ 175:simpleserial-rsa-arm.c **** static int simpleserial_mbedtls_rsa_rsassa_pkcs1_v15_sign( mbedtls_rsa_context *ctx,
+ 176:simpleserial-rsa-arm.c ****                                int (*f_rng)(void *, unsigned char *, size_t),
+ 177:simpleserial-rsa-arm.c ****                                void *p_rng,
+ 178:simpleserial-rsa-arm.c ****                                int mode,
+ 179:simpleserial-rsa-arm.c ****                                mbedtls_md_type_t md_alg,
+ 180:simpleserial-rsa-arm.c ****                                unsigned int hashlen,
+ 181:simpleserial-rsa-arm.c ****                                const unsigned char *hash,
+ 182:simpleserial-rsa-arm.c ****                                unsigned char *sig )
+ 183:simpleserial-rsa-arm.c **** {
+ 184:simpleserial-rsa-arm.c ****     size_t nb_pad, olen, oid_size = 0;
+ 185:simpleserial-rsa-arm.c ****     unsigned char *p = sig;
+ 186:simpleserial-rsa-arm.c ****     const char *oid = NULL;
+ 187:simpleserial-rsa-arm.c ****     unsigned char *sig_try = NULL, *verif = NULL;
+ 188:simpleserial-rsa-arm.c ****     size_t i;
+ 189:simpleserial-rsa-arm.c ****     unsigned char diff;
+ 190:simpleserial-rsa-arm.c ****     volatile unsigned char diff_no_optimize;
+ 191:simpleserial-rsa-arm.c ****     int ret;
+ 192:simpleserial-rsa-arm.c **** 
+ 193:simpleserial-rsa-arm.c ****     if( mode == MBEDTLS_RSA_PRIVATE && ctx->padding != MBEDTLS_RSA_PKCS_V15 )
+ 194:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 195:simpleserial-rsa-arm.c **** 
+ 196:simpleserial-rsa-arm.c ****     olen = ctx->len;
+ 197:simpleserial-rsa-arm.c ****     nb_pad = olen - 3;
+ 198:simpleserial-rsa-arm.c **** 
+ 199:simpleserial-rsa-arm.c ****     if( md_alg != MBEDTLS_MD_NONE )
+ 200:simpleserial-rsa-arm.c ****     {
+ 201:simpleserial-rsa-arm.c ****         const mbedtls_md_info_t *md_info = mbedtls_md_info_from_type( md_alg );
+ 202:simpleserial-rsa-arm.c ****         if( md_info == NULL )
+ 203:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 204:simpleserial-rsa-arm.c **** 
+ 205:simpleserial-rsa-arm.c ****         if( mbedtls_oid_get_oid_by_md( md_alg, &oid, &oid_size ) != 0 )
+ 206:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 207:simpleserial-rsa-arm.c **** 
+ 208:simpleserial-rsa-arm.c ****         nb_pad -= 10 + oid_size;
+ 209:simpleserial-rsa-arm.c **** 
+ 210:simpleserial-rsa-arm.c ****         hashlen = mbedtls_md_get_size( md_info );
+ 211:simpleserial-rsa-arm.c ****     }
+ 212:simpleserial-rsa-arm.c **** 
+ 213:simpleserial-rsa-arm.c ****     nb_pad -= hashlen;
+ 214:simpleserial-rsa-arm.c **** 
+ 215:simpleserial-rsa-arm.c ****     if( ( nb_pad < 8 ) || ( nb_pad > olen ) )
+ 216:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 217:simpleserial-rsa-arm.c **** 
+ 218:simpleserial-rsa-arm.c ****     *p++ = 0;
+ 219:simpleserial-rsa-arm.c ****     *p++ = MBEDTLS_RSA_SIGN;
+ 220:simpleserial-rsa-arm.c ****     memset( p, 0xFF, nb_pad );
+ 221:simpleserial-rsa-arm.c ****     p += nb_pad;
+ 222:simpleserial-rsa-arm.c ****     *p++ = 0;
+ 223:simpleserial-rsa-arm.c **** 
+ 224:simpleserial-rsa-arm.c ****     if( md_alg == MBEDTLS_MD_NONE )
+ 225:simpleserial-rsa-arm.c ****     {
+ 226:simpleserial-rsa-arm.c ****         memcpy( p, hash, hashlen );
+ 227:simpleserial-rsa-arm.c ****     }
+ 228:simpleserial-rsa-arm.c ****     else
+ 229:simpleserial-rsa-arm.c ****     {
+ 230:simpleserial-rsa-arm.c ****         /*
+ 231:simpleserial-rsa-arm.c ****          * DigestInfo ::= SEQUENCE {
+ 232:simpleserial-rsa-arm.c ****          *   digestAlgorithm DigestAlgorithmIdentifier,
+ 233:simpleserial-rsa-arm.c ****          *   digest Digest }
+ 234:simpleserial-rsa-arm.c ****          *
+ 235:simpleserial-rsa-arm.c ****          * DigestAlgorithmIdentifier ::= AlgorithmIdentifier
+ 236:simpleserial-rsa-arm.c ****          *
+ 237:simpleserial-rsa-arm.c ****          * Digest ::= OCTET STRING
+ 238:simpleserial-rsa-arm.c ****          */
+ 239:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_SEQUENCE | MBEDTLS_ASN1_CONSTRUCTED;
+ 240:simpleserial-rsa-arm.c ****         *p++ = (unsigned char) ( 0x08 + oid_size + hashlen );
+ 241:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_SEQUENCE | MBEDTLS_ASN1_CONSTRUCTED;
+ 242:simpleserial-rsa-arm.c ****         *p++ = (unsigned char) ( 0x04 + oid_size );
+ 243:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_OID;
+ 244:simpleserial-rsa-arm.c ****         *p++ = oid_size & 0xFF;
+ 245:simpleserial-rsa-arm.c ****         memcpy( p, oid, oid_size );
+ 246:simpleserial-rsa-arm.c ****         p += oid_size;
+ 247:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_NULL;
+ 248:simpleserial-rsa-arm.c ****         *p++ = 0x00;
+ 249:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_OCTET_STRING;
+ 250:simpleserial-rsa-arm.c ****         *p++ = hashlen;
+ 251:simpleserial-rsa-arm.c ****         memcpy( p, hash, hashlen );
+ 252:simpleserial-rsa-arm.c ****     }
+ 253:simpleserial-rsa-arm.c **** 
+ 254:simpleserial-rsa-arm.c ****     if( mode == MBEDTLS_RSA_PUBLIC )
+ 255:simpleserial-rsa-arm.c ****         return( mbedtls_rsa_public(  ctx, sig, sig ) );
+ 256:simpleserial-rsa-arm.c **** 
+ 257:simpleserial-rsa-arm.c ****     /*
+ 258:simpleserial-rsa-arm.c ****      * In order to prevent Lenstra's attack, make the signature in a
+ 259:simpleserial-rsa-arm.c ****      * temporary buffer and check it before returning it.
+ 260:simpleserial-rsa-arm.c ****      */
+ 261:simpleserial-rsa-arm.c ****     sig_try = mbedtls_calloc( 1, ctx->len );
+ 262:simpleserial-rsa-arm.c ****     if( sig_try == NULL )
+ 263:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
+ 264:simpleserial-rsa-arm.c **** 
+ 265:simpleserial-rsa-arm.c ****     verif   = mbedtls_calloc( 1, ctx->len );
+ 266:simpleserial-rsa-arm.c ****     if( verif == NULL )
+ 267:simpleserial-rsa-arm.c ****     {
+ 268:simpleserial-rsa-arm.c ****         mbedtls_free( sig_try );
+ 269:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
+ 270:simpleserial-rsa-arm.c ****     }
+ 271:simpleserial-rsa-arm.c **** 
+ 272:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( simpleserial_mbedtls_rsa_private( ctx, f_rng, p_rng, sig, sig_try ) );
+ 273:simpleserial-rsa-arm.c ****     //make things easier
+ 274:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_rsa_public( ctx, sig_try, verif ) );
+ 275:simpleserial-rsa-arm.c **** 
+ 276:simpleserial-rsa-arm.c ****     /* Compare in constant time just in case */
+ 277:simpleserial-rsa-arm.c ****     /* for( diff = 0, i = 0; i < ctx->len; i++ ) */
+ 278:simpleserial-rsa-arm.c ****     /*     diff |= verif[i] ^ sig[i]; */
+ 279:simpleserial-rsa-arm.c ****     /* diff_no_optimize = diff; */
+ 280:simpleserial-rsa-arm.c **** 
+ 281:simpleserial-rsa-arm.c ****     /* if( diff_no_optimize != 0 ) */
+ 282:simpleserial-rsa-arm.c ****     /* { */
+ 283:simpleserial-rsa-arm.c ****     /*     ret = MBEDTLS_ERR_RSA_PRIVATE_FAILED; */
+ 284:simpleserial-rsa-arm.c ****     /*     goto cleanup; */
+ 285:simpleserial-rsa-arm.c ****     /* } */
+ 286:simpleserial-rsa-arm.c **** 
+ 287:simpleserial-rsa-arm.c ****     memcpy( sig, sig_try, ctx->len );
+ 288:simpleserial-rsa-arm.c **** 
+ 289:simpleserial-rsa-arm.c **** cleanup:
+ 290:simpleserial-rsa-arm.c ****     mbedtls_free( sig_try );
+ 291:simpleserial-rsa-arm.c ****     mbedtls_free( verif );
+ 292:simpleserial-rsa-arm.c **** 
+ 293:simpleserial-rsa-arm.c ****     return( ret );
+ 294:simpleserial-rsa-arm.c **** }
+ 295:simpleserial-rsa-arm.c **** 
+ 296:simpleserial-rsa-arm.c **** 
+ 297:simpleserial-rsa-arm.c **** void rsa_init(void)
+ 298:simpleserial-rsa-arm.c **** {
+ 299:simpleserial-rsa-arm.c ****     mbedtls_rsa_init( &rsa_ctx, MBEDTLS_RSA_PKCS_V15, 0 );
+ 300:simpleserial-rsa-arm.c ****     simpleserial_addcmd('1', 0, sig_chunk_1);
+ 301:simpleserial-rsa-arm.c ****     simpleserial_addcmd('2', 0, sig_chunk_2);
+ 302:simpleserial-rsa-arm.c **** 
+ 303:simpleserial-rsa-arm.c ****     rsa_ctx.len = RSA_KEY_LEN;
+ 304:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.N , 16, RSA_N  ) ;
+ 305:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.E , 16, RSA_E  ) ;
+ 306:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.D , 16, RSA_D  ) ;
+ 307:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.P , 16, RSA_P  ) ;
+ 308:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.Q , 16, RSA_Q  ) ;
+ 309:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.DP, 16, RSA_DP ) ;
+ 310:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.DQ, 16, RSA_DQ ) ;
+ 311:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.QP, 16, RSA_QP ) ;
+ 312:simpleserial-rsa-arm.c **** 
+ 313:simpleserial-rsa-arm.c ****     //Make valid data first, otherwise system barfs
+ 314:simpleserial-rsa-arm.c ****     memcpy( rsa_plaintext, RSA_PT, PT_LEN );
+ 315:simpleserial-rsa-arm.c ****     mbedtls_rsa_pkcs1_encrypt( &rsa_ctx, myrand, NULL, MBEDTLS_RSA_PUBLIC, PT_LEN,
+ 316:simpleserial-rsa-arm.c ****                            rsa_plaintext, rsa_ciphertext );
+ 317:simpleserial-rsa-arm.c **** 
+ 318:simpleserial-rsa-arm.c **** }
+ 319:simpleserial-rsa-arm.c **** 
+ 320:simpleserial-rsa-arm.c **** 
+ 321:simpleserial-rsa-arm.c **** 
+ 322:simpleserial-rsa-arm.c **** 
+ 323:simpleserial-rsa-arm.c **** /*
+ 324:simpleserial-rsa-arm.c ****   Performs an RSA-CRT PKCS1 signing. This can be broken by injecting a fault into one of the two pa
+ 325:simpleserial-rsa-arm.c ****   signature calulation, at which point the secrets q and p can be recovered from the received fault
+ 326:simpleserial-rsa-arm.c **** 
+ 327:simpleserial-rsa-arm.c ****   int mbedtls_rsa_pkcs1_sign( mbedtls_rsa_context *ctx,
+ 328:simpleserial-rsa-arm.c ****                               int (*f_rng)(void *, unsigned char *, size_t),
+ 329:simpleserial-rsa-arm.c ****                               void *p_rng,
+ 330:simpleserial-rsa-arm.c ****                               int mode,
+ 331:simpleserial-rsa-arm.c ****                               mbedtls_md_type_t md_alg,
+ 332:simpleserial-rsa-arm.c ****                               unsigned int hashlen,
+ 333:simpleserial-rsa-arm.c ****                               const unsigned char *hash,
+ 334:simpleserial-rsa-arm.c ****                               unsigned char *sig );
+ 335:simpleserial-rsa-arm.c ****  */
+ 336:simpleserial-rsa-arm.c **** uint8_t buf[128];
+ 337:simpleserial-rsa-arm.c **** uint8_t hash[32];
+ 338:simpleserial-rsa-arm.c **** #if SS_VER == SS_VER_2_1
+ 339:simpleserial-rsa-arm.c **** uint8_t real_dec(uint8_t cmd, uint8_t scmd, uint8_t len, uint8_t *pt)
+ 340:simpleserial-rsa-arm.c **** #else
+ 341:simpleserial-rsa-arm.c **** uint8_t real_dec(uint8_t *pt, uint8_t len)
+ 342:simpleserial-rsa-arm.c **** #endif
+ 343:simpleserial-rsa-arm.c **** {
+ 344:simpleserial-rsa-arm.c ****     int ret = 0;
+ 345:simpleserial-rsa-arm.c **** 
+ 346:simpleserial-rsa-arm.c ****     //first need to hash our message
+ 347:simpleserial-rsa-arm.c ****     memset(buf, 0, 128);
+ 348:simpleserial-rsa-arm.c ****     mbedtls_sha256(MESSAGE, 12, hash, 0);
+ 349:simpleserial-rsa-arm.c **** 
+ 350:simpleserial-rsa-arm.c ****     trigger_high();
+ 351:simpleserial-rsa-arm.c ****     ret = simpleserial_mbedtls_rsa_rsassa_pkcs1_v15_sign(&rsa_ctx, NULL, NULL, MBEDTLS_RSA_PRIVATE,
+ 352:simpleserial-rsa-arm.c ****     trigger_low();
+ 353:simpleserial-rsa-arm.c **** 
+ 354:simpleserial-rsa-arm.c ****     //send back first 48 bytes
+ 355:simpleserial-rsa-arm.c **** #if SS_VER == SS_VER_2_1
+ 356:simpleserial-rsa-arm.c ****     simpleserial_put('r', 128, buf);
+ 357:simpleserial-rsa-arm.c **** #else
+ 358:simpleserial-rsa-arm.c ****     simpleserial_put('r', 48, buf);
+ 359:simpleserial-rsa-arm.c **** #endif
+ 360:simpleserial-rsa-arm.c ****     return ret;
+ 361:simpleserial-rsa-arm.c **** }
+ 362:simpleserial-rsa-arm.c **** 
+ 363:simpleserial-rsa-arm.c **** uint8_t sig_chunk_1(uint8_t *pt, uint8_t len)
+ 364:simpleserial-rsa-arm.c **** {
+  86              		.loc 1 364 1 is_stmt 1 view -0
+  87              		.cfi_startproc
+  88              		@ args = 0, pretend = 0, frame = 0
+  89              		@ frame_needed = 0, uses_anonymous_args = 0
+ 365:simpleserial-rsa-arm.c ****      simpleserial_put('r', 48, buf + 48);
+  90              		.loc 1 365 6 view .LVU15
+ 364:simpleserial-rsa-arm.c ****      simpleserial_put('r', 48, buf + 48);
+  91              		.loc 1 364 1 is_stmt 0 view .LVU16
+  92 0000 10B5     		push	{r4, lr}
+  93              	.LCFI1:
+  94              		.cfi_def_cfa_offset 8
+  95              		.cfi_offset 4, -8
+  96              		.cfi_offset 14, -4
+  97              		.loc 1 365 6 view .LVU17
+  98 0002 7220     		movs	r0, #114
+  99              	.LVL7:
+ 100              		.loc 1 365 6 view .LVU18
+ 101 0004 3021     		movs	r1, #48
+ 102              	.LVL8:
+ 103              		.loc 1 365 6 view .LVU19
+ 104 0006 024A     		ldr	r2, .L10
+ 105 0008 FFF7FEFF 		bl	simpleserial_put
+ 106              	.LVL9:
+ 366:simpleserial-rsa-arm.c ****      return 0x00;
+ 107              		.loc 1 366 6 is_stmt 1 view .LVU20
+ 367:simpleserial-rsa-arm.c **** }
+ 108              		.loc 1 367 1 is_stmt 0 view .LVU21
+ 109              		@ sp needed
+ 110 000c 0020     		movs	r0, #0
+ 111 000e 10BD     		pop	{r4, pc}
+ 112              	.L11:
+ 113              		.align	2
+ 114              	.L10:
+ 115 0010 30000000 		.word	buf+48
+ 116              		.cfi_endproc
+ 117              	.LFE14:
+ 119              		.section	.text.sig_chunk_2,"ax",%progbits
+ 120              		.align	1
+ 121              		.p2align 2,,3
+ 122              		.global	sig_chunk_2
+ 123              		.syntax unified
+ 124              		.code	16
+ 125              		.thumb_func
+ 126              		.fpu softvfp
+ 128              	sig_chunk_2:
+ 129              	.LVL10:
+ 130              	.LFB15:
+ 368:simpleserial-rsa-arm.c **** 
+ 369:simpleserial-rsa-arm.c **** uint8_t sig_chunk_2(uint8_t *pt, uint8_t len)
+ 370:simpleserial-rsa-arm.c **** {
+ 131              		.loc 1 370 1 is_stmt 1 view -0
+ 132              		.cfi_startproc
+ 133              		@ args = 0, pretend = 0, frame = 0
+ 134              		@ frame_needed = 0, uses_anonymous_args = 0
+ 371:simpleserial-rsa-arm.c ****      simpleserial_put('r', 128 - 48 * 2, buf + 48*2);
+ 135              		.loc 1 371 6 view .LVU23
+ 370:simpleserial-rsa-arm.c ****      simpleserial_put('r', 128 - 48 * 2, buf + 48*2);
+ 136              		.loc 1 370 1 is_stmt 0 view .LVU24
+ 137 0000 10B5     		push	{r4, lr}
+ 138              	.LCFI2:
+ 139              		.cfi_def_cfa_offset 8
+ 140              		.cfi_offset 4, -8
+ 141              		.cfi_offset 14, -4
+ 142              		.loc 1 371 6 view .LVU25
+ 143 0002 7220     		movs	r0, #114
+ 144              	.LVL11:
+ 145              		.loc 1 371 6 view .LVU26
+ 146 0004 2021     		movs	r1, #32
+ 147              	.LVL12:
+ 148              		.loc 1 371 6 view .LVU27
+ 149 0006 024A     		ldr	r2, .L13
+ 150 0008 FFF7FEFF 		bl	simpleserial_put
+ 151              	.LVL13:
+ 372:simpleserial-rsa-arm.c ****      return 0x00;
+ 152              		.loc 1 372 6 is_stmt 1 view .LVU28
+ 373:simpleserial-rsa-arm.c **** }
+ 153              		.loc 1 373 1 is_stmt 0 view .LVU29
+ 154              		@ sp needed
+ 155 000c 0020     		movs	r0, #0
+ 156 000e 10BD     		pop	{r4, pc}
+ 157              	.L14:
+ 158              		.align	2
+ 159              	.L13:
+ 160 0010 60000000 		.word	buf+96
+ 161              		.cfi_endproc
+ 162              	.LFE15:
+ 164              		.section	.rodata.str1.4,"aMS",%progbits,1
+ 165              		.align	2
+ 166              	.LC5:
+ 167 0000 39323932 		.ascii	"9292758453063D803DD603D5E777D7888ED1D5BF35786190FA2"
+ 167      37353834 
+ 167      35333036 
+ 167      33443830 
+ 167      33444436 
+ 168 0033 46323345 		.ascii	"F23EBC0848AEADDA92CA6C3D80B32C4D109BE0F36D6AE7130B9"
+ 168      42433038 
+ 168      34384145 
+ 168      41444441 
+ 168      39324341 
+ 169 0066 43454437 		.ascii	"CED7ACDF54CFC7555AC14EEBAB93A89813FBF3C4F8066D2D800"
+ 169      41434446 
+ 169      35344346 
+ 169      43373535 
+ 169      35414331 
+ 170 0099 46374333 		.ascii	"F7C38A81AE31942917403FF4946B0A83D3D3E05EE57C6F5F560"
+ 170      38413831 
+ 170      41453331 
+ 170      39343239 
+ 170      31373430 
+ 171 00cc 36464235 		.ascii	"6FB5D4BC6CD34EE0801A5E94BB77B07507233A0BC7BAC8F90F7"
+ 171      44344243 
+ 171      36434433 
+ 171      34454530 
+ 171      38303141 
+ 172 00ff 3900     		.ascii	"9\000"
+ 173 0101 000000   		.align	2
+ 174              	.LC8:
+ 175 0104 31303030 		.ascii	"10001\000"
+ 175      3100
+ 176 010a 0000     		.align	2
+ 177              	.LC11:
+ 178 010c 32344246 		.ascii	"24BF6185468786FDD303083D25E64EFC66CA472BC44D253102F"
+ 178      36313835 
+ 178      34363837 
+ 178      38364644 
+ 178      44333033 
+ 179 013f 38423441 		.ascii	"8B4A9D3BFA75091386C0077937FE33FA3252D28855837AE1B48"
+ 179      39443342 
+ 179      46413735 
+ 179      30393133 
+ 179      38364330 
+ 180 0172 34413841 		.ascii	"4A8A9A45F7EE8C0C634F99E8CDDF79C5CE07EE72C7F12314219"
+ 180      39413435 
+ 180      46374545 
+ 180      38433043 
+ 180      36333446 
+ 181 01a5 38313634 		.ascii	"8164234CABB724CF78B8173B9F880FC86322407AF1FEDFDDE2B"
+ 181      32333443 
+ 181      41424237 
+ 181      32344346 
+ 181      37384238 
+ 182 01d8 45423637 		.ascii	"EB674CA15F3E81A1521E071513A1E85B5DFA031F21ECAE91A34"
+ 182      34434131 
+ 182      35463345 
+ 182      38314131 
+ 182      35323145 
+ 183 020b 4400     		.ascii	"D\000"
+ 184 020d 000000   		.align	2
+ 185              	.LC14:
+ 186 0210 43333644 		.ascii	"C36D0EB7FCD285223CFB5AABA5BDA3D82C01CAD19EA484A87EA"
+ 186      30454237 
+ 186      46434432 
+ 186      38353232 
+ 186      33434642 
+ 187 0243 34333737 		.ascii	"4377637E75500FCB2005C5C7DD6EC4AC023CDA285D796C3D9E7"
+ 187      36333745 
+ 187      37353530 
+ 187      30464342 
+ 187      32303035 
+ 188 0276 35453145 		.ascii	"5E1EFC42488BB4F1D13AC30A57\000"
+ 188      46433432 
+ 188      34383842 
+ 188      42344631 
+ 188      44313341 
+ 189 0291 000000   		.align	2
+ 190              	.LC17:
+ 191 0294 43303030 		.ascii	"C000DF51A7C77AE8D7C7370C1FF55B69E211C2B9E5DB1ED0BF6"
+ 191      44463531 
+ 191      41374337 
+ 191      37414538 
+ 191      44374337 
+ 192 02c7 31443044 		.ascii	"1D0D9899620F4910E4168387E3C30AA1E00C339A795088452DD"
+ 192      39383939 
+ 192      36323046 
+ 192      34393130 
+ 192      45343136 
+ 193 02fa 39364139 		.ascii	"96A9A5EA5D9DCA68DA636032AF\000"
+ 193      41354541 
+ 193      35443944 
+ 193      43413638 
+ 193      44413633 
+ 194 0315 000000   		.align	2
+ 195              	.LC20:
+ 196 0318 43314143 		.ascii	"C1ACF567564274FB07A0BBAD5D26E2983C94D22288ACD763FD8"
+ 196      46353637 
+ 196      35363432 
+ 196      37344642 
+ 196      30374130 
+ 197 034b 45353630 		.ascii	"E5600ED4A702DF84198A5F06C2E72236AE490C93F07F83CC559"
+ 197      30454434 
+ 197      41373032 
+ 197      44463834 
+ 197      31393841 
+ 198 037e 43443237 		.ascii	"CD27BC2D1CA488811730BB5725\000"
+ 198      42433244 
+ 198      31434134 
+ 198      38383831 
+ 198      31373330 
+ 199 0399 000000   		.align	2
+ 200              	.LC23:
+ 201 039c 34393539 		.ascii	"4959CBF6F8FEF750AEE6977C155579C7D8AAEA56749EA286232"
+ 201      43424636 
+ 201      46384645 
+ 201      46373530 
+ 201      41454536 
+ 202 03cf 37324534 		.ascii	"72E4F7D0592AF7C1F1313CAC9471B5C523BFE592F517B407A1B"
+ 202      46374430 
+ 202      35393241 
+ 202      46374331 
+ 202      46313331 
+ 203 0402 44373643 		.ascii	"D76C164B93DA2D32A383E58357\000"
+ 203      31363442 
+ 203      39334441 
+ 203      32443332 
+ 203      41333833 
+ 204 041d 000000   		.align	2
+ 205              	.LC26:
+ 206 0420 39414537 		.ascii	"9AE7FBC99546432DF71896FC239EADAEF38D18D2B2F0E2DD275"
+ 206      46424339 
+ 206      39353436 
+ 206      34333244 
+ 206      46373138 
+ 207 0453 41413937 		.ascii	"AA977E2BF4411F5A3B2A5D33605AEBBCCBA7FEB9F2D2FA74206"
+ 207      37453242 
+ 207      46343431 
+ 207      31463541 
+ 207      33423241 
+ 208 0486 43454331 		.ascii	"CEC169D74BF5A8C50D6F48EA08\000"
+ 208      36394437 
+ 208      34424635 
+ 208      41384335 
+ 208      30443646 
+ 209              		.section	.text.rsa_init,"ax",%progbits
+ 210              		.align	1
+ 211              		.p2align 2,,3
+ 212              		.global	rsa_init
+ 213              		.syntax unified
+ 214              		.code	16
+ 215              		.thumb_func
+ 216              		.fpu softvfp
+ 218              	rsa_init:
+ 219              	.LFB12:
+ 298:simpleserial-rsa-arm.c ****     mbedtls_rsa_init( &rsa_ctx, MBEDTLS_RSA_PKCS_V15, 0 );
+ 220              		.loc 1 298 1 is_stmt 1 view -0
+ 221              		.cfi_startproc
+ 222              		@ args = 0, pretend = 0, frame = 0
+ 223              		@ frame_needed = 0, uses_anonymous_args = 0
+ 299:simpleserial-rsa-arm.c ****     simpleserial_addcmd('1', 0, sig_chunk_1);
+ 224              		.loc 1 299 5 view .LVU31
+ 298:simpleserial-rsa-arm.c ****     mbedtls_rsa_init( &rsa_ctx, MBEDTLS_RSA_PKCS_V15, 0 );
+ 225              		.loc 1 298 1 is_stmt 0 view .LVU32
+ 226 0000 30B5     		push	{r4, r5, lr}
+ 227              	.LCFI3:
+ 228              		.cfi_def_cfa_offset 12
+ 229              		.cfi_offset 4, -12
+ 230              		.cfi_offset 5, -8
+ 231              		.cfi_offset 14, -4
+ 299:simpleserial-rsa-arm.c ****     simpleserial_addcmd('1', 0, sig_chunk_1);
+ 232              		.loc 1 299 5 view .LVU33
+ 233 0002 2B4C     		ldr	r4, .L16
+ 298:simpleserial-rsa-arm.c ****     mbedtls_rsa_init( &rsa_ctx, MBEDTLS_RSA_PKCS_V15, 0 );
+ 234              		.loc 1 298 1 view .LVU34
+ 235 0004 85B0     		sub	sp, sp, #20
+ 236              	.LCFI4:
+ 237              		.cfi_def_cfa_offset 32
+ 299:simpleserial-rsa-arm.c ****     simpleserial_addcmd('1', 0, sig_chunk_1);
+ 238              		.loc 1 299 5 view .LVU35
+ 239 0006 2000     		movs	r0, r4
+ 240 0008 0022     		movs	r2, #0
+ 241 000a 0021     		movs	r1, #0
+ 242 000c FFF7FEFF 		bl	mbedtls_rsa_init
+ 243              	.LVL14:
+ 300:simpleserial-rsa-arm.c ****     simpleserial_addcmd('2', 0, sig_chunk_2);
+ 244              		.loc 1 300 5 is_stmt 1 view .LVU36
+ 245 0010 0021     		movs	r1, #0
+ 246 0012 284A     		ldr	r2, .L16+4
+ 247 0014 3120     		movs	r0, #49
+ 248 0016 FFF7FEFF 		bl	simpleserial_addcmd
+ 249              	.LVL15:
+ 301:simpleserial-rsa-arm.c **** 
+ 250              		.loc 1 301 5 view .LVU37
+ 251 001a 0021     		movs	r1, #0
+ 252 001c 264A     		ldr	r2, .L16+8
+ 253 001e 3220     		movs	r0, #50
+ 254 0020 FFF7FEFF 		bl	simpleserial_addcmd
+ 255              	.LVL16:
+ 303:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.N , 16, RSA_N  ) ;
+ 256              		.loc 1 303 5 view .LVU38
+ 304:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.E , 16, RSA_E  ) ;
+ 257              		.loc 1 304 5 is_stmt 0 view .LVU39
+ 258 0024 2000     		movs	r0, r4
+ 303:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.N , 16, RSA_N  ) ;
+ 259              		.loc 1 303 17 view .LVU40
+ 260 0026 8023     		movs	r3, #128
+ 304:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.E , 16, RSA_E  ) ;
+ 261              		.loc 1 304 5 view .LVU41
+ 262 0028 1021     		movs	r1, #16
+ 263 002a 244A     		ldr	r2, .L16+12
+ 264 002c 0830     		adds	r0, r0, #8
+ 303:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.N , 16, RSA_N  ) ;
+ 265              		.loc 1 303 17 view .LVU42
+ 266 002e 6360     		str	r3, [r4, #4]
+ 304:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.E , 16, RSA_E  ) ;
+ 267              		.loc 1 304 5 is_stmt 1 view .LVU43
+ 268 0030 FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 269              	.LVL17:
+ 305:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.D , 16, RSA_D  ) ;
+ 270              		.loc 1 305 5 view .LVU44
+ 271 0034 2000     		movs	r0, r4
+ 272 0036 1021     		movs	r1, #16
+ 273 0038 214A     		ldr	r2, .L16+16
+ 274 003a 1430     		adds	r0, r0, #20
+ 275 003c FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 276              	.LVL18:
+ 306:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.P , 16, RSA_P  ) ;
+ 277              		.loc 1 306 5 view .LVU45
+ 278 0040 2000     		movs	r0, r4
+ 279 0042 1021     		movs	r1, #16
+ 280 0044 1F4A     		ldr	r2, .L16+20
+ 281 0046 2030     		adds	r0, r0, #32
+ 282 0048 FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 283              	.LVL19:
+ 307:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.Q , 16, RSA_Q  ) ;
+ 284              		.loc 1 307 5 view .LVU46
+ 285 004c 2000     		movs	r0, r4
+ 286 004e 1021     		movs	r1, #16
+ 287 0050 1D4A     		ldr	r2, .L16+24
+ 288 0052 2C30     		adds	r0, r0, #44
+ 289 0054 FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 290              	.LVL20:
+ 308:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.DP, 16, RSA_DP ) ;
+ 291              		.loc 1 308 5 view .LVU47
+ 292 0058 2000     		movs	r0, r4
+ 293 005a 1021     		movs	r1, #16
+ 294 005c 1B4A     		ldr	r2, .L16+28
+ 295 005e 3830     		adds	r0, r0, #56
+ 296 0060 FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 297              	.LVL21:
+ 309:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.DQ, 16, RSA_DQ ) ;
+ 298              		.loc 1 309 5 view .LVU48
+ 299 0064 2000     		movs	r0, r4
+ 300 0066 1021     		movs	r1, #16
+ 301 0068 194A     		ldr	r2, .L16+32
+ 302 006a 4430     		adds	r0, r0, #68
+ 303 006c FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 304              	.LVL22:
+ 310:simpleserial-rsa-arm.c ****     mbedtls_mpi_read_string( &rsa_ctx.QP, 16, RSA_QP ) ;
+ 305              		.loc 1 310 5 view .LVU49
+ 306 0070 2000     		movs	r0, r4
+ 307 0072 1021     		movs	r1, #16
+ 308 0074 174A     		ldr	r2, .L16+36
+ 309 0076 5030     		adds	r0, r0, #80
+ 310 0078 FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 311              	.LVL23:
+ 311:simpleserial-rsa-arm.c **** 
+ 312              		.loc 1 311 5 view .LVU50
+ 313 007c 2000     		movs	r0, r4
+ 314 007e 1021     		movs	r1, #16
+ 315 0080 154A     		ldr	r2, .L16+40
+ 316 0082 5C30     		adds	r0, r0, #92
+ 317 0084 FFF7FEFF 		bl	mbedtls_mpi_read_string
+ 318              	.LVL24:
+ 314:simpleserial-rsa-arm.c ****     mbedtls_rsa_pkcs1_encrypt( &rsa_ctx, myrand, NULL, MBEDTLS_RSA_PUBLIC, PT_LEN,
+ 319              		.loc 1 314 5 view .LVU51
+ 320 0088 144D     		ldr	r5, .L16+44
+ 321 008a 1822     		movs	r2, #24
+ 322 008c 2800     		movs	r0, r5
+ 323 008e 1449     		ldr	r1, .L16+48
+ 324 0090 FFF7FEFF 		bl	memcpy
+ 325              	.LVL25:
+ 315:simpleserial-rsa-arm.c ****                            rsa_plaintext, rsa_ciphertext );
+ 326              		.loc 1 315 5 view .LVU52
+ 327 0094 134B     		ldr	r3, .L16+52
+ 328 0096 0022     		movs	r2, #0
+ 329 0098 0293     		str	r3, [sp, #8]
+ 330 009a 1823     		movs	r3, #24
+ 331 009c 2000     		movs	r0, r4
+ 332 009e 0093     		str	r3, [sp]
+ 333 00a0 1149     		ldr	r1, .L16+56
+ 334 00a2 0023     		movs	r3, #0
+ 335 00a4 0195     		str	r5, [sp, #4]
+ 336 00a6 FFF7FEFF 		bl	mbedtls_rsa_pkcs1_encrypt
+ 337              	.LVL26:
+ 318:simpleserial-rsa-arm.c **** 
+ 338              		.loc 1 318 1 is_stmt 0 view .LVU53
+ 339 00aa 05B0     		add	sp, sp, #20
+ 340              		@ sp needed
+ 341 00ac 30BD     		pop	{r4, r5, pc}
+ 342              	.L17:
+ 343 00ae C046     		.align	2
+ 344              	.L16:
+ 345 00b0 00000000 		.word	rsa_ctx
+ 346 00b4 00000000 		.word	sig_chunk_1
+ 347 00b8 00000000 		.word	sig_chunk_2
+ 348 00bc 00000000 		.word	.LC5
+ 349 00c0 04010000 		.word	.LC8
+ 350 00c4 0C010000 		.word	.LC11
+ 351 00c8 10020000 		.word	.LC14
+ 352 00cc 94020000 		.word	.LC17
+ 353 00d0 18030000 		.word	.LC20
+ 354 00d4 9C030000 		.word	.LC23
+ 355 00d8 20040000 		.word	.LC26
+ 356 00dc 00000000 		.word	rsa_plaintext
+ 357 00e0 00000000 		.word	.LANCHOR0
+ 358 00e4 00000000 		.word	rsa_ciphertext
+ 359 00e8 00000000 		.word	myrand
+ 360              		.cfi_endproc
+ 361              	.LFE12:
+ 363              		.section	.text.real_dec,"ax",%progbits
+ 364              		.align	1
+ 365              		.p2align 2,,3
+ 366              		.global	real_dec
+ 367              		.syntax unified
+ 368              		.code	16
+ 369              		.thumb_func
+ 370              		.fpu softvfp
+ 372              	real_dec:
+ 373              	.LVL27:
+ 374              	.LFB13:
+ 343:simpleserial-rsa-arm.c ****     int ret = 0;
+ 375              		.loc 1 343 1 is_stmt 1 view -0
+ 376              		.cfi_startproc
+ 377              		@ args = 0, pretend = 0, frame = 80
+ 378              		@ frame_needed = 0, uses_anonymous_args = 0
+ 344:simpleserial-rsa-arm.c **** 
+ 379              		.loc 1 344 5 view .LVU55
+ 347:simpleserial-rsa-arm.c ****     mbedtls_sha256(MESSAGE, 12, hash, 0);
+ 380              		.loc 1 347 5 view .LVU56
+ 343:simpleserial-rsa-arm.c ****     int ret = 0;
+ 381              		.loc 1 343 1 is_stmt 0 view .LVU57
+ 382 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 383              	.LCFI5:
+ 384              		.cfi_def_cfa_offset 20
+ 385              		.cfi_offset 4, -20
+ 386              		.cfi_offset 5, -16
+ 387              		.cfi_offset 6, -12
+ 388              		.cfi_offset 7, -8
+ 389              		.cfi_offset 14, -4
+ 390 0002 D646     		mov	lr, r10
+ 391 0004 4646     		mov	r6, r8
+ 392 0006 4F46     		mov	r7, r9
+ 393 0008 C0B5     		push	{r6, r7, lr}
+ 394              	.LCFI6:
+ 395              		.cfi_def_cfa_offset 32
+ 396              		.cfi_offset 8, -32
+ 397              		.cfi_offset 9, -28
+ 398              		.cfi_offset 10, -24
+ 347:simpleserial-rsa-arm.c ****     mbedtls_sha256(MESSAGE, 12, hash, 0);
+ 399              		.loc 1 347 5 view .LVU58
+ 400 000a A94E     		ldr	r6, .L59
+ 343:simpleserial-rsa-arm.c ****     int ret = 0;
+ 401              		.loc 1 343 1 view .LVU59
+ 402 000c 96B0     		sub	sp, sp, #88
+ 403              	.LCFI7:
+ 404              		.cfi_def_cfa_offset 120
+ 347:simpleserial-rsa-arm.c ****     mbedtls_sha256(MESSAGE, 12, hash, 0);
+ 405              		.loc 1 347 5 view .LVU60
+ 406 000e 8022     		movs	r2, #128
+ 407 0010 0021     		movs	r1, #0
+ 408              	.LVL28:
+ 347:simpleserial-rsa-arm.c ****     mbedtls_sha256(MESSAGE, 12, hash, 0);
+ 409              		.loc 1 347 5 view .LVU61
+ 410 0012 3000     		movs	r0, r6
+ 411              	.LVL29:
+ 347:simpleserial-rsa-arm.c ****     mbedtls_sha256(MESSAGE, 12, hash, 0);
+ 412              		.loc 1 347 5 view .LVU62
+ 413 0014 FFF7FEFF 		bl	memset
+ 414              	.LVL30:
+ 348:simpleserial-rsa-arm.c **** 
+ 415              		.loc 1 348 5 is_stmt 1 view .LVU63
+ 416 0018 A64B     		ldr	r3, .L59+4
+ 417 001a A748     		ldr	r0, .L59+8
+ 418 001c 9846     		mov	r8, r3
+ 419 001e 0C21     		movs	r1, #12
+ 420 0020 0023     		movs	r3, #0
+ 421 0022 4246     		mov	r2, r8
+ 422 0024 1C30     		adds	r0, r0, #28
+ 423 0026 FFF7FEFF 		bl	mbedtls_sha256
+ 424              	.LVL31:
+ 350:simpleserial-rsa-arm.c ****     ret = simpleserial_mbedtls_rsa_rsassa_pkcs1_v15_sign(&rsa_ctx, NULL, NULL, MBEDTLS_RSA_PRIVATE,
+ 425              		.loc 1 350 5 view .LVU64
+ 426 002a FFF7FEFF 		bl	trigger_high
+ 427              	.LVL32:
+ 351:simpleserial-rsa-arm.c ****     trigger_low();
+ 428              		.loc 1 351 5 view .LVU65
+ 429              	.LBB9:
+ 430              	.LBI9:
+ 175:simpleserial-rsa-arm.c ****                                int (*f_rng)(void *, unsigned char *, size_t),
+ 431              		.loc 1 175 12 view .LVU66
+ 432              	.LBB10:
+ 184:simpleserial-rsa-arm.c ****     unsigned char *p = sig;
+ 433              		.loc 1 184 5 view .LVU67
+ 184:simpleserial-rsa-arm.c ****     unsigned char *p = sig;
+ 434              		.loc 1 184 26 is_stmt 0 view .LVU68
+ 435 002e 0023     		movs	r3, #0
+ 193:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 436              		.loc 1 193 43 view .LVU69
+ 437 0030 A24C     		ldr	r4, .L59+12
+ 184:simpleserial-rsa-arm.c ****     unsigned char *p = sig;
+ 438              		.loc 1 184 26 view .LVU70
+ 439 0032 0293     		str	r3, [sp, #8]
+ 185:simpleserial-rsa-arm.c ****     const char *oid = NULL;
+ 440              		.loc 1 185 5 is_stmt 1 view .LVU71
+ 441              	.LVL33:
+ 186:simpleserial-rsa-arm.c ****     unsigned char *sig_try = NULL, *verif = NULL;
+ 442              		.loc 1 186 5 view .LVU72
+ 186:simpleserial-rsa-arm.c ****     unsigned char *sig_try = NULL, *verif = NULL;
+ 443              		.loc 1 186 17 is_stmt 0 view .LVU73
+ 444 0034 0393     		str	r3, [sp, #12]
+ 187:simpleserial-rsa-arm.c ****     size_t i;
+ 445              		.loc 1 187 5 is_stmt 1 view .LVU74
+ 446              	.LVL34:
+ 188:simpleserial-rsa-arm.c ****     unsigned char diff;
+ 447              		.loc 1 188 5 view .LVU75
+ 189:simpleserial-rsa-arm.c ****     volatile unsigned char diff_no_optimize;
+ 448              		.loc 1 189 5 view .LVU76
+ 190:simpleserial-rsa-arm.c ****     int ret;
+ 449              		.loc 1 190 5 view .LVU77
+ 191:simpleserial-rsa-arm.c **** 
+ 450              		.loc 1 191 5 view .LVU78
+ 193:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 451              		.loc 1 193 5 view .LVU79
+ 193:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 452              		.loc 1 193 43 is_stmt 0 view .LVU80
+ 453 0036 A433     		adds	r3, r3, #164
+ 193:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 454              		.loc 1 193 37 view .LVU81
+ 455 0038 E358     		ldr	r3, [r4, r3]
+ 456 003a 002B     		cmp	r3, #0
+ 457 003c 00D0     		beq	.LCB320
+ 458 003e E9E0     		b	.L21	@long jump
+ 459              	.LCB320:
+ 196:simpleserial-rsa-arm.c ****     nb_pad = olen - 3;
+ 460              		.loc 1 196 5 is_stmt 1 view .LVU82
+ 196:simpleserial-rsa-arm.c ****     nb_pad = olen - 3;
+ 461              		.loc 1 196 10 is_stmt 0 view .LVU83
+ 462 0040 6368     		ldr	r3, [r4, #4]
+ 463              	.LBB11:
+ 201:simpleserial-rsa-arm.c ****         if( md_info == NULL )
+ 464              		.loc 1 201 44 view .LVU84
+ 465 0042 0620     		movs	r0, #6
+ 466              	.LBE11:
+ 196:simpleserial-rsa-arm.c ****     nb_pad = olen - 3;
+ 467              		.loc 1 196 10 view .LVU85
+ 468 0044 9A46     		mov	r10, r3
+ 469              	.LVL35:
+ 197:simpleserial-rsa-arm.c **** 
+ 470              		.loc 1 197 5 is_stmt 1 view .LVU86
+ 199:simpleserial-rsa-arm.c ****     {
+ 471              		.loc 1 199 5 view .LVU87
+ 472              	.LBB12:
+ 201:simpleserial-rsa-arm.c ****         if( md_info == NULL )
+ 473              		.loc 1 201 9 view .LVU88
+ 201:simpleserial-rsa-arm.c ****         if( md_info == NULL )
+ 474              		.loc 1 201 44 is_stmt 0 view .LVU89
+ 475 0046 FFF7FEFF 		bl	mbedtls_md_info_from_type
+ 476              	.LVL36:
+ 201:simpleserial-rsa-arm.c ****         if( md_info == NULL )
+ 477              		.loc 1 201 44 view .LVU90
+ 478 004a 071E     		subs	r7, r0, #0
+ 479              	.LVL37:
+ 202:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 480              		.loc 1 202 9 is_stmt 1 view .LVU91
+ 202:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 481              		.loc 1 202 11 is_stmt 0 view .LVU92
+ 482 004c 00D1     		bne	.LCB340
+ 483 004e E1E0     		b	.L21	@long jump
+ 484              	.LCB340:
+ 205:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 485              		.loc 1 205 9 is_stmt 1 view .LVU93
+ 205:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 486              		.loc 1 205 13 is_stmt 0 view .LVU94
+ 487 0050 0620     		movs	r0, #6
+ 488              	.LVL38:
+ 205:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 489              		.loc 1 205 13 view .LVU95
+ 490 0052 02AA     		add	r2, sp, #8
+ 491 0054 03A9     		add	r1, sp, #12
+ 492 0056 FFF7FEFF 		bl	mbedtls_oid_get_oid_by_md
+ 493              	.LVL39:
+ 494 005a 8146     		mov	r9, r0
+ 205:simpleserial-rsa-arm.c ****             return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 495              		.loc 1 205 11 view .LVU96
+ 496 005c 0028     		cmp	r0, #0
+ 497 005e 00D0     		beq	.LCB349
+ 498 0060 D8E0     		b	.L21	@long jump
+ 499              	.LCB349:
+ 208:simpleserial-rsa-arm.c **** 
+ 500              		.loc 1 208 9 is_stmt 1 view .LVU97
+ 501 0062 5546     		mov	r5, r10
+ 502 0064 029B     		ldr	r3, [sp, #8]
+ 210:simpleserial-rsa-arm.c ****     }
+ 503              		.loc 1 210 19 is_stmt 0 view .LVU98
+ 504 0066 3800     		movs	r0, r7
+ 505 0068 0D3D     		subs	r5, r5, #13
+ 506 006a ED1A     		subs	r5, r5, r3
+ 507              	.LVL40:
+ 210:simpleserial-rsa-arm.c ****     }
+ 508              		.loc 1 210 9 is_stmt 1 view .LVU99
+ 210:simpleserial-rsa-arm.c ****     }
+ 509              		.loc 1 210 19 is_stmt 0 view .LVU100
+ 510 006c FFF7FEFF 		bl	mbedtls_md_get_size
+ 511              	.LVL41:
+ 210:simpleserial-rsa-arm.c ****     }
+ 512              		.loc 1 210 19 view .LVU101
+ 513 0070 0700     		movs	r7, r0
+ 514              	.LVL42:
+ 210:simpleserial-rsa-arm.c ****     }
+ 515              		.loc 1 210 19 view .LVU102
+ 516              	.LBE12:
+ 213:simpleserial-rsa-arm.c **** 
+ 517              		.loc 1 213 5 is_stmt 1 view .LVU103
+ 213:simpleserial-rsa-arm.c **** 
+ 518              		.loc 1 213 12 is_stmt 0 view .LVU104
+ 519 0072 2D1A     		subs	r5, r5, r0
+ 520              	.LVL43:
+ 215:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 521              		.loc 1 215 5 is_stmt 1 view .LVU105
+ 215:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 522              		.loc 1 215 7 is_stmt 0 view .LVU106
+ 523 0074 072D     		cmp	r5, #7
+ 524 0076 00D8     		bhi	.LCB371
+ 525 0078 CCE0     		b	.L21	@long jump
+ 526              	.LCB371:
+ 215:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 527              		.loc 1 215 24 view .LVU107
+ 528 007a AA45     		cmp	r10, r5
+ 529 007c 00D2     		bcs	.LCB373
+ 530 007e C9E0     		b	.L21	@long jump
+ 531              	.LCB373:
+ 218:simpleserial-rsa-arm.c ****     *p++ = MBEDTLS_RSA_SIGN;
+ 532              		.loc 1 218 5 is_stmt 1 view .LVU108
+ 533              	.LVL44:
+ 218:simpleserial-rsa-arm.c ****     *p++ = MBEDTLS_RSA_SIGN;
+ 534              		.loc 1 218 10 is_stmt 0 view .LVU109
+ 535 0080 4B46     		mov	r3, r9
+ 536 0082 3370     		strb	r3, [r6]
+ 219:simpleserial-rsa-arm.c ****     memset( p, 0xFF, nb_pad );
+ 537              		.loc 1 219 5 is_stmt 1 view .LVU110
+ 538              	.LVL45:
+ 219:simpleserial-rsa-arm.c ****     memset( p, 0xFF, nb_pad );
+ 539              		.loc 1 219 10 is_stmt 0 view .LVU111
+ 540 0084 0123     		movs	r3, #1
+ 541 0086 7370     		strb	r3, [r6, #1]
+ 220:simpleserial-rsa-arm.c ****     p += nb_pad;
+ 542              		.loc 1 220 5 is_stmt 1 view .LVU112
+ 543 0088 B31C     		adds	r3, r6, #2
+ 544 008a 2A00     		movs	r2, r5
+ 545 008c FF21     		movs	r1, #255
+ 546 008e 1800     		movs	r0, r3
+ 547              	.LVL46:
+ 220:simpleserial-rsa-arm.c ****     p += nb_pad;
+ 548              		.loc 1 220 5 is_stmt 0 view .LVU113
+ 549 0090 9A46     		mov	r10, r3
+ 550              	.LVL47:
+ 220:simpleserial-rsa-arm.c ****     p += nb_pad;
+ 551              		.loc 1 220 5 view .LVU114
+ 552 0092 FFF7FEFF 		bl	memset
+ 553              	.LVL48:
+ 221:simpleserial-rsa-arm.c ****     *p++ = 0;
+ 554              		.loc 1 221 5 is_stmt 1 view .LVU115
+ 221:simpleserial-rsa-arm.c ****     *p++ = 0;
+ 555              		.loc 1 221 7 is_stmt 0 view .LVU116
+ 556 0096 2A00     		movs	r2, r5
+ 222:simpleserial-rsa-arm.c **** 
+ 557              		.loc 1 222 10 view .LVU117
+ 558 0098 4B46     		mov	r3, r9
+ 221:simpleserial-rsa-arm.c ****     *p++ = 0;
+ 559              		.loc 1 221 7 view .LVU118
+ 560 009a 5244     		add	r2, r2, r10
+ 561              	.LVL49:
+ 222:simpleserial-rsa-arm.c **** 
+ 562              		.loc 1 222 5 is_stmt 1 view .LVU119
+ 222:simpleserial-rsa-arm.c **** 
+ 563              		.loc 1 222 10 is_stmt 0 view .LVU120
+ 564 009c 1370     		strb	r3, [r2]
+ 224:simpleserial-rsa-arm.c ****     {
+ 565              		.loc 1 224 5 is_stmt 1 view .LVU121
+ 239:simpleserial-rsa-arm.c ****         *p++ = (unsigned char) ( 0x08 + oid_size + hashlen );
+ 566              		.loc 1 239 9 view .LVU122
+ 567              	.LVL50:
+ 240:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_SEQUENCE | MBEDTLS_ASN1_CONSTRUCTED;
+ 568              		.loc 1 240 50 is_stmt 0 view .LVU123
+ 569 009e 029B     		ldr	r3, [sp, #8]
+ 239:simpleserial-rsa-arm.c ****         *p++ = (unsigned char) ( 0x08 + oid_size + hashlen );
+ 570              		.loc 1 239 14 view .LVU124
+ 571 00a0 3020     		movs	r0, #48
+ 240:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_SEQUENCE | MBEDTLS_ASN1_CONSTRUCTED;
+ 572              		.loc 1 240 50 view .LVU125
+ 573 00a2 9A46     		mov	r10, r3
+ 574 00a4 DBB2     		uxtb	r3, r3
+ 240:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_SEQUENCE | MBEDTLS_ASN1_CONSTRUCTED;
+ 575              		.loc 1 240 16 view .LVU126
+ 576 00a6 1900     		movs	r1, r3
+ 577 00a8 0831     		adds	r1, r1, #8
+ 578 00aa 7918     		adds	r1, r7, r1
+ 240:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_SEQUENCE | MBEDTLS_ASN1_CONSTRUCTED;
+ 579              		.loc 1 240 14 view .LVU127
+ 580 00ac 9170     		strb	r1, [r2, #2]
+ 242:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_OID;
+ 581              		.loc 1 242 16 view .LVU128
+ 582 00ae 191D     		adds	r1, r3, #4
+ 242:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_OID;
+ 583              		.loc 1 242 14 view .LVU129
+ 584 00b0 1171     		strb	r1, [r2, #4]
+ 243:simpleserial-rsa-arm.c ****         *p++ = oid_size & 0xFF;
+ 585              		.loc 1 243 14 view .LVU130
+ 586 00b2 0621     		movs	r1, #6
+ 244:simpleserial-rsa-arm.c ****         memcpy( p, oid, oid_size );
+ 587              		.loc 1 244 11 view .LVU131
+ 588 00b4 D51D     		adds	r5, r2, #7
+ 589              	.LVL51:
+ 239:simpleserial-rsa-arm.c ****         *p++ = (unsigned char) ( 0x08 + oid_size + hashlen );
+ 590              		.loc 1 239 14 view .LVU132
+ 591 00b6 5070     		strb	r0, [r2, #1]
+ 240:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_SEQUENCE | MBEDTLS_ASN1_CONSTRUCTED;
+ 592              		.loc 1 240 9 is_stmt 1 view .LVU133
+ 593              	.LVL52:
+ 241:simpleserial-rsa-arm.c ****         *p++ = (unsigned char) ( 0x04 + oid_size );
+ 594              		.loc 1 241 9 view .LVU134
+ 241:simpleserial-rsa-arm.c ****         *p++ = (unsigned char) ( 0x04 + oid_size );
+ 595              		.loc 1 241 14 is_stmt 0 view .LVU135
+ 596 00b8 D070     		strb	r0, [r2, #3]
+ 242:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_OID;
+ 597              		.loc 1 242 9 is_stmt 1 view .LVU136
+ 598              	.LVL53:
+ 243:simpleserial-rsa-arm.c ****         *p++ = oid_size & 0xFF;
+ 599              		.loc 1 243 9 view .LVU137
+ 243:simpleserial-rsa-arm.c ****         *p++ = oid_size & 0xFF;
+ 600              		.loc 1 243 14 is_stmt 0 view .LVU138
+ 601 00ba 5171     		strb	r1, [r2, #5]
+ 244:simpleserial-rsa-arm.c ****         memcpy( p, oid, oid_size );
+ 602              		.loc 1 244 9 is_stmt 1 view .LVU139
+ 603              	.LVL54:
+ 244:simpleserial-rsa-arm.c ****         memcpy( p, oid, oid_size );
+ 604              		.loc 1 244 14 is_stmt 0 view .LVU140
+ 605 00bc 9371     		strb	r3, [r2, #6]
+ 245:simpleserial-rsa-arm.c ****         p += oid_size;
+ 606              		.loc 1 245 9 is_stmt 1 view .LVU141
+ 607 00be 2800     		movs	r0, r5
+ 608 00c0 5246     		mov	r2, r10
+ 609 00c2 0399     		ldr	r1, [sp, #12]
+ 610 00c4 FFF7FEFF 		bl	memcpy
+ 611              	.LVL55:
+ 246:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_NULL;
+ 612              		.loc 1 246 9 view .LVU142
+ 247:simpleserial-rsa-arm.c ****         *p++ = 0x00;
+ 613              		.loc 1 247 14 is_stmt 0 view .LVU143
+ 614 00c8 0523     		movs	r3, #5
+ 246:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_NULL;
+ 615              		.loc 1 246 11 view .LVU144
+ 616 00ca 5544     		add	r5, r5, r10
+ 617              	.LVL56:
+ 247:simpleserial-rsa-arm.c ****         *p++ = 0x00;
+ 618              		.loc 1 247 9 is_stmt 1 view .LVU145
+ 247:simpleserial-rsa-arm.c ****         *p++ = 0x00;
+ 619              		.loc 1 247 14 is_stmt 0 view .LVU146
+ 620 00cc 2B70     		strb	r3, [r5]
+ 248:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_OCTET_STRING;
+ 621              		.loc 1 248 9 is_stmt 1 view .LVU147
+ 622              	.LVL57:
+ 248:simpleserial-rsa-arm.c ****         *p++ = MBEDTLS_ASN1_OCTET_STRING;
+ 623              		.loc 1 248 14 is_stmt 0 view .LVU148
+ 624 00ce 4B46     		mov	r3, r9
+ 625 00d0 6B70     		strb	r3, [r5, #1]
+ 249:simpleserial-rsa-arm.c ****         *p++ = hashlen;
+ 626              		.loc 1 249 9 is_stmt 1 view .LVU149
+ 627              	.LVL58:
+ 249:simpleserial-rsa-arm.c ****         *p++ = hashlen;
+ 628              		.loc 1 249 14 is_stmt 0 view .LVU150
+ 629 00d2 0423     		movs	r3, #4
+ 251:simpleserial-rsa-arm.c ****     }
+ 630              		.loc 1 251 9 view .LVU151
+ 631 00d4 3A00     		movs	r2, r7
+ 249:simpleserial-rsa-arm.c ****         *p++ = hashlen;
+ 632              		.loc 1 249 14 view .LVU152
+ 633 00d6 AB70     		strb	r3, [r5, #2]
+ 250:simpleserial-rsa-arm.c ****         memcpy( p, hash, hashlen );
+ 634              		.loc 1 250 9 is_stmt 1 view .LVU153
+ 635              	.LVL59:
+ 250:simpleserial-rsa-arm.c ****         memcpy( p, hash, hashlen );
+ 636              		.loc 1 250 14 is_stmt 0 view .LVU154
+ 637 00d8 EF70     		strb	r7, [r5, #3]
+ 251:simpleserial-rsa-arm.c ****     }
+ 638              		.loc 1 251 9 is_stmt 1 view .LVU155
+ 639 00da 4146     		mov	r1, r8
+ 640 00dc 281D     		adds	r0, r5, #4
+ 641              	.LVL60:
+ 251:simpleserial-rsa-arm.c ****     }
+ 642              		.loc 1 251 9 is_stmt 0 view .LVU156
+ 643 00de FFF7FEFF 		bl	memcpy
+ 644              	.LVL61:
+ 254:simpleserial-rsa-arm.c ****         return( mbedtls_rsa_public(  ctx, sig, sig ) );
+ 645              		.loc 1 254 5 is_stmt 1 view .LVU157
+ 261:simpleserial-rsa-arm.c ****     if( sig_try == NULL )
+ 646              		.loc 1 261 5 view .LVU158
+ 261:simpleserial-rsa-arm.c ****     if( sig_try == NULL )
+ 647              		.loc 1 261 15 is_stmt 0 view .LVU159
+ 648 00e2 6568     		ldr	r5, [r4, #4]
+ 649              	.LVL62:
+ 261:simpleserial-rsa-arm.c ****     if( sig_try == NULL )
+ 650              		.loc 1 261 15 view .LVU160
+ 651 00e4 0120     		movs	r0, #1
+ 652 00e6 2900     		movs	r1, r5
+ 653 00e8 FFF7FEFF 		bl	calloc
+ 654              	.LVL63:
+ 655 00ec 071E     		subs	r7, r0, #0
+ 656              	.LVL64:
+ 262:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
+ 657              		.loc 1 262 5 is_stmt 1 view .LVU161
+ 262:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
+ 658              		.loc 1 262 7 is_stmt 0 view .LVU162
+ 659 00ee 00D1     		bne	.LCB472
+ 660 00f0 DBE0     		b	.L39	@long jump
+ 661              	.LCB472:
+ 265:simpleserial-rsa-arm.c ****     if( verif == NULL )
+ 662              		.loc 1 265 5 is_stmt 1 view .LVU163
+ 265:simpleserial-rsa-arm.c ****     if( verif == NULL )
+ 663              		.loc 1 265 15 is_stmt 0 view .LVU164
+ 664 00f2 2900     		movs	r1, r5
+ 665 00f4 0120     		movs	r0, #1
+ 666              	.LVL65:
+ 265:simpleserial-rsa-arm.c ****     if( verif == NULL )
+ 667              		.loc 1 265 15 view .LVU165
+ 668 00f6 FFF7FEFF 		bl	calloc
+ 669              	.LVL66:
+ 670 00fa 8046     		mov	r8, r0
+ 671              	.LVL67:
+ 266:simpleserial-rsa-arm.c ****     {
+ 672              		.loc 1 266 5 is_stmt 1 view .LVU166
+ 266:simpleserial-rsa-arm.c ****     {
+ 673              		.loc 1 266 7 is_stmt 0 view .LVU167
+ 674 00fc 0028     		cmp	r0, #0
+ 675 00fe 00D1     		bne	.LCB482
+ 676 0100 CEE0     		b	.L56	@long jump
+ 677              	.LCB482:
+ 272:simpleserial-rsa-arm.c ****     //make things easier
+ 678              		.loc 1 272 5 is_stmt 1 view .LVU168
+ 272:simpleserial-rsa-arm.c ****     //make things easier
+ 679              		.loc 1 272 5 view .LVU169
+ 680              	.LVL68:
+ 681              	.LBB13:
+ 682              	.LBI13:
+ 113:simpleserial-rsa-arm.c ****                  int (*f_rng)(void *, unsigned char *, size_t),
+ 683              		.loc 1 113 12 view .LVU170
+ 684              	.LBB14:
+ 119:simpleserial-rsa-arm.c ****     size_t olen;
+ 685              		.loc 1 119 5 view .LVU171
+ 120:simpleserial-rsa-arm.c ****     mbedtls_mpi T, T1, T2;
+ 686              		.loc 1 120 5 view .LVU172
+ 121:simpleserial-rsa-arm.c ****     mbedtls_mpi P1, Q1, R;
+ 687              		.loc 1 121 5 view .LVU173
+ 122:simpleserial-rsa-arm.c ****     mbedtls_mpi *DP = &ctx->DP;
+ 688              		.loc 1 122 5 view .LVU174
+ 123:simpleserial-rsa-arm.c ****     mbedtls_mpi *DQ = &ctx->DQ;
+ 689              		.loc 1 123 5 view .LVU175
+ 124:simpleserial-rsa-arm.c **** 
+ 690              		.loc 1 124 5 view .LVU176
+ 127:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 691              		.loc 1 127 5 view .LVU177
+ 127:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 692              		.loc 1 127 7 is_stmt 0 view .LVU178
+ 693 0102 636B     		ldr	r3, [r4, #52]
+ 694 0104 002B     		cmp	r3, #0
+ 695 0106 00D1     		bne	.LCB505
+ 696 0108 C8E0     		b	.L25	@long jump
+ 697              	.LCB505:
+ 127:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 698              		.loc 1 127 26 view .LVU179
+ 699 010a 236C     		ldr	r3, [r4, #64]
+ 700 010c 002B     		cmp	r3, #0
+ 701 010e 00D1     		bne	.LCB509
+ 702 0110 C4E0     		b	.L25	@long jump
+ 703              	.LCB509:
+ 127:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_BAD_INPUT_DATA );
+ 704              		.loc 1 127 46 view .LVU180
+ 705 0112 A36A     		ldr	r3, [r4, #40]
+ 706 0114 002B     		cmp	r3, #0
+ 707 0116 00D1     		bne	.LCB513
+ 708 0118 C0E0     		b	.L25	@long jump
+ 709              	.LCB513:
+ 130:simpleserial-rsa-arm.c ****     mbedtls_mpi_init( &P1 ); mbedtls_mpi_init( &Q1 ); mbedtls_mpi_init( &R );
+ 710              		.loc 1 130 5 is_stmt 1 view .LVU181
+ 711 011a 04A8     		add	r0, sp, #16
+ 712              	.LVL69:
+ 130:simpleserial-rsa-arm.c ****     mbedtls_mpi_init( &P1 ); mbedtls_mpi_init( &Q1 ); mbedtls_mpi_init( &R );
+ 713              		.loc 1 130 5 is_stmt 0 view .LVU182
+ 714 011c FFF7FEFF 		bl	mbedtls_mpi_init
+ 715              	.LVL70:
+ 130:simpleserial-rsa-arm.c ****     mbedtls_mpi_init( &P1 ); mbedtls_mpi_init( &Q1 ); mbedtls_mpi_init( &R );
+ 716              		.loc 1 130 29 is_stmt 1 view .LVU183
+ 717 0120 07A8     		add	r0, sp, #28
+ 718 0122 FFF7FEFF 		bl	mbedtls_mpi_init
+ 719              	.LVL71:
+ 130:simpleserial-rsa-arm.c ****     mbedtls_mpi_init( &P1 ); mbedtls_mpi_init( &Q1 ); mbedtls_mpi_init( &R );
+ 720              		.loc 1 130 54 view .LVU184
+ 721 0126 0AA8     		add	r0, sp, #40
+ 722 0128 FFF7FEFF 		bl	mbedtls_mpi_init
+ 723              	.LVL72:
+ 131:simpleserial-rsa-arm.c **** 
+ 724              		.loc 1 131 5 view .LVU185
+ 725 012c 0DA8     		add	r0, sp, #52
+ 726 012e FFF7FEFF 		bl	mbedtls_mpi_init
+ 727              	.LVL73:
+ 131:simpleserial-rsa-arm.c **** 
+ 728              		.loc 1 131 30 view .LVU186
+ 729 0132 10A8     		add	r0, sp, #64
+ 730 0134 FFF7FEFF 		bl	mbedtls_mpi_init
+ 731              	.LVL74:
+ 131:simpleserial-rsa-arm.c **** 
+ 732              		.loc 1 131 55 view .LVU187
+ 733 0138 13A8     		add	r0, sp, #76
+ 734 013a FFF7FEFF 		bl	mbedtls_mpi_init
+ 735              	.LVL75:
+ 133:simpleserial-rsa-arm.c ****     if( mbedtls_mpi_cmp_mpi( &T, &ctx->N ) >= 0 )
+ 736              		.loc 1 133 5 view .LVU188
+ 133:simpleserial-rsa-arm.c ****     if( mbedtls_mpi_cmp_mpi( &T, &ctx->N ) >= 0 )
+ 737              		.loc 1 133 5 view .LVU189
+ 738 013e 3100     		movs	r1, r6
+ 739 0140 6268     		ldr	r2, [r4, #4]
+ 740 0142 04A8     		add	r0, sp, #16
+ 741 0144 FFF7FEFF 		bl	mbedtls_mpi_read_binary
+ 742              	.LVL76:
+ 133:simpleserial-rsa-arm.c ****     if( mbedtls_mpi_cmp_mpi( &T, &ctx->N ) >= 0 )
+ 743              		.loc 1 133 5 is_stmt 0 view .LVU190
+ 744 0148 5D4B     		ldr	r3, .L59+16
+ 745 014a C518     		adds	r5, r0, r3
+ 746 014c 0028     		cmp	r0, #0
+ 747 014e 28D0     		beq	.L57
+ 748              	.LVL77:
+ 749              	.L27:
+ 163:simpleserial-rsa-arm.c **** 
+ 750              		.loc 1 163 5 is_stmt 1 view .LVU191
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 751              		.loc 1 166 5 view .LVU192
+ 752 0150 04A8     		add	r0, sp, #16
+ 753 0152 FFF7FEFF 		bl	mbedtls_mpi_free
+ 754              	.LVL78:
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 755              		.loc 1 166 29 view .LVU193
+ 756 0156 07A8     		add	r0, sp, #28
+ 757 0158 FFF7FEFF 		bl	mbedtls_mpi_free
+ 758              	.LVL79:
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 759              		.loc 1 166 54 view .LVU194
+ 760 015c 0AA8     		add	r0, sp, #40
+ 761 015e FFF7FEFF 		bl	mbedtls_mpi_free
+ 762              	.LVL80:
+ 167:simpleserial-rsa-arm.c **** 
+ 763              		.loc 1 167 5 view .LVU195
+ 764 0162 0DA8     		add	r0, sp, #52
+ 765 0164 FFF7FEFF 		bl	mbedtls_mpi_free
+ 766              	.LVL81:
+ 167:simpleserial-rsa-arm.c **** 
+ 767              		.loc 1 167 30 view .LVU196
+ 768 0168 10A8     		add	r0, sp, #64
+ 769 016a FFF7FEFF 		bl	mbedtls_mpi_free
+ 770              	.LVL82:
+ 167:simpleserial-rsa-arm.c **** 
+ 771              		.loc 1 167 55 view .LVU197
+ 772 016e 13A8     		add	r0, sp, #76
+ 773 0170 FFF7FEFF 		bl	mbedtls_mpi_free
+ 774              	.LVL83:
+ 169:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_PRIVATE_FAILED + ret );
+ 775              		.loc 1 169 5 view .LVU198
+ 776              	.L38:
+ 170:simpleserial-rsa-arm.c **** 
+ 777              		.loc 1 170 9 view .LVU199
+ 170:simpleserial-rsa-arm.c **** 
+ 778              		.loc 1 170 9 is_stmt 0 view .LVU200
+ 779              	.LBE14:
+ 780              	.LBE13:
+ 272:simpleserial-rsa-arm.c ****     //make things easier
+ 781              		.loc 1 272 5 view .LVU201
+ 782 0174 002D     		cmp	r5, #0
+ 783 0176 1DD0     		beq	.L36
+ 784 0178 EDB2     		uxtb	r5, r5
+ 785              	.L24:
+ 290:simpleserial-rsa-arm.c ****     mbedtls_free( verif );
+ 786              		.loc 1 290 5 is_stmt 1 view .LVU202
+ 787 017a 3800     		movs	r0, r7
+ 788 017c FFF7FEFF 		bl	free
+ 789              	.LVL84:
+ 291:simpleserial-rsa-arm.c **** 
+ 790              		.loc 1 291 5 view .LVU203
+ 791 0180 4046     		mov	r0, r8
+ 792 0182 FFF7FEFF 		bl	free
+ 793              	.LVL85:
+ 293:simpleserial-rsa-arm.c **** }
+ 794              		.loc 1 293 5 view .LVU204
+ 795              	.L20:
+ 293:simpleserial-rsa-arm.c **** }
+ 796              		.loc 1 293 5 is_stmt 0 view .LVU205
+ 797              	.LBE10:
+ 798              	.LBE9:
+ 352:simpleserial-rsa-arm.c **** 
+ 799              		.loc 1 352 5 is_stmt 1 view .LVU206
+ 800 0186 FFF7FEFF 		bl	trigger_low
+ 801              	.LVL86:
+ 358:simpleserial-rsa-arm.c **** #endif
+ 802              		.loc 1 358 5 view .LVU207
+ 803 018a 3200     		movs	r2, r6
+ 804 018c 3021     		movs	r1, #48
+ 805 018e 7220     		movs	r0, #114
+ 806 0190 FFF7FEFF 		bl	simpleserial_put
+ 807              	.LVL87:
+ 360:simpleserial-rsa-arm.c **** }
+ 808              		.loc 1 360 5 view .LVU208
+ 361:simpleserial-rsa-arm.c **** 
+ 809              		.loc 1 361 1 is_stmt 0 view .LVU209
+ 810 0194 2800     		movs	r0, r5
+ 811 0196 16B0     		add	sp, sp, #88
+ 812              		@ sp needed
+ 813 0198 1CBC     		pop	{r2, r3, r4}
+ 814 019a 9046     		mov	r8, r2
+ 815 019c 9946     		mov	r9, r3
+ 816 019e A246     		mov	r10, r4
+ 817 01a0 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 818              	.LVL88:
+ 819              	.L57:
+ 820              	.LBB22:
+ 821              	.LBB21:
+ 822              	.LBB18:
+ 823              	.LBB15:
+ 133:simpleserial-rsa-arm.c ****     if( mbedtls_mpi_cmp_mpi( &T, &ctx->N ) >= 0 )
+ 824              		.loc 1 133 5 is_stmt 1 view .LVU210
+ 134:simpleserial-rsa-arm.c ****     {
+ 825              		.loc 1 134 5 view .LVU211
+ 134:simpleserial-rsa-arm.c ****     {
+ 826              		.loc 1 134 9 is_stmt 0 view .LVU212
+ 827 01a2 2100     		movs	r1, r4
+ 828 01a4 04A8     		add	r0, sp, #16
+ 829              	.LVL89:
+ 134:simpleserial-rsa-arm.c ****     {
+ 830              		.loc 1 134 9 view .LVU213
+ 831 01a6 0831     		adds	r1, r1, #8
+ 832 01a8 FFF7FEFF 		bl	mbedtls_mpi_cmp_mpi
+ 833              	.LVL90:
+ 134:simpleserial-rsa-arm.c ****     {
+ 834              		.loc 1 134 7 view .LVU214
+ 835 01ac 0028     		cmp	r0, #0
+ 836 01ae 11DB     		blt	.L58
+ 837 01b0 444D     		ldr	r5, .L59+20
+ 838              	.LVL91:
+ 134:simpleserial-rsa-arm.c ****     {
+ 839              		.loc 1 134 7 view .LVU215
+ 840 01b2 CDE7     		b	.L27
+ 841              	.LVL92:
+ 842              	.L36:
+ 134:simpleserial-rsa-arm.c ****     {
+ 843              		.loc 1 134 7 view .LVU216
+ 844              	.LBE15:
+ 845              	.LBE18:
+ 272:simpleserial-rsa-arm.c ****     //make things easier
+ 846              		.loc 1 272 5 is_stmt 1 view .LVU217
+ 274:simpleserial-rsa-arm.c **** 
+ 847              		.loc 1 274 5 view .LVU218
+ 274:simpleserial-rsa-arm.c **** 
+ 848              		.loc 1 274 5 view .LVU219
+ 849 01b4 4246     		mov	r2, r8
+ 850 01b6 3900     		movs	r1, r7
+ 851 01b8 2000     		movs	r0, r4
+ 852 01ba FFF7FEFF 		bl	mbedtls_rsa_public
+ 853              	.LVL93:
+ 274:simpleserial-rsa-arm.c **** 
+ 854              		.loc 1 274 5 is_stmt 0 view .LVU220
+ 855 01be 0028     		cmp	r0, #0
+ 856 01c0 01D0     		beq	.L37
+ 857 01c2 C5B2     		uxtb	r5, r0
+ 858 01c4 D9E7     		b	.L24
+ 859              	.L37:
+ 274:simpleserial-rsa-arm.c **** 
+ 860              		.loc 1 274 5 is_stmt 1 view .LVU221
+ 287:simpleserial-rsa-arm.c **** 
+ 861              		.loc 1 287 5 view .LVU222
+ 862 01c6 3900     		movs	r1, r7
+ 863 01c8 3000     		movs	r0, r6
+ 864              	.LVL94:
+ 287:simpleserial-rsa-arm.c **** 
+ 865              		.loc 1 287 5 is_stmt 0 view .LVU223
+ 866 01ca 6268     		ldr	r2, [r4, #4]
+ 867 01cc FFF7FEFF 		bl	memcpy
+ 868              	.LVL95:
+ 869 01d0 0025     		movs	r5, #0
+ 870 01d2 D2E7     		b	.L24
+ 871              	.LVL96:
+ 872              	.L58:
+ 873              	.LBB19:
+ 874              	.LBB16:
+ 146:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_exp_mod( &T2, &T, DQ, &ctx->Q, &ctx->RQ ) );
+ 875              		.loc 1 146 5 is_stmt 1 view .LVU224
+ 146:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_exp_mod( &T2, &T, DQ, &ctx->Q, &ctx->RQ ) );
+ 876              		.loc 1 146 5 view .LVU225
+ 877 01d4 2500     		movs	r5, r4
+ 878              	.LVL97:
+ 146:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_exp_mod( &T2, &T, DQ, &ctx->Q, &ctx->RQ ) );
+ 879              		.loc 1 146 5 is_stmt 0 view .LVU226
+ 880 01d6 2300     		movs	r3, r4
+ 881 01d8 2200     		movs	r2, r4
+ 882 01da 7433     		adds	r3, r3, #116
+ 883 01dc 2C35     		adds	r5, r5, #44
+ 884 01de 0093     		str	r3, [sp]
+ 885 01e0 4432     		adds	r2, r2, #68
+ 886 01e2 2B00     		movs	r3, r5
+ 887 01e4 04A9     		add	r1, sp, #16
+ 888 01e6 07A8     		add	r0, sp, #28
+ 889 01e8 FFF7FEFF 		bl	mbedtls_mpi_exp_mod
+ 890              	.LVL98:
+ 146:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_exp_mod( &T2, &T, DQ, &ctx->Q, &ctx->RQ ) );
+ 891              		.loc 1 146 5 view .LVU227
+ 892 01ec 0028     		cmp	r0, #0
+ 893 01ee 0ED1     		bne	.L55
+ 146:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_exp_mod( &T2, &T, DQ, &ctx->Q, &ctx->RQ ) );
+ 894              		.loc 1 146 5 is_stmt 1 view .LVU228
+ 147:simpleserial-rsa-arm.c **** 
+ 895              		.loc 1 147 5 view .LVU229
+ 147:simpleserial-rsa-arm.c **** 
+ 896              		.loc 1 147 5 view .LVU230
+ 897 01f0 3823     		movs	r3, #56
+ 898 01f2 9946     		mov	r9, r3
+ 899 01f4 2300     		movs	r3, r4
+ 900 01f6 2200     		movs	r2, r4
+ 901 01f8 8033     		adds	r3, r3, #128
+ 902 01fa A144     		add	r9, r9, r4
+ 903 01fc 0093     		str	r3, [sp]
+ 904 01fe 5032     		adds	r2, r2, #80
+ 905 0200 4B46     		mov	r3, r9
+ 906 0202 04A9     		add	r1, sp, #16
+ 907 0204 0AA8     		add	r0, sp, #40
+ 908              	.LVL99:
+ 147:simpleserial-rsa-arm.c **** 
+ 909              		.loc 1 147 5 is_stmt 0 view .LVU231
+ 910 0206 FFF7FEFF 		bl	mbedtls_mpi_exp_mod
+ 911              	.LVL100:
+ 147:simpleserial-rsa-arm.c **** 
+ 912              		.loc 1 147 5 view .LVU232
+ 913 020a 0028     		cmp	r0, #0
+ 914 020c 04D0     		beq	.L29
+ 915              	.L55:
+ 147:simpleserial-rsa-arm.c **** 
+ 916              		.loc 1 147 5 view .LVU233
+ 917 020e 2C4B     		ldr	r3, .L59+16
+ 918 0210 C518     		adds	r5, r0, r3
+ 919 0212 9DE7     		b	.L27
+ 920              	.LVL101:
+ 921              	.L21:
+ 147:simpleserial-rsa-arm.c **** 
+ 922              		.loc 1 147 5 view .LVU234
+ 923              	.LBE16:
+ 924              	.LBE19:
+ 269:simpleserial-rsa-arm.c ****     }
+ 925              		.loc 1 269 15 view .LVU235
+ 926 0214 8025     		movs	r5, #128
+ 927 0216 B6E7     		b	.L20
+ 928              	.LVL102:
+ 929              	.L29:
+ 930              	.LBB20:
+ 931              	.LBB17:
+ 147:simpleserial-rsa-arm.c **** 
+ 932              		.loc 1 147 5 is_stmt 1 view .LVU236
+ 152:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mul_mpi( &T1, &T, &ctx->QP ) );
+ 933              		.loc 1 152 5 view .LVU237
+ 152:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mul_mpi( &T1, &T, &ctx->QP ) );
+ 934              		.loc 1 152 5 view .LVU238
+ 935 0218 0AAA     		add	r2, sp, #40
+ 936 021a 07A9     		add	r1, sp, #28
+ 937 021c 04A8     		add	r0, sp, #16
+ 938              	.LVL103:
+ 152:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mul_mpi( &T1, &T, &ctx->QP ) );
+ 939              		.loc 1 152 5 is_stmt 0 view .LVU239
+ 940 021e FFF7FEFF 		bl	mbedtls_mpi_sub_mpi
+ 941              	.LVL104:
+ 152:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mul_mpi( &T1, &T, &ctx->QP ) );
+ 942              		.loc 1 152 5 view .LVU240
+ 943 0222 0028     		cmp	r0, #0
+ 944 0224 F3D1     		bne	.L55
+ 152:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mul_mpi( &T1, &T, &ctx->QP ) );
+ 945              		.loc 1 152 5 is_stmt 1 view .LVU241
+ 153:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mod_mpi( &T, &T1, &ctx->P ) );
+ 946              		.loc 1 153 5 view .LVU242
+ 153:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mod_mpi( &T, &T1, &ctx->P ) );
+ 947              		.loc 1 153 5 view .LVU243
+ 948 0226 2200     		movs	r2, r4
+ 949 0228 04A9     		add	r1, sp, #16
+ 950 022a 5C32     		adds	r2, r2, #92
+ 951 022c 07A8     		add	r0, sp, #28
+ 952              	.LVL105:
+ 153:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mod_mpi( &T, &T1, &ctx->P ) );
+ 953              		.loc 1 153 5 is_stmt 0 view .LVU244
+ 954 022e FFF7FEFF 		bl	mbedtls_mpi_mul_mpi
+ 955              	.LVL106:
+ 153:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mod_mpi( &T, &T1, &ctx->P ) );
+ 956              		.loc 1 153 5 view .LVU245
+ 957 0232 0028     		cmp	r0, #0
+ 958 0234 EBD1     		bne	.L55
+ 153:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_mod_mpi( &T, &T1, &ctx->P ) );
+ 959              		.loc 1 153 5 is_stmt 1 view .LVU246
+ 154:simpleserial-rsa-arm.c **** 
+ 960              		.loc 1 154 5 view .LVU247
+ 154:simpleserial-rsa-arm.c **** 
+ 961              		.loc 1 154 5 view .LVU248
+ 962 0236 2A00     		movs	r2, r5
+ 963 0238 07A9     		add	r1, sp, #28
+ 964 023a 04A8     		add	r0, sp, #16
+ 965              	.LVL107:
+ 154:simpleserial-rsa-arm.c **** 
+ 966              		.loc 1 154 5 is_stmt 0 view .LVU249
+ 967 023c FFF7FEFF 		bl	mbedtls_mpi_mod_mpi
+ 968              	.LVL108:
+ 154:simpleserial-rsa-arm.c **** 
+ 969              		.loc 1 154 5 view .LVU250
+ 970 0240 0028     		cmp	r0, #0
+ 971 0242 E4D1     		bne	.L55
+ 154:simpleserial-rsa-arm.c **** 
+ 972              		.loc 1 154 5 is_stmt 1 view .LVU251
+ 159:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_add_mpi( &T, &T2, &T1 ) );
+ 973              		.loc 1 159 5 view .LVU252
+ 159:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_add_mpi( &T, &T2, &T1 ) );
+ 974              		.loc 1 159 5 view .LVU253
+ 975 0244 4A46     		mov	r2, r9
+ 976 0246 04A9     		add	r1, sp, #16
+ 977 0248 07A8     		add	r0, sp, #28
+ 978              	.LVL109:
+ 159:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_add_mpi( &T, &T2, &T1 ) );
+ 979              		.loc 1 159 5 is_stmt 0 view .LVU254
+ 980 024a FFF7FEFF 		bl	mbedtls_mpi_mul_mpi
+ 981              	.LVL110:
+ 159:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_add_mpi( &T, &T2, &T1 ) );
+ 982              		.loc 1 159 5 view .LVU255
+ 983 024e 0028     		cmp	r0, #0
+ 984 0250 DDD1     		bne	.L55
+ 159:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_add_mpi( &T, &T2, &T1 ) );
+ 985              		.loc 1 159 5 is_stmt 1 view .LVU256
+ 160:simpleserial-rsa-arm.c **** 
+ 986              		.loc 1 160 5 view .LVU257
+ 160:simpleserial-rsa-arm.c **** 
+ 987              		.loc 1 160 5 view .LVU258
+ 988 0252 07AA     		add	r2, sp, #28
+ 989 0254 0AA9     		add	r1, sp, #40
+ 990 0256 04A8     		add	r0, sp, #16
+ 991              	.LVL111:
+ 160:simpleserial-rsa-arm.c **** 
+ 992              		.loc 1 160 5 is_stmt 0 view .LVU259
+ 993 0258 FFF7FEFF 		bl	mbedtls_mpi_add_mpi
+ 994              	.LVL112:
+ 160:simpleserial-rsa-arm.c **** 
+ 995              		.loc 1 160 5 view .LVU260
+ 996 025c 0028     		cmp	r0, #0
+ 997 025e D6D1     		bne	.L55
+ 160:simpleserial-rsa-arm.c **** 
+ 998              		.loc 1 160 5 is_stmt 1 view .LVU261
+ 162:simpleserial-rsa-arm.c ****     MBEDTLS_MPI_CHK( mbedtls_mpi_write_binary( &T, output, olen ) );
+ 999              		.loc 1 162 5 view .LVU262
+ 1000              	.LVL113:
+ 163:simpleserial-rsa-arm.c **** 
+ 1001              		.loc 1 163 5 view .LVU263
+ 163:simpleserial-rsa-arm.c **** 
+ 1002              		.loc 1 163 5 view .LVU264
+ 1003 0260 3900     		movs	r1, r7
+ 1004 0262 6268     		ldr	r2, [r4, #4]
+ 1005 0264 04A8     		add	r0, sp, #16
+ 1006              	.LVL114:
+ 163:simpleserial-rsa-arm.c **** 
+ 1007              		.loc 1 163 5 is_stmt 0 view .LVU265
+ 1008 0266 FFF7FEFF 		bl	mbedtls_mpi_write_binary
+ 1009              	.LVL115:
+ 163:simpleserial-rsa-arm.c **** 
+ 1010              		.loc 1 163 5 view .LVU266
+ 1011 026a 0500     		movs	r5, r0
+ 1012              	.LDL1:
+ 1013              	.LVL116:
+ 163:simpleserial-rsa-arm.c **** 
+ 1014              		.loc 1 163 5 is_stmt 1 view .LVU267
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 1015              		.loc 1 166 5 view .LVU268
+ 1016 026c 04A8     		add	r0, sp, #16
+ 1017              	.LVL117:
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 1018              		.loc 1 166 5 is_stmt 0 view .LVU269
+ 1019 026e FFF7FEFF 		bl	mbedtls_mpi_free
+ 1020              	.LVL118:
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 1021              		.loc 1 166 29 is_stmt 1 view .LVU270
+ 1022 0272 07A8     		add	r0, sp, #28
+ 1023 0274 FFF7FEFF 		bl	mbedtls_mpi_free
+ 1024              	.LVL119:
+ 166:simpleserial-rsa-arm.c ****     mbedtls_mpi_free( &P1 ); mbedtls_mpi_free( &Q1 ); mbedtls_mpi_free( &R );
+ 1025              		.loc 1 166 54 view .LVU271
+ 1026 0278 0AA8     		add	r0, sp, #40
+ 1027 027a FFF7FEFF 		bl	mbedtls_mpi_free
+ 1028              	.LVL120:
+ 167:simpleserial-rsa-arm.c **** 
+ 1029              		.loc 1 167 5 view .LVU272
+ 1030 027e 0DA8     		add	r0, sp, #52
+ 1031 0280 FFF7FEFF 		bl	mbedtls_mpi_free
+ 1032              	.LVL121:
+ 167:simpleserial-rsa-arm.c **** 
+ 1033              		.loc 1 167 30 view .LVU273
+ 1034 0284 10A8     		add	r0, sp, #64
+ 1035 0286 FFF7FEFF 		bl	mbedtls_mpi_free
+ 1036              	.LVL122:
+ 167:simpleserial-rsa-arm.c **** 
+ 1037              		.loc 1 167 55 view .LVU274
+ 1038 028a 13A8     		add	r0, sp, #76
+ 1039 028c FFF7FEFF 		bl	mbedtls_mpi_free
+ 1040              	.LVL123:
+ 169:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_PRIVATE_FAILED + ret );
+ 1041              		.loc 1 169 5 view .LVU275
+ 169:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_PRIVATE_FAILED + ret );
+ 1042              		.loc 1 169 7 is_stmt 0 view .LVU276
+ 1043 0290 002D     		cmp	r5, #0
+ 1044 0292 8FD0     		beq	.L36
+ 1045 0294 0A4B     		ldr	r3, .L59+16
+ 1046 0296 9C46     		mov	ip, r3
+ 1047 0298 6544     		add	r5, r5, ip
+ 1048              	.LVL124:
+ 169:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_PRIVATE_FAILED + ret );
+ 1049              		.loc 1 169 7 view .LVU277
+ 1050 029a 6BE7     		b	.L38
+ 1051              	.LVL125:
+ 1052              	.L25:
+ 169:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_PRIVATE_FAILED + ret );
+ 1053              		.loc 1 169 7 view .LVU278
+ 1054 029c 8025     		movs	r5, #128
+ 1055 029e 6CE7     		b	.L24
+ 1056              	.LVL126:
+ 1057              	.L56:
+ 169:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_RSA_PRIVATE_FAILED + ret );
+ 1058              		.loc 1 169 7 view .LVU279
+ 1059              	.LBE17:
+ 1060              	.LBE20:
+ 268:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
+ 1061              		.loc 1 268 9 is_stmt 1 view .LVU280
+ 1062 02a0 3800     		movs	r0, r7
+ 1063              	.LVL127:
+ 268:simpleserial-rsa-arm.c ****         return( MBEDTLS_ERR_MPI_ALLOC_FAILED );
+ 1064              		.loc 1 268 9 is_stmt 0 view .LVU281
+ 1065 02a2 FFF7FEFF 		bl	free
+ 1066              	.LVL128:
+ 269:simpleserial-rsa-arm.c ****     }
+ 1067              		.loc 1 269 9 is_stmt 1 view .LVU282
+ 269:simpleserial-rsa-arm.c ****     }
+ 1068              		.loc 1 269 15 is_stmt 0 view .LVU283
+ 1069 02a6 F025     		movs	r5, #240
+ 1070 02a8 6DE7     		b	.L20
+ 1071              	.LVL129:
+ 1072              	.L39:
+ 269:simpleserial-rsa-arm.c ****     }
+ 1073              		.loc 1 269 15 view .LVU284
+ 1074 02aa F025     		movs	r5, #240
+ 1075 02ac 6BE7     		b	.L20
+ 1076              	.L60:
+ 1077 02ae C046     		.align	2
+ 1078              	.L59:
+ 1079 02b0 00000000 		.word	buf
+ 1080 02b4 00000000 		.word	hash
+ 1081 02b8 00000000 		.word	.LANCHOR0
+ 1082 02bc 00000000 		.word	rsa_ctx
+ 1083 02c0 00BDFFFF 		.word	-17152
+ 1084 02c4 FCBCFFFF 		.word	-17156
+ 1085              	.LBE21:
+ 1086              	.LBE22:
+ 1087              		.cfi_endproc
+ 1088              	.LFE13:
+ 1090              		.section	.text.get_pt,"ax",%progbits
+ 1091              		.align	1
+ 1092              		.p2align 2,,3
+ 1093              		.global	get_pt
+ 1094              		.syntax unified
+ 1095              		.code	16
+ 1096              		.thumb_func
+ 1097              		.fpu softvfp
+ 1099              	get_pt:
+ 1100              	.LVL130:
+ 1101              	.LFB16:
+ 374:simpleserial-rsa-arm.c **** 
+ 375:simpleserial-rsa-arm.c **** 
+ 376:simpleserial-rsa-arm.c **** uint8_t get_pt(uint8_t *pt, uint8_t len)
+ 377:simpleserial-rsa-arm.c **** {
+ 1102              		.loc 1 377 1 is_stmt 1 view -0
+ 1103              		.cfi_startproc
+ 1104              		@ args = 0, pretend = 0, frame = 0
+ 1105              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1106              		@ link register save eliminated.
+ 378:simpleserial-rsa-arm.c **** }
+ 1107              		.loc 1 378 1 view .LVU286
+ 1108              	.LVL131:
+ 1109              		.loc 1 378 1 is_stmt 0 view .LVU287
+ 1110              		@ sp needed
+ 1111 0000 7047     		bx	lr
+ 1112              		.cfi_endproc
+ 1113              	.LFE16:
+ 1115              		.comm	hash,32,4
+ 1116              		.comm	buf,128,4
+ 1117              		.comm	rsa_ciphertext,128,4
+ 1118              		.comm	rsa_decrypted,24,4
+ 1119              		.comm	rsa_plaintext,24,4
+ 1120              		.comm	rsa_ctx,172,4
+ 1121              		.global	MESSAGE
+ 1122 0002 C046     		.section	.rodata
+ 1123              		.align	2
+ 1124              		.set	.LANCHOR0,. + 0
+ 1125              	.LC30:
+ 1126 0000 AABBCC03 		.ascii	"\252\273\314\003\002\001\000\377\377\377\377\377\021"
+ 1126      020100FF 
+ 1126      FFFFFFFF 
+ 1126      11
+ 1127 000d 22330A0B 		.ascii	"\"3\012\013\014\314\335\335\335\335\335\000"
+ 1127      0CCCDDDD 
+ 1127      DDDDDD00 
+ 1128 0019 000000   		.space	3
+ 1131              	MESSAGE:
+ 1132 001c 48656C6C 		.ascii	"Hello World!\000"
+ 1132      6F20576F 
+ 1132      726C6421 
+ 1132      00
+ 1133              		.text
+ 1134              	.Letext0:
+ 1135              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 1136              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 1137              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 1138              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 1139              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 1140              		.file 7 "/usr/include/newlib/stdlib.h"
+ 1141              		.file 8 ".././crypto/mbedtls//include/mbedtls/bignum.h"
+ 1142              		.file 9 ".././crypto/mbedtls//include/mbedtls/md.h"
+ 1143              		.file 10 ".././crypto/mbedtls//include/mbedtls/rsa.h"
+ 1144              		.file 11 ".././simpleserial/simpleserial.h"
+ 1145              		.file 12 ".././crypto/mbedtls//include/mbedtls/oid.h"
+ 1146              		.file 13 "/usr/include/newlib/string.h"
+ 1147              		.file 14 "<built-in>"
+ 1148              		.file 15 ".././crypto/mbedtls//include/mbedtls/sha256.h"
+ 1149              		.file 16 ".././hal/stm32f0/stm32f0_hal.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 simpleserial-rsa-arm.c
+     /tmp/ccEzN0lV.s:16     .text.myrand:0000000000000000 $t
+     /tmp/ccEzN0lV.s:24     .text.myrand:0000000000000000 myrand
+     /tmp/ccEzN0lV.s:75     .text.sig_chunk_1:0000000000000000 $t
+     /tmp/ccEzN0lV.s:83     .text.sig_chunk_1:0000000000000000 sig_chunk_1
+     /tmp/ccEzN0lV.s:115    .text.sig_chunk_1:0000000000000010 $d
+                            *COM*:0000000000000080 buf
+     /tmp/ccEzN0lV.s:120    .text.sig_chunk_2:0000000000000000 $t
+     /tmp/ccEzN0lV.s:128    .text.sig_chunk_2:0000000000000000 sig_chunk_2
+     /tmp/ccEzN0lV.s:160    .text.sig_chunk_2:0000000000000010 $d
+     /tmp/ccEzN0lV.s:165    .rodata.str1.4:0000000000000000 $d
+     /tmp/ccEzN0lV.s:210    .text.rsa_init:0000000000000000 $t
+     /tmp/ccEzN0lV.s:218    .text.rsa_init:0000000000000000 rsa_init
+     /tmp/ccEzN0lV.s:345    .text.rsa_init:00000000000000b0 $d
+                            *COM*:00000000000000ac rsa_ctx
+                            *COM*:0000000000000018 rsa_plaintext
+                            *COM*:0000000000000080 rsa_ciphertext
+     /tmp/ccEzN0lV.s:364    .text.real_dec:0000000000000000 $t
+     /tmp/ccEzN0lV.s:372    .text.real_dec:0000000000000000 real_dec
+     /tmp/ccEzN0lV.s:1079   .text.real_dec:00000000000002b0 $d
+                            *COM*:0000000000000020 hash
+     /tmp/ccEzN0lV.s:1091   .text.get_pt:0000000000000000 $t
+     /tmp/ccEzN0lV.s:1099   .text.get_pt:0000000000000000 get_pt
+                            *COM*:0000000000000018 rsa_decrypted
+     /tmp/ccEzN0lV.s:1131   .rodata:000000000000001c MESSAGE
+     /tmp/ccEzN0lV.s:1123   .rodata:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+rand
+simpleserial_put
+mbedtls_rsa_init
+simpleserial_addcmd
+mbedtls_mpi_read_string
+memcpy
+mbedtls_rsa_pkcs1_encrypt
+memset
+mbedtls_sha256
+trigger_high
+mbedtls_md_info_from_type
+mbedtls_oid_get_oid_by_md
+mbedtls_md_get_size
+calloc
+mbedtls_mpi_init
+mbedtls_mpi_read_binary
+mbedtls_mpi_free
+free
+trigger_low
+mbedtls_mpi_cmp_mpi
+mbedtls_rsa_public
+mbedtls_mpi_exp_mod
+mbedtls_mpi_sub_mpi
+mbedtls_mpi_mul_mpi
+mbedtls_mpi_mod_mpi
+mbedtls_mpi_add_mpi
+mbedtls_mpi_write_binary

@@ -1,0 +1,362 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"homebrew.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.multiplier,"ax",%progbits
+  16              		.align	1
+  17              		.global	multiplier
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	multiplier:
+  25              	.LVL0:
+  26              	.LFB3:
+  27              		.file 1 "homebrew.c"
+   1:homebrew.c    **** #include "hal.h"
+   2:homebrew.c    **** #include <stdint.h>
+   3:homebrew.c    **** #include <stdlib.h>
+   4:homebrew.c    **** #include <stdio.h>
+   5:homebrew.c    **** #include "../simpleserial/simpleserial.h"
+   6:homebrew.c    **** 
+   7:homebrew.c    **** // DUMMY VAL
+   8:homebrew.c    **** uint8_t secret[] = {0, 255, 0, 1};
+   9:homebrew.c    **** 
+  10:homebrew.c    **** uint8_t multiplier(uint8_t* data, uint8_t dlen)
+  11:homebrew.c    **** {
+  28              		.loc 1 11 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  12:homebrew.c    ****   uint64_t user_data = 0;
+  32              		.loc 1 12 3 view .LVU1
+  13:homebrew.c    ****   for (int i = 0; i < 4; i++) {
+  33              		.loc 1 13 3 view .LVU2
+  34              		.loc 1 13 8 view .LVU3
+  35              		.loc 1 13 19 view .LVU4
+  14:homebrew.c    ****     user_data += ((uint64_t) data[i] << (8*(3-i)));
+  15:homebrew.c    ****   }
+  16:homebrew.c    ****   uint64_t prod = 0;
+  36              		.loc 1 16 3 view .LVU5
+  17:homebrew.c    **** 
+  18:homebrew.c    ****   trigger_high();
+  37              		.loc 1 18 3 view .LVU6
+  11:homebrew.c    ****   uint64_t user_data = 0;
+  38              		.loc 1 11 1 is_stmt 0 view .LVU7
+  39 0000 07B5     		push	{r0, r1, r2, lr}
+  40              	.LCFI0:
+  41              		.cfi_def_cfa_offset 16
+  42              		.cfi_offset 0, -16
+  43              		.cfi_offset 1, -12
+  44              		.cfi_offset 2, -8
+  45              		.cfi_offset 14, -4
+  46              		.loc 1 18 3 view .LVU8
+  47 0002 FFF7FEFF 		bl	trigger_high
+  48              	.LVL1:
+  19:homebrew.c    ****   uint64_t val = 0;
+  49              		.loc 1 19 3 is_stmt 1 view .LVU9
+  20:homebrew.c    ****   for(int i=0;i<4;i++){
+  50              		.loc 1 20 3 view .LVU10
+  51              		.loc 1 20 7 view .LVU11
+  52              		.loc 1 20 15 view .LVU12
+  21:homebrew.c    ****     val += (secret[i]<<(8*i));
+  22:homebrew.c    ****   }
+  23:homebrew.c    ****   prod += val * user_data;
+  53              		.loc 1 23 3 view .LVU13
+  24:homebrew.c    ****   // for (int i = 0; i < 4; i++) {
+  25:homebrew.c    ****   //   for (int j = 0; j < 8; j++) {
+  26:homebrew.c    ****   //     uint8_t secret_bit = (secret[i] >> j) & 1;
+  27:homebrew.c    ****   //     if (secret_bit) {
+  28:homebrew.c    ****   //       prod += (user_data << (j+8*i));
+  29:homebrew.c    ****   //     }
+  30:homebrew.c    ****   //     for(int i =0; i<3; i++);
+  31:homebrew.c    ****   //   }
+  32:homebrew.c    ****   // }
+  33:homebrew.c    ****   trigger_low();
+  54              		.loc 1 33 3 view .LVU14
+  55 0006 FFF7FEFF 		bl	trigger_low
+  56              	.LVL2:
+  34:homebrew.c    **** 
+  35:homebrew.c    ****   uint8_t done[] = {'o','k'};
+  57              		.loc 1 35 3 view .LVU15
+  58              		.loc 1 35 11 is_stmt 0 view .LVU16
+  59 000a 044B     		ldr	r3, .L2
+  36:homebrew.c    ****   simpleserial_put('r', 2, done);
+  60              		.loc 1 36 3 view .LVU17
+  61 000c 7220     		movs	r0, #114
+  35:homebrew.c    ****   simpleserial_put('r', 2, done);
+  62              		.loc 1 35 11 view .LVU18
+  63 000e 01AA     		add	r2, sp, #4
+  64              		.loc 1 36 3 view .LVU19
+  65 0010 0221     		movs	r1, #2
+  35:homebrew.c    ****   simpleserial_put('r', 2, done);
+  66              		.loc 1 35 11 view .LVU20
+  67 0012 1380     		strh	r3, [r2]
+  68              		.loc 1 36 3 is_stmt 1 view .LVU21
+  37:homebrew.c    **** 
+  38:homebrew.c    ****   return 0x00;
+  39:homebrew.c    **** }
+  69              		.loc 1 39 1 is_stmt 0 view .LVU22
+  70              		@ sp needed
+  36:homebrew.c    **** 
+  71              		.loc 1 36 3 view .LVU23
+  72 0014 FFF7FEFF 		bl	simpleserial_put
+  73              	.LVL3:
+  38:homebrew.c    **** }
+  74              		.loc 1 38 3 is_stmt 1 view .LVU24
+  75              		.loc 1 39 1 is_stmt 0 view .LVU25
+  76 0018 0020     		movs	r0, #0
+  77 001a 0EBD     		pop	{r1, r2, r3, pc}
+  78              	.L3:
+  79              		.align	2
+  80              	.L2:
+  81 001c 6F6B0000 		.word	27503
+  82              		.cfi_endproc
+  83              	.LFE3:
+  85              		.section	.text.verify,"ax",%progbits
+  86              		.align	1
+  87              		.global	verify
+  88              		.syntax unified
+  89              		.code	16
+  90              		.thumb_func
+  91              		.fpu softvfp
+  93              	verify:
+  94              	.LVL4:
+  95              	.LFB4:
+  40:homebrew.c    **** 
+  41:homebrew.c    **** uint8_t verify(uint8_t* data, uint8_t dlen) {
+  96              		.loc 1 41 45 is_stmt 1 view -0
+  97              		.cfi_startproc
+  98              		@ args = 0, pretend = 0, frame = 8
+  99              		@ frame_needed = 0, uses_anonymous_args = 0
+  42:homebrew.c    ****   uint8_t result = 1;
+ 100              		.loc 1 42 3 view .LVU27
+  41:homebrew.c    ****   uint8_t result = 1;
+ 101              		.loc 1 41 45 is_stmt 0 view .LVU28
+ 102 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 103              	.LCFI1:
+ 104              		.cfi_def_cfa_offset 32
+ 105              		.cfi_offset 0, -32
+ 106              		.cfi_offset 1, -28
+ 107              		.cfi_offset 2, -24
+ 108              		.cfi_offset 4, -20
+ 109              		.cfi_offset 5, -16
+ 110              		.cfi_offset 6, -12
+ 111              		.cfi_offset 7, -8
+ 112              		.cfi_offset 14, -4
+ 113              		.loc 1 42 11 view .LVU29
+ 114 0002 6B46     		mov	r3, sp
+ 115 0004 DC1D     		adds	r4, r3, #7
+ 116 0006 0123     		movs	r3, #1
+ 117              	.LBB2:
+  43:homebrew.c    ****   for (int i = 0; i < dlen; i++) {
+ 118              		.loc 1 43 3 view .LVU30
+ 119 0008 0022     		movs	r2, #0
+  44:homebrew.c    ****     result *= (secret[i] == data[i]);
+ 120              		.loc 1 44 12 view .LVU31
+ 121 000a 1E00     		movs	r6, r3
+ 122 000c 0C4D     		ldr	r5, .L11
+ 123              	.LBE2:
+  42:homebrew.c    ****   for (int i = 0; i < dlen; i++) {
+ 124              		.loc 1 42 11 view .LVU32
+ 125 000e 2370     		strb	r3, [r4]
+  43:homebrew.c    ****   for (int i = 0; i < dlen; i++) {
+ 126              		.loc 1 43 3 is_stmt 1 view .LVU33
+ 127              	.LBB3:
+  43:homebrew.c    ****   for (int i = 0; i < dlen; i++) {
+ 128              		.loc 1 43 8 view .LVU34
+ 129              	.LVL5:
+  43:homebrew.c    ****   for (int i = 0; i < dlen; i++) {
+ 130              		.loc 1 43 8 is_stmt 0 view .LVU35
+ 131 0010 4919     		adds	r1, r1, r5
+ 132              	.LVL6:
+ 133              	.L5:
+  43:homebrew.c    ****   for (int i = 0; i < dlen; i++) {
+ 134              		.loc 1 43 19 is_stmt 1 discriminator 1 view .LVU36
+  43:homebrew.c    ****   for (int i = 0; i < dlen; i++) {
+ 135              		.loc 1 43 3 is_stmt 0 discriminator 1 view .LVU37
+ 136 0012 8D42     		cmp	r5, r1
+ 137 0014 09D1     		bne	.L6
+ 138 0016 002A     		cmp	r2, #0
+ 139 0018 00D0     		beq	.L7
+ 140 001a 2370     		strb	r3, [r4]
+ 141              	.L7:
+ 142              	.LBE3:
+  45:homebrew.c    ****   }
+  46:homebrew.c    ****   simpleserial_put('r', 1, &result); // GOAL is to output 1
+ 143              		.loc 1 46 3 is_stmt 1 view .LVU38
+ 144 001c 2200     		movs	r2, r4
+ 145 001e 0121     		movs	r1, #1
+ 146 0020 7220     		movs	r0, #114
+ 147 0022 FFF7FEFF 		bl	simpleserial_put
+ 148              	.LVL7:
+  47:homebrew.c    ****   return result;
+ 149              		.loc 1 47 3 view .LVU39
+  48:homebrew.c    **** }
+ 150              		.loc 1 48 1 is_stmt 0 view .LVU40
+ 151              		@ sp needed
+  47:homebrew.c    ****   return result;
+ 152              		.loc 1 47 10 view .LVU41
+ 153 0026 2078     		ldrb	r0, [r4]
+ 154              	.LVL8:
+ 155              		.loc 1 48 1 view .LVU42
+ 156 0028 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 157              	.LVL9:
+ 158              	.L6:
+ 159              	.LBB4:
+  44:homebrew.c    ****   }
+ 160              		.loc 1 44 5 is_stmt 1 discriminator 3 view .LVU43
+  44:homebrew.c    ****   }
+ 161              		.loc 1 44 26 is_stmt 0 discriminator 3 view .LVU44
+ 162 002a 0778     		ldrb	r7, [r0]
+ 163 002c 2A78     		ldrb	r2, [r5]
+ 164 002e 0130     		adds	r0, r0, #1
+ 165 0030 D21B     		subs	r2, r2, r7
+ 166 0032 5742     		rsbs	r7, r2, #0
+ 167 0034 7A41     		adcs	r2, r2, r7
+  44:homebrew.c    ****   }
+ 168              		.loc 1 44 12 discriminator 3 view .LVU45
+ 169 0036 5343     		muls	r3, r2
+ 170 0038 0135     		adds	r5, r5, #1
+ 171              	.LVL10:
+  44:homebrew.c    ****   }
+ 172              		.loc 1 44 12 discriminator 3 view .LVU46
+ 173 003a 3200     		movs	r2, r6
+ 174 003c DBB2     		uxtb	r3, r3
+  43:homebrew.c    ****     result *= (secret[i] == data[i]);
+ 175              		.loc 1 43 29 is_stmt 1 discriminator 3 view .LVU47
+ 176              	.LVL11:
+  43:homebrew.c    ****     result *= (secret[i] == data[i]);
+ 177              		.loc 1 43 29 is_stmt 0 discriminator 3 view .LVU48
+ 178 003e E8E7     		b	.L5
+ 179              	.L12:
+ 180              		.align	2
+ 181              	.L11:
+ 182 0040 00000000 		.word	.LANCHOR0
+ 183              	.LBE4:
+ 184              		.cfi_endproc
+ 185              	.LFE4:
+ 187              		.section	.text.startup.main,"ax",%progbits
+ 188              		.align	1
+ 189              		.global	main
+ 190              		.syntax unified
+ 191              		.code	16
+ 192              		.thumb_func
+ 193              		.fpu softvfp
+ 195              	main:
+ 196              	.LFB5:
+  49:homebrew.c    **** 
+  50:homebrew.c    **** int main(void) {
+ 197              		.loc 1 50 16 is_stmt 1 view -0
+ 198              		.cfi_startproc
+ 199              		@ Volatile: function does not return.
+ 200              		@ args = 0, pretend = 0, frame = 0
+ 201              		@ frame_needed = 0, uses_anonymous_args = 0
+  51:homebrew.c    **** 
+  52:homebrew.c    ****   // RESEARCH TEAMS: Do not use the '*' operator outside of index calculations
+  53:homebrew.c    ****   
+  54:homebrew.c    ****   platform_init();
+ 202              		.loc 1 54 3 view .LVU50
+  50:homebrew.c    **** 
+ 203              		.loc 1 50 16 is_stmt 0 view .LVU51
+ 204 0000 10B5     		push	{r4, lr}
+ 205              	.LCFI2:
+ 206              		.cfi_def_cfa_offset 8
+ 207              		.cfi_offset 4, -8
+ 208              		.cfi_offset 14, -4
+ 209              		.loc 1 54 3 view .LVU52
+ 210 0002 FFF7FEFF 		bl	platform_init
+ 211              	.LVL12:
+  55:homebrew.c    ****   init_uart();
+ 212              		.loc 1 55 3 is_stmt 1 view .LVU53
+ 213 0006 FFF7FEFF 		bl	init_uart
+ 214              	.LVL13:
+  56:homebrew.c    ****   trigger_setup();
+ 215              		.loc 1 56 3 view .LVU54
+ 216 000a FFF7FEFF 		bl	trigger_setup
+ 217              	.LVL14:
+  57:homebrew.c    ****   simpleserial_init();
+ 218              		.loc 1 57 3 view .LVU55
+ 219 000e FFF7FEFF 		bl	simpleserial_init
+ 220              	.LVL15:
+  58:homebrew.c    **** 
+  59:homebrew.c    ****   simpleserial_addcmd('m', 4, multiplier);
+ 221              		.loc 1 59 3 view .LVU56
+ 222 0012 0421     		movs	r1, #4
+ 223 0014 054A     		ldr	r2, .L15
+ 224 0016 6D20     		movs	r0, #109
+ 225 0018 FFF7FEFF 		bl	simpleserial_addcmd
+ 226              	.LVL16:
+  60:homebrew.c    ****   simpleserial_addcmd('a', 4, verify);
+ 227              		.loc 1 60 3 view .LVU57
+ 228 001c 0421     		movs	r1, #4
+ 229 001e 6120     		movs	r0, #97
+ 230 0020 034A     		ldr	r2, .L15+4
+ 231 0022 FFF7FEFF 		bl	simpleserial_addcmd
+ 232              	.LVL17:
+ 233              	.L14:
+  61:homebrew.c    **** 
+  62:homebrew.c    ****   while(1) simpleserial_get();
+ 234              		.loc 1 62 3 discriminator 1 view .LVU58
+ 235              		.loc 1 62 12 discriminator 1 view .LVU59
+ 236 0026 FFF7FEFF 		bl	simpleserial_get
+ 237              	.LVL18:
+ 238              		.loc 1 62 8 discriminator 1 view .LVU60
+ 239 002a FCE7     		b	.L14
+ 240              	.L16:
+ 241              		.align	2
+ 242              	.L15:
+ 243 002c 00000000 		.word	multiplier
+ 244 0030 00000000 		.word	verify
+ 245              		.cfi_endproc
+ 246              	.LFE5:
+ 248              		.global	secret
+ 249              		.data
+ 250              		.set	.LANCHOR0,. + 0
+ 253              	secret:
+ 254 0000 00FF0001 		.ascii	"\000\377\000\001"
+ 255              		.text
+ 256              	.Letext0:
+ 257              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 258              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 259              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 260              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 261              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 262              		.file 7 "/usr/include/newlib/stdlib.h"
+ 263              		.file 8 ".././hal/hal.h"
+ 264              		.file 9 ".././hal/stm32f0/stm32f0_hal.h"
+ 265              		.file 10 "../simpleserial/simpleserial.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 homebrew.c
+     /tmp/ccoT4Y9e.s:16     .text.multiplier:0000000000000000 $t
+     /tmp/ccoT4Y9e.s:24     .text.multiplier:0000000000000000 multiplier
+     /tmp/ccoT4Y9e.s:81     .text.multiplier:000000000000001c $d
+     /tmp/ccoT4Y9e.s:86     .text.verify:0000000000000000 $t
+     /tmp/ccoT4Y9e.s:93     .text.verify:0000000000000000 verify
+     /tmp/ccoT4Y9e.s:182    .text.verify:0000000000000040 $d
+     /tmp/ccoT4Y9e.s:188    .text.startup.main:0000000000000000 $t
+     /tmp/ccoT4Y9e.s:195    .text.startup.main:0000000000000000 main
+     /tmp/ccoT4Y9e.s:243    .text.startup.main:000000000000002c $d
+     /tmp/ccoT4Y9e.s:253    .data:0000000000000000 secret
+
+UNDEFINED SYMBOLS
+trigger_high
+trigger_low
+simpleserial_put
+platform_init
+init_uart
+trigger_setup
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get

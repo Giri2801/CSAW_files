@@ -1,0 +1,913 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"fizzy.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.verify,"ax",%progbits
+  16              		.align	1
+  17              		.global	verify
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	verify:
+  25              	.LVL0:
+  26              	.LFB0:
+  27              		.file 1 "fizzy.c"
+   1:fizzy.c       **** #include "hal.h"
+   2:fizzy.c       **** #include <stdint.h>
+   3:fizzy.c       **** #include <stdlib.h>
+   4:fizzy.c       **** #include "../simpleserial/simpleserial.h"
+   5:fizzy.c       **** 
+   6:fizzy.c       **** // DUMMY VAL
+   7:fizzy.c       **** uint8_t arr[] = {2,1,0,8,9,7,6};
+   8:fizzy.c       **** uint8_t n = 7;
+   9:fizzy.c       **** uint8_t permute();
+  10:fizzy.c       **** uint8_t verify(uint8_t* data, uint8_t dlen) {
+  28              		.loc 1 10 45 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 8
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  11:fizzy.c       ****   uint8_t zero = 0;
+  32              		.loc 1 11 3 view .LVU1
+  10:fizzy.c       ****   uint8_t zero = 0;
+  33              		.loc 1 10 45 is_stmt 0 view .LVU2
+  34 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 32
+  37              		.cfi_offset 0, -32
+  38              		.cfi_offset 1, -28
+  39              		.cfi_offset 2, -24
+  40              		.cfi_offset 4, -20
+  41              		.cfi_offset 5, -16
+  42              		.cfi_offset 6, -12
+  43              		.cfi_offset 7, -8
+  44              		.cfi_offset 14, -4
+  45              		.loc 1 11 11 view .LVU3
+  46 0002 6B46     		mov	r3, sp
+  12:fizzy.c       ****   uint8_t one = 1;
+  47              		.loc 1 12 11 view .LVU4
+  48 0004 6A46     		mov	r2, sp
+  49 0006 0121     		movs	r1, #1
+  50              	.LVL1:
+  11:fizzy.c       ****   uint8_t zero = 0;
+  51              		.loc 1 11 11 view .LVU5
+  52 0008 9C1D     		adds	r4, r3, #6
+  53 000a 0023     		movs	r3, #0
+  54              		.loc 1 12 11 view .LVU6
+  55 000c D171     		strb	r1, [r2, #7]
+  56              	.LBB6:
+  13:fizzy.c       ****   for (int i = 0; i < n; i++) {
+  57              		.loc 1 13 21 view .LVU7
+  58 000e 0D49     		ldr	r1, .L6
+  59              	.LBE6:
+  12:fizzy.c       ****   uint8_t one = 1;
+  60              		.loc 1 12 11 view .LVU8
+  61 0010 0732     		adds	r2, r2, #7
+  62              	.LBB7:
+  63              		.loc 1 13 21 view .LVU9
+  64 0012 0D78     		ldrb	r5, [r1]
+  65              	.LBE7:
+  11:fizzy.c       ****   uint8_t one = 1;
+  66              		.loc 1 11 11 view .LVU10
+  67 0014 2370     		strb	r3, [r4]
+  12:fizzy.c       ****   uint8_t one = 1;
+  68              		.loc 1 12 3 is_stmt 1 view .LVU11
+  69              		.loc 1 13 3 view .LVU12
+  70              	.LBB8:
+  71              		.loc 1 13 8 view .LVU13
+  72              	.LVL2:
+  14:fizzy.c       ****     if (arr[i] != data[i]) {
+  73              		.loc 1 14 12 is_stmt 0 view .LVU14
+  74 0016 0131     		adds	r1, r1, #1
+  75              	.LVL3:
+  76              	.L2:
+  13:fizzy.c       ****   for (int i = 0; i < n; i++) {
+  77              		.loc 1 13 19 is_stmt 1 discriminator 1 view .LVU15
+  13:fizzy.c       ****   for (int i = 0; i < n; i++) {
+  78              		.loc 1 13 3 is_stmt 0 discriminator 1 view .LVU16
+  79 0018 9D42     		cmp	r5, r3
+  80 001a 05DC     		bgt	.L5
+  81              	.LBE8:
+  15:fizzy.c       ****       simpleserial_put('r', 1, &zero);
+  16:fizzy.c       ****       return 0x00;
+  17:fizzy.c       ****     }
+  18:fizzy.c       ****   }
+  19:fizzy.c       ****   simpleserial_put('r', 1, &one); // GOAL
+  82              		.loc 1 19 3 is_stmt 1 view .LVU17
+  83 001c 7220     		movs	r0, #114
+  84              	.LVL4:
+  85              		.loc 1 19 3 is_stmt 0 view .LVU18
+  86 001e 0121     		movs	r1, #1
+  87 0020 FFF7FEFF 		bl	simpleserial_put
+  88              	.LVL5:
+  20:fizzy.c       ****   return 0x01;
+  89              		.loc 1 20 3 is_stmt 1 view .LVU19
+  90              		.loc 1 20 10 is_stmt 0 view .LVU20
+  91 0024 0120     		movs	r0, #1
+  92 0026 09E0     		b	.L4
+  93              	.LVL6:
+  94              	.L5:
+  95              	.LBB9:
+  14:fizzy.c       ****     if (arr[i] != data[i]) {
+  96              		.loc 1 14 5 is_stmt 1 view .LVU21
+  14:fizzy.c       ****     if (arr[i] != data[i]) {
+  97              		.loc 1 14 8 is_stmt 0 view .LVU22
+  98 0028 5F5C     		ldrb	r7, [r3, r1]
+  99 002a C65C     		ldrb	r6, [r0, r3]
+ 100 002c B742     		cmp	r7, r6
+ 101 002e 06D0     		beq	.L3
+  15:fizzy.c       ****       simpleserial_put('r', 1, &zero);
+ 102              		.loc 1 15 7 is_stmt 1 view .LVU23
+ 103 0030 7220     		movs	r0, #114
+ 104              	.LVL7:
+  15:fizzy.c       ****       simpleserial_put('r', 1, &zero);
+ 105              		.loc 1 15 7 is_stmt 0 view .LVU24
+ 106 0032 2200     		movs	r2, r4
+ 107 0034 0121     		movs	r1, #1
+ 108 0036 FFF7FEFF 		bl	simpleserial_put
+ 109              	.LVL8:
+  16:fizzy.c       ****     }
+ 110              		.loc 1 16 7 is_stmt 1 view .LVU25
+  16:fizzy.c       ****     }
+ 111              		.loc 1 16 14 is_stmt 0 view .LVU26
+ 112 003a 0020     		movs	r0, #0
+ 113              	.L4:
+  16:fizzy.c       ****     }
+ 114              		.loc 1 16 14 view .LVU27
+ 115              	.LBE9:
+  21:fizzy.c       **** }
+ 116              		.loc 1 21 1 view .LVU28
+ 117              		@ sp needed
+ 118 003c FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 119              	.LVL9:
+ 120              	.L3:
+ 121              	.LBB10:
+  13:fizzy.c       ****     if (arr[i] != data[i]) {
+ 122              		.loc 1 13 26 is_stmt 1 discriminator 2 view .LVU29
+  13:fizzy.c       ****     if (arr[i] != data[i]) {
+ 123              		.loc 1 13 27 is_stmt 0 discriminator 2 view .LVU30
+ 124 003e 0133     		adds	r3, r3, #1
+ 125              	.LVL10:
+  13:fizzy.c       ****     if (arr[i] != data[i]) {
+ 126              		.loc 1 13 27 discriminator 2 view .LVU31
+ 127 0040 EAE7     		b	.L2
+ 128              	.L7:
+ 129 0042 C046     		.align	2
+ 130              	.L6:
+ 131 0044 00000000 		.word	.LANCHOR0
+ 132              	.LBE10:
+ 133              		.cfi_endproc
+ 134              	.LFE0:
+ 136              		.section	.text.swap,"ax",%progbits
+ 137              		.align	1
+ 138              		.global	swap
+ 139              		.syntax unified
+ 140              		.code	16
+ 141              		.thumb_func
+ 142              		.fpu softvfp
+ 144              	swap:
+ 145              	.LVL11:
+ 146              	.LFB1:
+  22:fizzy.c       **** 
+  23:fizzy.c       **** void swap(uint8_t *xp, uint8_t *yp) {
+ 147              		.loc 1 23 37 is_stmt 1 view -0
+ 148              		.cfi_startproc
+ 149              		@ args = 0, pretend = 0, frame = 0
+ 150              		@ frame_needed = 0, uses_anonymous_args = 0
+ 151              		@ link register save eliminated.
+  24:fizzy.c       ****   uint8_t temp = *xp;
+ 152              		.loc 1 24 3 view .LVU33
+ 153              		.loc 1 24 11 is_stmt 0 view .LVU34
+ 154 0000 0378     		ldrb	r3, [r0]
+ 155              	.LVL12:
+  25:fizzy.c       ****   *xp = *yp;
+ 156              		.loc 1 25 3 is_stmt 1 view .LVU35
+ 157              		.loc 1 25 9 is_stmt 0 view .LVU36
+ 158 0002 0A78     		ldrb	r2, [r1]
+  26:fizzy.c       ****   *yp = temp;
+  27:fizzy.c       **** }
+ 159              		.loc 1 27 1 view .LVU37
+ 160              		@ sp needed
+  25:fizzy.c       ****   *xp = *yp;
+ 161              		.loc 1 25 7 view .LVU38
+ 162 0004 0270     		strb	r2, [r0]
+  26:fizzy.c       ****   *yp = temp;
+ 163              		.loc 1 26 3 is_stmt 1 view .LVU39
+  26:fizzy.c       ****   *yp = temp;
+ 164              		.loc 1 26 7 is_stmt 0 view .LVU40
+ 165 0006 0B70     		strb	r3, [r1]
+ 166              		.loc 1 27 1 view .LVU41
+ 167 0008 7047     		bx	lr
+ 168              		.cfi_endproc
+ 169              	.LFE1:
+ 171              		.section	.text.verify1,"ax",%progbits
+ 172              		.align	1
+ 173              		.global	verify1
+ 174              		.syntax unified
+ 175              		.code	16
+ 176              		.thumb_func
+ 177              		.fpu softvfp
+ 179              	verify1:
+ 180              	.LVL13:
+ 181              	.LFB2:
+  28:fizzy.c       **** 
+  29:fizzy.c       **** uint8_t verify1(uint8_t* data, uint8_t dlen,uint8_t val) {
+ 182              		.loc 1 29 58 is_stmt 1 view -0
+ 183              		.cfi_startproc
+ 184              		@ args = 0, pretend = 0, frame = 0
+ 185              		@ frame_needed = 0, uses_anonymous_args = 0
+  30:fizzy.c       ****   uint8_t is_present = 0x0;
+ 186              		.loc 1 30 3 view .LVU43
+  31:fizzy.c       ****   for (int i = 0; i < dlen; i++) {
+ 187              		.loc 1 31 3 view .LVU44
+ 188              	.LBB11:
+ 189              		.loc 1 31 8 view .LVU45
+ 190              		.loc 1 31 12 is_stmt 0 view .LVU46
+ 191 0000 0023     		movs	r3, #0
+ 192              	.LBE11:
+  29:fizzy.c       ****   uint8_t is_present = 0x0;
+ 193              		.loc 1 29 58 view .LVU47
+ 194 0002 70B5     		push	{r4, r5, r6, lr}
+ 195              	.LCFI1:
+ 196              		.cfi_def_cfa_offset 16
+ 197              		.cfi_offset 4, -16
+ 198              		.cfi_offset 5, -12
+ 199              		.cfi_offset 6, -8
+ 200              		.cfi_offset 14, -4
+  30:fizzy.c       ****   uint8_t is_present = 0x0;
+ 201              		.loc 1 30 11 view .LVU48
+ 202 0004 1D00     		movs	r5, r3
+ 203              	.LVL14:
+ 204              	.L10:
+ 205              	.LBB12:
+ 206              		.loc 1 31 19 is_stmt 1 discriminator 1 view .LVU49
+ 207              		.loc 1 31 3 is_stmt 0 discriminator 1 view .LVU50
+ 208 0006 9942     		cmp	r1, r3
+ 209 0008 02DC     		bgt	.L11
+ 210              	.LBE12:
+  32:fizzy.c       ****       is_present |= (data[i]==val);
+  33:fizzy.c       ****   }
+  34:fizzy.c       ****   return !is_present;
+ 211              		.loc 1 34 3 is_stmt 1 view .LVU51
+ 212              		.loc 1 34 10 is_stmt 0 view .LVU52
+ 213 000a 0120     		movs	r0, #1
+ 214              	.LVL15:
+  35:fizzy.c       **** }
+ 215              		.loc 1 35 1 view .LVU53
+ 216              		@ sp needed
+  34:fizzy.c       **** }
+ 217              		.loc 1 34 10 view .LVU54
+ 218 000c 6840     		eors	r0, r5
+ 219              	.LVL16:
+ 220              		.loc 1 35 1 view .LVU55
+ 221 000e 70BD     		pop	{r4, r5, r6, pc}
+ 222              	.LVL17:
+ 223              	.L11:
+ 224              	.LBB13:
+  32:fizzy.c       ****       is_present |= (data[i]==val);
+ 225              		.loc 1 32 7 is_stmt 1 discriminator 3 view .LVU56
+  32:fizzy.c       ****       is_present |= (data[i]==val);
+ 226              		.loc 1 32 29 is_stmt 0 discriminator 3 view .LVU57
+ 227 0010 C45C     		ldrb	r4, [r0, r3]
+  31:fizzy.c       ****       is_present |= (data[i]==val);
+ 228              		.loc 1 31 30 discriminator 3 view .LVU58
+ 229 0012 0133     		adds	r3, r3, #1
+ 230              	.LVL18:
+  32:fizzy.c       ****   }
+ 231              		.loc 1 32 29 discriminator 3 view .LVU59
+ 232 0014 A41A     		subs	r4, r4, r2
+ 233 0016 6642     		rsbs	r6, r4, #0
+ 234 0018 7441     		adcs	r4, r4, r6
+  32:fizzy.c       ****   }
+ 235              		.loc 1 32 18 discriminator 3 view .LVU60
+ 236 001a 2543     		orrs	r5, r4
+ 237              	.LVL19:
+  31:fizzy.c       ****       is_present |= (data[i]==val);
+ 238              		.loc 1 31 29 is_stmt 1 discriminator 3 view .LVU61
+  31:fizzy.c       ****       is_present |= (data[i]==val);
+ 239              		.loc 1 31 29 is_stmt 0 discriminator 3 view .LVU62
+ 240 001c F3E7     		b	.L10
+ 241              	.LBE13:
+ 242              		.cfi_endproc
+ 243              	.LFE2:
+ 245              		.global	__aeabi_idivmod
+ 246              		.section	.text.permute,"ax",%progbits
+ 247              		.align	1
+ 248              		.global	permute
+ 249              		.syntax unified
+ 250              		.code	16
+ 251              		.thumb_func
+ 252              		.fpu softvfp
+ 254              	permute:
+ 255              	.LFB3:
+  36:fizzy.c       **** 
+  37:fizzy.c       **** uint8_t permute(){
+ 256              		.loc 1 37 18 is_stmt 1 view -0
+ 257              		.cfi_startproc
+ 258              		@ args = 0, pretend = 0, frame = 512
+ 259              		@ frame_needed = 0, uses_anonymous_args = 0
+  38:fizzy.c       ****     srand(HAL_GetTick());
+ 260              		.loc 1 38 5 view .LVU64
+  37:fizzy.c       ****     srand(HAL_GetTick());
+ 261              		.loc 1 37 18 is_stmt 0 view .LVU65
+ 262 0000 F3B5     		push	{r0, r1, r4, r5, r6, r7, lr}
+ 263              	.LCFI2:
+ 264              		.cfi_def_cfa_offset 28
+ 265              		.cfi_offset 0, -28
+ 266              		.cfi_offset 1, -24
+ 267              		.cfi_offset 4, -20
+ 268              		.cfi_offset 5, -16
+ 269              		.cfi_offset 6, -12
+ 270              		.cfi_offset 7, -8
+ 271              		.cfi_offset 14, -4
+ 272 0002 FFB0     		sub	sp, sp, #508
+ 273              	.LCFI3:
+ 274              		.cfi_def_cfa_offset 536
+ 275              		.loc 1 38 11 view .LVU66
+ 276 0004 FFF7FEFF 		bl	HAL_GetTick
+ 277              	.LVL20:
+ 278              		.loc 1 38 5 view .LVU67
+ 279 0008 FFF7FEFF 		bl	srand
+ 280              	.LVL21:
+  39:fizzy.c       ****     uint8_t n = sizeof(arr)/sizeof(arr[0]);
+ 281              		.loc 1 39 5 is_stmt 1 view .LVU68
+  40:fizzy.c       ****     uint8_t perm[256];
+ 282              		.loc 1 40 5 view .LVU69
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 283              		.loc 1 41 5 view .LVU70
+ 284              	.LBB14:
+ 285              		.loc 1 41 10 view .LVU71
+ 286              		.loc 1 41 21 view .LVU72
+  42:fizzy.c       ****         perm[i] = n;
+ 287              		.loc 1 42 9 view .LVU73
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 288              		.loc 1 41 27 view .LVU74
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 289              		.loc 1 41 21 view .LVU75
+ 290              		.loc 1 42 9 view .LVU76
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 291              		.loc 1 41 27 view .LVU77
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 292              		.loc 1 41 21 view .LVU78
+ 293              		.loc 1 42 9 view .LVU79
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 294              		.loc 1 41 27 view .LVU80
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 295              		.loc 1 41 21 view .LVU81
+ 296              		.loc 1 42 9 view .LVU82
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 297              		.loc 1 41 27 view .LVU83
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 298              		.loc 1 41 21 view .LVU84
+ 299              		.loc 1 42 9 view .LVU85
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 300              		.loc 1 41 27 view .LVU86
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 301              		.loc 1 41 21 view .LVU87
+ 302              		.loc 1 42 9 view .LVU88
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 303              		.loc 1 41 27 view .LVU89
+  41:fizzy.c       ****     for (int i = 0; i<n ; i++ )
+ 304              		.loc 1 41 21 view .LVU90
+ 305              		.loc 1 42 9 view .LVU91
+ 306              		.loc 1 42 17 is_stmt 0 view .LVU92
+ 307 000c 0726     		movs	r6, #7
+ 308 000e 6A46     		mov	r2, sp
+ 309              	.LBE14:
+  43:fizzy.c       ****         
+  44:fizzy.c       ****     int k = 0;
+ 310              		.loc 1 44 9 view .LVU93
+ 311 0010 0025     		movs	r5, #0
+ 312              	.LBB15:
+  45:fizzy.c       ****     while(k<n){
+  46:fizzy.c       ****         int m = rand();
+  47:fizzy.c       ****         uint8_t j = m%n;
+  48:fizzy.c       ****         uint8_t isok = verify1(perm,n,j);
+  49:fizzy.c       ****         perm[k] = perm[k]*(1-isok) + j*isok;
+ 313              		.loc 1 49 29 view .LVU94
+ 314 0012 0127     		movs	r7, #1
+ 315              	.LBE15:
+ 316              	.LBB16:
+  42:fizzy.c       ****         
+ 317              		.loc 1 42 17 view .LVU95
+ 318 0014 174B     		ldr	r3, .L19
+ 319 0016 9671     		strb	r6, [r2, #6]
+  41:fizzy.c       ****         perm[i] = n;
+ 320              		.loc 1 41 27 is_stmt 1 view .LVU96
+ 321              	.LVL22:
+  41:fizzy.c       ****         perm[i] = n;
+ 322              		.loc 1 41 21 view .LVU97
+  41:fizzy.c       ****         perm[i] = n;
+ 323              		.loc 1 41 21 is_stmt 0 view .LVU98
+ 324              	.LBE16:
+  45:fizzy.c       ****     while(k<n){
+ 325              		.loc 1 45 10 is_stmt 1 view .LVU99
+ 326              	.LBB17:
+  42:fizzy.c       ****         
+ 327              		.loc 1 42 17 is_stmt 0 view .LVU100
+ 328 0018 0093     		str	r3, [sp]
+ 329 001a 174B     		ldr	r3, .L19+4
+ 330 001c 9380     		strh	r3, [r2, #4]
+ 331              	.LVL23:
+ 332              	.L13:
+  42:fizzy.c       ****         
+ 333              		.loc 1 42 17 view .LVU101
+ 334              	.LBE17:
+ 335              	.LBB18:
+  46:fizzy.c       ****         uint8_t j = m%n;
+ 336              		.loc 1 46 9 is_stmt 1 view .LVU102
+  46:fizzy.c       ****         uint8_t j = m%n;
+ 337              		.loc 1 46 17 is_stmt 0 view .LVU103
+ 338 001e FFF7FEFF 		bl	rand
+ 339              	.LVL24:
+  47:fizzy.c       ****         uint8_t isok = verify1(perm,n,j);
+ 340              		.loc 1 47 9 is_stmt 1 view .LVU104
+  47:fizzy.c       ****         uint8_t isok = verify1(perm,n,j);
+ 341              		.loc 1 47 22 is_stmt 0 view .LVU105
+ 342 0022 3100     		movs	r1, r6
+ 343 0024 FFF7FEFF 		bl	__aeabi_idivmod
+ 344              	.LVL25:
+  47:fizzy.c       ****         uint8_t isok = verify1(perm,n,j);
+ 345              		.loc 1 47 17 view .LVU106
+ 346 0028 CCB2     		uxtb	r4, r1
+ 347              	.LVL26:
+  48:fizzy.c       ****         perm[k] = perm[k]*(1-isok) + j*isok;
+ 348              		.loc 1 48 9 is_stmt 1 view .LVU107
+  48:fizzy.c       ****         perm[k] = perm[k]*(1-isok) + j*isok;
+ 349              		.loc 1 48 24 is_stmt 0 view .LVU108
+ 350 002a 2200     		movs	r2, r4
+ 351 002c 3100     		movs	r1, r6
+ 352 002e 6846     		mov	r0, sp
+ 353 0030 FFF7FEFF 		bl	verify1
+ 354              	.LVL27:
+ 355              		.loc 1 49 9 is_stmt 1 view .LVU109
+ 356              		.loc 1 49 36 is_stmt 0 view .LVU110
+ 357 0034 6B46     		mov	r3, sp
+ 358 0036 5B5D     		ldrb	r3, [r3, r5]
+ 359              		.loc 1 49 29 view .LVU111
+ 360 0038 391A     		subs	r1, r7, r0
+ 361              		.loc 1 49 36 view .LVU112
+ 362 003a 4B43     		muls	r3, r1
+ 363              		.loc 1 49 39 view .LVU113
+ 364 003c 4443     		muls	r4, r0
+ 365              	.LVL28:
+ 366              		.loc 1 49 36 view .LVU114
+ 367 003e 1C19     		adds	r4, r3, r4
+ 368              		.loc 1 49 17 view .LVU115
+ 369 0040 6B46     		mov	r3, sp
+ 370 0042 5C55     		strb	r4, [r3, r5]
+  50:fizzy.c       ****         k = k + isok;
+ 371              		.loc 1 50 9 is_stmt 1 view .LVU116
+ 372              		.loc 1 50 11 is_stmt 0 view .LVU117
+ 373 0044 2D18     		adds	r5, r5, r0
+ 374              	.LVL29:
+ 375              		.loc 1 50 11 view .LVU118
+ 376              	.LBE18:
+  45:fizzy.c       ****         int m = rand();
+ 377              		.loc 1 45 10 is_stmt 1 view .LVU119
+ 378 0046 062D     		cmp	r5, #6
+ 379 0048 E9DD     		ble	.L13
+ 380              	.LBB19:
+  51:fizzy.c       ****     }
+  52:fizzy.c       ****     uint8_t temp[256];
+  53:fizzy.c       ****     for(int i=0;i<n;i++){
+ 381              		.loc 1 53 13 is_stmt 0 view .LVU120
+ 382 004a 0023     		movs	r3, #0
+  54:fizzy.c       ****         temp[i] = arr[i];
+ 383              		.loc 1 54 22 view .LVU121
+ 384 004c 0B4A     		ldr	r2, .L19+8
+ 385              		.loc 1 54 17 view .LVU122
+ 386 004e 40A9     		add	r1, sp, #256
+ 387              		.loc 1 54 22 view .LVU123
+ 388 0050 541C     		adds	r4, r2, #1
+ 389              	.LVL30:
+ 390              	.L14:
+ 391              		.loc 1 54 9 is_stmt 1 discriminator 3 view .LVU124
+ 392              		.loc 1 54 17 is_stmt 0 discriminator 3 view .LVU125
+ 393 0052 185D     		ldrb	r0, [r3, r4]
+ 394 0054 5854     		strb	r0, [r3, r1]
+  53:fizzy.c       ****         temp[i] = arr[i];
+ 395              		.loc 1 53 21 is_stmt 1 discriminator 3 view .LVU126
+  53:fizzy.c       ****         temp[i] = arr[i];
+ 396              		.loc 1 53 22 is_stmt 0 discriminator 3 view .LVU127
+ 397 0056 0133     		adds	r3, r3, #1
+ 398              	.LVL31:
+  53:fizzy.c       ****         temp[i] = arr[i];
+ 399              		.loc 1 53 17 is_stmt 1 discriminator 3 view .LVU128
+  53:fizzy.c       ****         temp[i] = arr[i];
+ 400              		.loc 1 53 5 is_stmt 0 discriminator 3 view .LVU129
+ 401 0058 072B     		cmp	r3, #7
+ 402 005a FAD1     		bne	.L14
+ 403              	.LBE19:
+ 404              	.LBB20:
+  55:fizzy.c       ****     }
+  56:fizzy.c       ****     for(int i=0;i<n;i++){
+ 405              		.loc 1 56 13 view .LVU130
+ 406 005c 0023     		movs	r3, #0
+ 407              	.LVL32:
+  57:fizzy.c       ****         arr[i]=temp[perm[i]];
+ 408              		.loc 1 57 15 view .LVU131
+ 409 005e 0132     		adds	r2, r2, #1
+ 410              	.L15:
+ 411              	.LVL33:
+ 412              		.loc 1 57 9 is_stmt 1 discriminator 3 view .LVU132
+ 413              		.loc 1 57 25 is_stmt 0 discriminator 3 view .LVU133
+ 414 0060 6846     		mov	r0, sp
+ 415 0062 C05C     		ldrb	r0, [r0, r3]
+ 416              		.loc 1 57 15 discriminator 3 view .LVU134
+ 417 0064 085C     		ldrb	r0, [r1, r0]
+ 418 0066 9854     		strb	r0, [r3, r2]
+  56:fizzy.c       ****         arr[i]=temp[perm[i]];
+ 419              		.loc 1 56 21 is_stmt 1 discriminator 3 view .LVU135
+  56:fizzy.c       ****         arr[i]=temp[perm[i]];
+ 420              		.loc 1 56 22 is_stmt 0 discriminator 3 view .LVU136
+ 421 0068 0133     		adds	r3, r3, #1
+ 422              	.LVL34:
+  56:fizzy.c       ****         arr[i]=temp[perm[i]];
+ 423              		.loc 1 56 17 is_stmt 1 discriminator 3 view .LVU137
+  56:fizzy.c       ****         arr[i]=temp[perm[i]];
+ 424              		.loc 1 56 5 is_stmt 0 discriminator 3 view .LVU138
+ 425 006a 072B     		cmp	r3, #7
+ 426 006c F8D1     		bne	.L15
+ 427              	.LBE20:
+  58:fizzy.c       ****     }
+  59:fizzy.c       ****     return 0;
+ 428              		.loc 1 59 5 is_stmt 1 view .LVU139
+  60:fizzy.c       **** }
+ 429              		.loc 1 60 1 is_stmt 0 view .LVU140
+ 430 006e 0020     		movs	r0, #0
+ 431 0070 7FB0     		add	sp, sp, #508
+ 432              		@ sp needed
+ 433              	.LVL35:
+ 434              		.loc 1 60 1 view .LVU141
+ 435 0072 F6BD     		pop	{r1, r2, r4, r5, r6, r7, pc}
+ 436              	.L20:
+ 437              		.align	2
+ 438              	.L19:
+ 439 0074 07070707 		.word	117901063
+ 440 0078 07070000 		.word	1799
+ 441 007c 00000000 		.word	.LANCHOR0
+ 442              		.cfi_endproc
+ 443              	.LFE3:
+ 445              		.section	.text.super_efficient_sort,"ax",%progbits
+ 446              		.align	1
+ 447              		.global	super_efficient_sort
+ 448              		.syntax unified
+ 449              		.code	16
+ 450              		.thumb_func
+ 451              		.fpu softvfp
+ 453              	super_efficient_sort:
+ 454              	.LVL36:
+ 455              	.LFB4:
+  61:fizzy.c       **** 
+  62:fizzy.c       **** 
+  63:fizzy.c       **** 
+  64:fizzy.c       **** void super_efficient_sort(uint8_t* arr, int n) {
+ 456              		.loc 1 64 48 is_stmt 1 view -0
+ 457              		.cfi_startproc
+ 458              		@ args = 0, pretend = 0, frame = 0
+ 459              		@ frame_needed = 0, uses_anonymous_args = 0
+  65:fizzy.c       ****   for (int i = 0; i < n-1; i++) {
+ 460              		.loc 1 65 3 view .LVU143
+ 461              	.LBB21:
+ 462              		.loc 1 65 8 view .LVU144
+ 463              		.loc 1 65 8 is_stmt 0 view .LVU145
+ 464 0000 0139     		subs	r1, r1, #1
+ 465              	.LVL37:
+ 466              		.loc 1 65 8 view .LVU146
+ 467 0002 0A00     		movs	r2, r1
+ 468              	.LBE21:
+  64:fizzy.c       ****   for (int i = 0; i < n-1; i++) {
+ 469              		.loc 1 64 48 view .LVU147
+ 470 0004 30B5     		push	{r4, r5, lr}
+ 471              	.LCFI4:
+ 472              		.cfi_def_cfa_offset 12
+ 473              		.cfi_offset 4, -12
+ 474              		.cfi_offset 5, -8
+ 475              		.cfi_offset 14, -4
+ 476              	.LVL38:
+ 477              	.L22:
+ 478              	.LBB25:
+ 479              		.loc 1 65 19 is_stmt 1 discriminator 1 view .LVU148
+ 480              		.loc 1 65 3 is_stmt 0 discriminator 1 view .LVU149
+ 481 0006 8B1A     		subs	r3, r1, r2
+ 482 0008 9942     		cmp	r1, r3
+ 483 000a 0DDD     		ble	.L21
+ 484              		.loc 1 65 3 view .LVU150
+ 485 000c 0300     		movs	r3, r0
+ 486 000e 06E0     		b	.L26
+ 487              	.LVL39:
+ 488              	.L24:
+ 489              	.LBB22:
+  66:fizzy.c       ****     for (int j = 0; j < n-i-1; j++) {
+  67:fizzy.c       ****       if (arr[j] > arr[j+1]) {
+ 490              		.loc 1 67 7 is_stmt 1 view .LVU151
+ 491              		.loc 1 67 14 is_stmt 0 view .LVU152
+ 492 0010 1C78     		ldrb	r4, [r3]
+ 493              	.LVL40:
+ 494              		.loc 1 67 23 view .LVU153
+ 495 0012 5D78     		ldrb	r5, [r3, #1]
+ 496              		.loc 1 67 10 view .LVU154
+ 497 0014 AC42     		cmp	r4, r5
+ 498 0016 01D9     		bls	.L23
+  68:fizzy.c       ****         swap(&arr[j], &arr[j+1]);
+ 499              		.loc 1 68 9 is_stmt 1 view .LVU155
+ 500              	.LVL41:
+ 501              	.LBB23:
+ 502              	.LBI23:
+  23:fizzy.c       ****   uint8_t temp = *xp;
+ 503              		.loc 1 23 6 view .LVU156
+ 504              	.LBB24:
+  24:fizzy.c       ****   *xp = *yp;
+ 505              		.loc 1 24 3 view .LVU157
+  25:fizzy.c       ****   *yp = temp;
+ 506              		.loc 1 25 3 view .LVU158
+  25:fizzy.c       ****   *yp = temp;
+ 507              		.loc 1 25 7 is_stmt 0 view .LVU159
+ 508 0018 1D70     		strb	r5, [r3]
+  26:fizzy.c       **** }
+ 509              		.loc 1 26 3 is_stmt 1 view .LVU160
+  26:fizzy.c       **** }
+ 510              		.loc 1 26 7 is_stmt 0 view .LVU161
+ 511 001a 5C70     		strb	r4, [r3, #1]
+ 512              	.LVL42:
+ 513              	.L23:
+  26:fizzy.c       **** }
+ 514              		.loc 1 26 7 view .LVU162
+ 515              	.LBE24:
+ 516              	.LBE23:
+  66:fizzy.c       ****       if (arr[j] > arr[j+1]) {
+ 517              		.loc 1 66 32 is_stmt 1 discriminator 2 view .LVU163
+  66:fizzy.c       ****       if (arr[j] > arr[j+1]) {
+ 518              		.loc 1 66 32 is_stmt 0 discriminator 2 view .LVU164
+ 519 001c 0133     		adds	r3, r3, #1
+ 520              	.LVL43:
+ 521              	.L26:
+  66:fizzy.c       ****       if (arr[j] > arr[j+1]) {
+ 522              		.loc 1 66 21 is_stmt 1 discriminator 1 view .LVU165
+  66:fizzy.c       ****       if (arr[j] > arr[j+1]) {
+ 523              		.loc 1 66 5 is_stmt 0 discriminator 1 view .LVU166
+ 524 001e 1C1A     		subs	r4, r3, r0
+ 525              	.LVL44:
+  66:fizzy.c       ****       if (arr[j] > arr[j+1]) {
+ 526              		.loc 1 66 5 discriminator 1 view .LVU167
+ 527 0020 9442     		cmp	r4, r2
+ 528 0022 F5DB     		blt	.L24
+ 529              	.LBE22:
+  65:fizzy.c       ****     for (int j = 0; j < n-i-1; j++) {
+ 530              		.loc 1 65 28 is_stmt 1 discriminator 2 view .LVU168
+ 531              	.LVL45:
+  65:fizzy.c       ****     for (int j = 0; j < n-i-1; j++) {
+ 532              		.loc 1 65 28 is_stmt 0 discriminator 2 view .LVU169
+ 533 0024 013A     		subs	r2, r2, #1
+ 534              	.LVL46:
+  65:fizzy.c       ****     for (int j = 0; j < n-i-1; j++) {
+ 535              		.loc 1 65 28 discriminator 2 view .LVU170
+ 536 0026 EEE7     		b	.L22
+ 537              	.LVL47:
+ 538              	.L21:
+  65:fizzy.c       ****     for (int j = 0; j < n-i-1; j++) {
+ 539              		.loc 1 65 28 discriminator 2 view .LVU171
+ 540              	.LBE25:
+  69:fizzy.c       ****       }
+  70:fizzy.c       ****       // else {
+  71:fizzy.c       ****       //   //dummy swap
+  72:fizzy.c       ****       //   swap(&arr[j], &arr[j]);
+  73:fizzy.c       ****       // }
+  74:fizzy.c       ****     }
+  75:fizzy.c       ****   }
+  76:fizzy.c       **** }
+ 541              		.loc 1 76 1 view .LVU172
+ 542              		@ sp needed
+ 543 0028 30BD     		pop	{r4, r5, pc}
+ 544              		.cfi_endproc
+ 545              	.LFE4:
+ 547              		.section	.text.sort,"ax",%progbits
+ 548              		.align	1
+ 549              		.global	sort
+ 550              		.syntax unified
+ 551              		.code	16
+ 552              		.thumb_func
+ 553              		.fpu softvfp
+ 555              	sort:
+ 556              	.LVL48:
+ 557              	.LFB5:
+  77:fizzy.c       **** 
+  78:fizzy.c       **** uint8_t sort(uint8_t* data, uint8_t dlen) {
+ 558              		.loc 1 78 43 is_stmt 1 view -0
+ 559              		.cfi_startproc
+ 560              		@ args = 0, pretend = 0, frame = 0
+ 561              		@ frame_needed = 0, uses_anonymous_args = 0
+  79:fizzy.c       ****   trigger_high();
+ 562              		.loc 1 79 3 view .LVU174
+  78:fizzy.c       ****   trigger_high();
+ 563              		.loc 1 78 43 is_stmt 0 view .LVU175
+ 564 0000 10B5     		push	{r4, lr}
+ 565              	.LCFI5:
+ 566              		.cfi_def_cfa_offset 8
+ 567              		.cfi_offset 4, -8
+ 568              		.cfi_offset 14, -4
+ 569              		.loc 1 79 3 view .LVU176
+ 570 0002 FFF7FEFF 		bl	trigger_high
+ 571              	.LVL49:
+  80:fizzy.c       ****   // random wait to protect against the glitch that can
+  81:fizzy.c       ****   // skip the permute or sort call
+  82:fizzy.c       ****   // srand(HAL_GetTick());
+  83:fizzy.c       ****   // uint32_t wait = rand()%100;
+  84:fizzy.c       ****   // for( volatile uint32_t i = 0; i< wait;i++);
+  85:fizzy.c       **** 
+  86:fizzy.c       ****   // randomly permute the array before calling sort
+  87:fizzy.c       ****   // permute();
+  88:fizzy.c       **** 
+  89:fizzy.c       ****   int n = sizeof(arr)/sizeof(arr[0]);
+ 572              		.loc 1 89 3 is_stmt 1 view .LVU177
+  90:fizzy.c       ****   super_efficient_sort(arr, n);
+ 573              		.loc 1 90 3 view .LVU178
+ 574 0006 074C     		ldr	r4, .L28
+ 575 0008 0721     		movs	r1, #7
+ 576 000a 0134     		adds	r4, r4, #1
+ 577 000c 2000     		movs	r0, r4
+ 578 000e FFF7FEFF 		bl	super_efficient_sort
+ 579              	.LVL50:
+  91:fizzy.c       **** 
+  92:fizzy.c       ****   // random wait to protect against the glitch that can
+  93:fizzy.c       ****   // skip if condition
+  94:fizzy.c       ****   // srand(HAL_GetTick());
+  95:fizzy.c       ****   // uint32_t wait = rand()%100;
+  96:fizzy.c       ****   // for( volatile uint32_t i = 0; i< wait;i++);
+  97:fizzy.c       ****   // if(!isSorted(arr, n)) return 0;
+  98:fizzy.c       ****   
+  99:fizzy.c       ****   simpleserial_put('r', n, arr);
+ 580              		.loc 1 99 3 view .LVU179
+ 581 0012 2200     		movs	r2, r4
+ 582 0014 0721     		movs	r1, #7
+ 583 0016 7220     		movs	r0, #114
+ 584 0018 FFF7FEFF 		bl	simpleserial_put
+ 585              	.LVL51:
+ 100:fizzy.c       ****   trigger_low();
+ 586              		.loc 1 100 3 view .LVU180
+ 101:fizzy.c       ****   return 0;
+ 102:fizzy.c       **** }
+ 587              		.loc 1 102 1 is_stmt 0 view .LVU181
+ 588              		@ sp needed
+ 100:fizzy.c       ****   trigger_low();
+ 589              		.loc 1 100 3 view .LVU182
+ 590 001c FFF7FEFF 		bl	trigger_low
+ 591              	.LVL52:
+ 101:fizzy.c       ****   return 0;
+ 592              		.loc 1 101 3 is_stmt 1 view .LVU183
+ 593              		.loc 1 102 1 is_stmt 0 view .LVU184
+ 594 0020 0020     		movs	r0, #0
+ 595 0022 10BD     		pop	{r4, pc}
+ 596              	.L29:
+ 597              		.align	2
+ 598              	.L28:
+ 599 0024 00000000 		.word	.LANCHOR0
+ 600              		.cfi_endproc
+ 601              	.LFE5:
+ 603              		.section	.text.startup.main,"ax",%progbits
+ 604              		.align	1
+ 605              		.global	main
+ 606              		.syntax unified
+ 607              		.code	16
+ 608              		.thumb_func
+ 609              		.fpu softvfp
+ 611              	main:
+ 612              	.LFB6:
+ 103:fizzy.c       **** 
+ 104:fizzy.c       **** int main(void) {
+ 613              		.loc 1 104 16 is_stmt 1 view -0
+ 614              		.cfi_startproc
+ 615              		@ Volatile: function does not return.
+ 616              		@ args = 0, pretend = 0, frame = 0
+ 617              		@ frame_needed = 0, uses_anonymous_args = 0
+ 105:fizzy.c       **** 
+ 106:fizzy.c       ****   // WARNING: Do not call verify and sort from the same python process
+ 107:fizzy.c       ****   // Just call one at a time
+ 108:fizzy.c       **** 
+ 109:fizzy.c       ****   platform_init();
+ 618              		.loc 1 109 3 view .LVU186
+ 104:fizzy.c       **** 
+ 619              		.loc 1 104 16 is_stmt 0 view .LVU187
+ 620 0000 10B5     		push	{r4, lr}
+ 621              	.LCFI6:
+ 622              		.cfi_def_cfa_offset 8
+ 623              		.cfi_offset 4, -8
+ 624              		.cfi_offset 14, -4
+ 625              		.loc 1 109 3 view .LVU188
+ 626 0002 FFF7FEFF 		bl	platform_init
+ 627              	.LVL53:
+ 110:fizzy.c       ****   init_uart();
+ 628              		.loc 1 110 3 is_stmt 1 view .LVU189
+ 629 0006 FFF7FEFF 		bl	init_uart
+ 630              	.LVL54:
+ 111:fizzy.c       ****   trigger_setup();
+ 631              		.loc 1 111 3 view .LVU190
+ 632 000a FFF7FEFF 		bl	trigger_setup
+ 633              	.LVL55:
+ 112:fizzy.c       ****   simpleserial_init();
+ 634              		.loc 1 112 3 view .LVU191
+ 635 000e FFF7FEFF 		bl	simpleserial_init
+ 636              	.LVL56:
+ 113:fizzy.c       ****   simpleserial_addcmd('a', n, verify);
+ 637              		.loc 1 113 3 view .LVU192
+ 638 0012 074B     		ldr	r3, .L32
+ 639 0014 074A     		ldr	r2, .L32+4
+ 640 0016 1978     		ldrb	r1, [r3]
+ 641 0018 6120     		movs	r0, #97
+ 642 001a FFF7FEFF 		bl	simpleserial_addcmd
+ 643              	.LVL57:
+ 114:fizzy.c       ****   simpleserial_addcmd('s', 0, sort);
+ 644              		.loc 1 114 3 view .LVU193
+ 645 001e 0021     		movs	r1, #0
+ 646 0020 7320     		movs	r0, #115
+ 647 0022 054A     		ldr	r2, .L32+8
+ 648 0024 FFF7FEFF 		bl	simpleserial_addcmd
+ 649              	.LVL58:
+ 650              	.L31:
+ 115:fizzy.c       **** 
+ 116:fizzy.c       ****   while(1) {
+ 651              		.loc 1 116 3 discriminator 1 view .LVU194
+ 117:fizzy.c       **** 		simpleserial_get();
+ 652              		.loc 1 117 3 discriminator 1 view .LVU195
+ 653 0028 FFF7FEFF 		bl	simpleserial_get
+ 654              	.LVL59:
+ 116:fizzy.c       **** 		simpleserial_get();
+ 655              		.loc 1 116 8 discriminator 1 view .LVU196
+ 656 002c FCE7     		b	.L31
+ 657              	.L33:
+ 658 002e C046     		.align	2
+ 659              	.L32:
+ 660 0030 00000000 		.word	.LANCHOR0
+ 661 0034 00000000 		.word	verify
+ 662 0038 00000000 		.word	sort
+ 663              		.cfi_endproc
+ 664              	.LFE6:
+ 666              		.global	n
+ 667              		.global	arr
+ 668              		.data
+ 669              		.set	.LANCHOR0,. + 0
+ 672              	n:
+ 673 0000 07       		.byte	7
+ 676              	arr:
+ 677 0001 02010008 		.ascii	"\002\001\000\010\011\007\006"
+ 677      090706
+ 678              		.text
+ 679              	.Letext0:
+ 680              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 681              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 682              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 683              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 684              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 685              		.file 7 "/usr/include/newlib/stdlib.h"
+ 686              		.file 8 ".././hal/hal.h"
+ 687              		.file 9 ".././hal/stm32f0/stm32f0_hal.h"
+ 688              		.file 10 "../simpleserial/simpleserial.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 fizzy.c
+     /tmp/ccEXfIGS.s:16     .text.verify:0000000000000000 $t
+     /tmp/ccEXfIGS.s:24     .text.verify:0000000000000000 verify
+     /tmp/ccEXfIGS.s:131    .text.verify:0000000000000044 $d
+     /tmp/ccEXfIGS.s:137    .text.swap:0000000000000000 $t
+     /tmp/ccEXfIGS.s:144    .text.swap:0000000000000000 swap
+     /tmp/ccEXfIGS.s:172    .text.verify1:0000000000000000 $t
+     /tmp/ccEXfIGS.s:179    .text.verify1:0000000000000000 verify1
+     /tmp/ccEXfIGS.s:247    .text.permute:0000000000000000 $t
+     /tmp/ccEXfIGS.s:254    .text.permute:0000000000000000 permute
+     /tmp/ccEXfIGS.s:439    .text.permute:0000000000000074 $d
+     /tmp/ccEXfIGS.s:446    .text.super_efficient_sort:0000000000000000 $t
+     /tmp/ccEXfIGS.s:453    .text.super_efficient_sort:0000000000000000 super_efficient_sort
+     /tmp/ccEXfIGS.s:548    .text.sort:0000000000000000 $t
+     /tmp/ccEXfIGS.s:555    .text.sort:0000000000000000 sort
+     /tmp/ccEXfIGS.s:599    .text.sort:0000000000000024 $d
+     /tmp/ccEXfIGS.s:604    .text.startup.main:0000000000000000 $t
+     /tmp/ccEXfIGS.s:611    .text.startup.main:0000000000000000 main
+     /tmp/ccEXfIGS.s:660    .text.startup.main:0000000000000030 $d
+     /tmp/ccEXfIGS.s:672    .data:0000000000000000 n
+     /tmp/ccEXfIGS.s:676    .data:0000000000000001 arr
+
+UNDEFINED SYMBOLS
+simpleserial_put
+__aeabi_idivmod
+HAL_GetTick
+srand
+rand
+trigger_high
+trigger_low
+platform_init
+init_uart
+trigger_setup
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get

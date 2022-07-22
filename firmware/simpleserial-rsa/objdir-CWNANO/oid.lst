@@ -1,0 +1,2161 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"oid.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.rodata.str1.4,"aMS",%progbits,1
+  16              		.align	2
+  17              	.LC0:
+  18 0000 2A864886 		.ascii	"*\206H\206\367\015\001\001\016\000"
+  18      F70D0101 
+  18      0E00
+  19              		.section	.text.oid_sig_alg_from_asn1.part.0,"ax",%progbits
+  20              		.align	1
+  21              		.p2align 2,,3
+  22              		.arch armv6s-m
+  23              		.syntax unified
+  24              		.code	16
+  25              		.thumb_func
+  26              		.fpu softvfp
+  28              	oid_sig_alg_from_asn1.part.0:
+  29              	.LVL0:
+  30              	.LFB25:
+  31              		.file 1 ".././crypto/mbedtls//library/oid.c"
+   1:.././crypto/mbedtls//library/oid.c **** /**
+   2:.././crypto/mbedtls//library/oid.c ****  * \file oid.c
+   3:.././crypto/mbedtls//library/oid.c ****  *
+   4:.././crypto/mbedtls//library/oid.c ****  * \brief Object Identifier (OID) database
+   5:.././crypto/mbedtls//library/oid.c ****  *
+   6:.././crypto/mbedtls//library/oid.c ****  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+   7:.././crypto/mbedtls//library/oid.c ****  *  SPDX-License-Identifier: Apache-2.0
+   8:.././crypto/mbedtls//library/oid.c ****  *
+   9:.././crypto/mbedtls//library/oid.c ****  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
+  10:.././crypto/mbedtls//library/oid.c ****  *  not use this file except in compliance with the License.
+  11:.././crypto/mbedtls//library/oid.c ****  *  You may obtain a copy of the License at
+  12:.././crypto/mbedtls//library/oid.c ****  *
+  13:.././crypto/mbedtls//library/oid.c ****  *  http://www.apache.org/licenses/LICENSE-2.0
+  14:.././crypto/mbedtls//library/oid.c ****  *
+  15:.././crypto/mbedtls//library/oid.c ****  *  Unless required by applicable law or agreed to in writing, software
+  16:.././crypto/mbedtls//library/oid.c ****  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  17:.././crypto/mbedtls//library/oid.c ****  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  18:.././crypto/mbedtls//library/oid.c ****  *  See the License for the specific language governing permissions and
+  19:.././crypto/mbedtls//library/oid.c ****  *  limitations under the License.
+  20:.././crypto/mbedtls//library/oid.c ****  *
+  21:.././crypto/mbedtls//library/oid.c ****  *  This file is part of mbed TLS (https://tls.mbed.org)
+  22:.././crypto/mbedtls//library/oid.c ****  */
+  23:.././crypto/mbedtls//library/oid.c **** 
+  24:.././crypto/mbedtls//library/oid.c **** #if !defined(MBEDTLS_CONFIG_FILE)
+  25:.././crypto/mbedtls//library/oid.c **** #include "mbedtls/config.h"
+  26:.././crypto/mbedtls//library/oid.c **** #else
+  27:.././crypto/mbedtls//library/oid.c **** #include MBEDTLS_CONFIG_FILE
+  28:.././crypto/mbedtls//library/oid.c **** #endif
+  29:.././crypto/mbedtls//library/oid.c **** 
+  30:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_OID_C)
+  31:.././crypto/mbedtls//library/oid.c **** 
+  32:.././crypto/mbedtls//library/oid.c **** #include "mbedtls/oid.h"
+  33:.././crypto/mbedtls//library/oid.c **** #include "mbedtls/rsa.h"
+  34:.././crypto/mbedtls//library/oid.c **** 
+  35:.././crypto/mbedtls//library/oid.c **** #include <stdio.h>
+  36:.././crypto/mbedtls//library/oid.c **** #include <string.h>
+  37:.././crypto/mbedtls//library/oid.c **** 
+  38:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_PLATFORM_C)
+  39:.././crypto/mbedtls//library/oid.c **** #include "mbedtls/platform.h"
+  40:.././crypto/mbedtls//library/oid.c **** #else
+  41:.././crypto/mbedtls//library/oid.c **** #define mbedtls_snprintf snprintf
+  42:.././crypto/mbedtls//library/oid.c **** #endif
+  43:.././crypto/mbedtls//library/oid.c **** 
+  44:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_X509_USE_C) || defined(MBEDTLS_X509_CREATE_C)
+  45:.././crypto/mbedtls//library/oid.c **** #include "mbedtls/x509.h"
+  46:.././crypto/mbedtls//library/oid.c **** #endif
+  47:.././crypto/mbedtls//library/oid.c **** 
+  48:.././crypto/mbedtls//library/oid.c **** /*
+  49:.././crypto/mbedtls//library/oid.c ****  * Macro to automatically add the size of #define'd OIDs
+  50:.././crypto/mbedtls//library/oid.c ****  */
+  51:.././crypto/mbedtls//library/oid.c **** #define ADD_LEN(s)      s, MBEDTLS_OID_SIZE(s)
+  52:.././crypto/mbedtls//library/oid.c **** 
+  53:.././crypto/mbedtls//library/oid.c **** /*
+  54:.././crypto/mbedtls//library/oid.c ****  * Macro to generate an internal function for oid_XXX_from_asn1() (used by
+  55:.././crypto/mbedtls//library/oid.c ****  * the other functions)
+  56:.././crypto/mbedtls//library/oid.c ****  */
+  57:.././crypto/mbedtls//library/oid.c **** #define FN_OID_TYPED_FROM_ASN1( TYPE_T, NAME, LIST )                        \
+  58:.././crypto/mbedtls//library/oid.c **** static const TYPE_T * oid_ ## NAME ## _from_asn1( const mbedtls_asn1_buf *oid )     \
+  59:.././crypto/mbedtls//library/oid.c **** {                                                                           \
+  60:.././crypto/mbedtls//library/oid.c ****     const TYPE_T *p = LIST;                                                 \
+  61:.././crypto/mbedtls//library/oid.c ****     const mbedtls_oid_descriptor_t *cur = (const mbedtls_oid_descriptor_t *) p;             \
+  62:.././crypto/mbedtls//library/oid.c ****     if( p == NULL || oid == NULL ) return( NULL );                          \
+  63:.././crypto/mbedtls//library/oid.c ****     while( cur->asn1 != NULL ) {                                            \
+  64:.././crypto/mbedtls//library/oid.c ****         if( cur->asn1_len == oid->len &&                                    \
+  65:.././crypto/mbedtls//library/oid.c ****             memcmp( cur->asn1, oid->p, oid->len ) == 0 ) {                  \
+  66:.././crypto/mbedtls//library/oid.c ****             return( p );                                                    \
+  67:.././crypto/mbedtls//library/oid.c ****         }                                                                   \
+  68:.././crypto/mbedtls//library/oid.c ****         p++;                                                                \
+  69:.././crypto/mbedtls//library/oid.c ****         cur = (const mbedtls_oid_descriptor_t *) p;                                 \
+  70:.././crypto/mbedtls//library/oid.c ****     }                                                                       \
+  71:.././crypto/mbedtls//library/oid.c ****     return( NULL );                                                         \
+  72:.././crypto/mbedtls//library/oid.c **** }
+  73:.././crypto/mbedtls//library/oid.c **** 
+  74:.././crypto/mbedtls//library/oid.c **** /*
+  75:.././crypto/mbedtls//library/oid.c ****  * Macro to generate a function for retrieving a single attribute from the
+  76:.././crypto/mbedtls//library/oid.c ****  * descriptor of an mbedtls_oid_descriptor_t wrapper.
+  77:.././crypto/mbedtls//library/oid.c ****  */
+  78:.././crypto/mbedtls//library/oid.c **** #define FN_OID_GET_DESCRIPTOR_ATTR1(FN_NAME, TYPE_T, TYPE_NAME, ATTR1_TYPE, ATTR1) \
+  79:.././crypto/mbedtls//library/oid.c **** int FN_NAME( const mbedtls_asn1_buf *oid, ATTR1_TYPE * ATTR1 )                  \
+  80:.././crypto/mbedtls//library/oid.c **** {                                                                       \
+  81:.././crypto/mbedtls//library/oid.c ****     const TYPE_T *data = oid_ ## TYPE_NAME ## _from_asn1( oid );        \
+  82:.././crypto/mbedtls//library/oid.c ****     if( data == NULL ) return( MBEDTLS_ERR_OID_NOT_FOUND );            \
+  83:.././crypto/mbedtls//library/oid.c ****     *ATTR1 = data->descriptor.ATTR1;                                    \
+  84:.././crypto/mbedtls//library/oid.c ****     return( 0 );                                                        \
+  85:.././crypto/mbedtls//library/oid.c **** }
+  86:.././crypto/mbedtls//library/oid.c **** 
+  87:.././crypto/mbedtls//library/oid.c **** /*
+  88:.././crypto/mbedtls//library/oid.c ****  * Macro to generate a function for retrieving a single attribute from an
+  89:.././crypto/mbedtls//library/oid.c ****  * mbedtls_oid_descriptor_t wrapper.
+  90:.././crypto/mbedtls//library/oid.c ****  */
+  91:.././crypto/mbedtls//library/oid.c **** #define FN_OID_GET_ATTR1(FN_NAME, TYPE_T, TYPE_NAME, ATTR1_TYPE, ATTR1) \
+  92:.././crypto/mbedtls//library/oid.c **** int FN_NAME( const mbedtls_asn1_buf *oid, ATTR1_TYPE * ATTR1 )                  \
+  93:.././crypto/mbedtls//library/oid.c **** {                                                                       \
+  94:.././crypto/mbedtls//library/oid.c ****     const TYPE_T *data = oid_ ## TYPE_NAME ## _from_asn1( oid );        \
+  95:.././crypto/mbedtls//library/oid.c ****     if( data == NULL ) return( MBEDTLS_ERR_OID_NOT_FOUND );            \
+  96:.././crypto/mbedtls//library/oid.c ****     *ATTR1 = data->ATTR1;                                               \
+  97:.././crypto/mbedtls//library/oid.c ****     return( 0 );                                                        \
+  98:.././crypto/mbedtls//library/oid.c **** }
+  99:.././crypto/mbedtls//library/oid.c **** 
+ 100:.././crypto/mbedtls//library/oid.c **** /*
+ 101:.././crypto/mbedtls//library/oid.c ****  * Macro to generate a function for retrieving two attributes from an
+ 102:.././crypto/mbedtls//library/oid.c ****  * mbedtls_oid_descriptor_t wrapper.
+ 103:.././crypto/mbedtls//library/oid.c ****  */
+ 104:.././crypto/mbedtls//library/oid.c **** #define FN_OID_GET_ATTR2(FN_NAME, TYPE_T, TYPE_NAME, ATTR1_TYPE, ATTR1,     \
+ 105:.././crypto/mbedtls//library/oid.c ****                          ATTR2_TYPE, ATTR2)                                 \
+ 106:.././crypto/mbedtls//library/oid.c **** int FN_NAME( const mbedtls_asn1_buf *oid, ATTR1_TYPE * ATTR1, ATTR2_TYPE * ATTR2 )  \
+ 107:.././crypto/mbedtls//library/oid.c **** {                                                                           \
+ 108:.././crypto/mbedtls//library/oid.c ****     const TYPE_T *data = oid_ ## TYPE_NAME ## _from_asn1( oid );            \
+ 109:.././crypto/mbedtls//library/oid.c ****     if( data == NULL ) return( MBEDTLS_ERR_OID_NOT_FOUND );                \
+ 110:.././crypto/mbedtls//library/oid.c ****     *ATTR1 = data->ATTR1;                                                   \
+ 111:.././crypto/mbedtls//library/oid.c ****     *ATTR2 = data->ATTR2;                                                   \
+ 112:.././crypto/mbedtls//library/oid.c ****     return( 0 );                                                            \
+ 113:.././crypto/mbedtls//library/oid.c **** }
+ 114:.././crypto/mbedtls//library/oid.c **** 
+ 115:.././crypto/mbedtls//library/oid.c **** /*
+ 116:.././crypto/mbedtls//library/oid.c ****  * Macro to generate a function for retrieving the OID based on a single
+ 117:.././crypto/mbedtls//library/oid.c ****  * attribute from a mbedtls_oid_descriptor_t wrapper.
+ 118:.././crypto/mbedtls//library/oid.c ****  */
+ 119:.././crypto/mbedtls//library/oid.c **** #define FN_OID_GET_OID_BY_ATTR1(FN_NAME, TYPE_T, LIST, ATTR1_TYPE, ATTR1)   \
+ 120:.././crypto/mbedtls//library/oid.c **** int FN_NAME( ATTR1_TYPE ATTR1, const char **oid, size_t *olen )             \
+ 121:.././crypto/mbedtls//library/oid.c **** {                                                                           \
+ 122:.././crypto/mbedtls//library/oid.c ****     const TYPE_T *cur = LIST;                                               \
+ 123:.././crypto/mbedtls//library/oid.c ****     while( cur->descriptor.asn1 != NULL ) {                                 \
+ 124:.././crypto/mbedtls//library/oid.c ****         if( cur->ATTR1 == ATTR1 ) {                                         \
+ 125:.././crypto/mbedtls//library/oid.c ****             *oid = cur->descriptor.asn1;                                    \
+ 126:.././crypto/mbedtls//library/oid.c ****             *olen = cur->descriptor.asn1_len;                               \
+ 127:.././crypto/mbedtls//library/oid.c ****             return( 0 );                                                    \
+ 128:.././crypto/mbedtls//library/oid.c ****         }                                                                   \
+ 129:.././crypto/mbedtls//library/oid.c ****         cur++;                                                              \
+ 130:.././crypto/mbedtls//library/oid.c ****     }                                                                       \
+ 131:.././crypto/mbedtls//library/oid.c ****     return( MBEDTLS_ERR_OID_NOT_FOUND );                                   \
+ 132:.././crypto/mbedtls//library/oid.c **** }
+ 133:.././crypto/mbedtls//library/oid.c **** 
+ 134:.././crypto/mbedtls//library/oid.c **** /*
+ 135:.././crypto/mbedtls//library/oid.c ****  * Macro to generate a function for retrieving the OID based on two
+ 136:.././crypto/mbedtls//library/oid.c ****  * attributes from a mbedtls_oid_descriptor_t wrapper.
+ 137:.././crypto/mbedtls//library/oid.c ****  */
+ 138:.././crypto/mbedtls//library/oid.c **** #define FN_OID_GET_OID_BY_ATTR2(FN_NAME, TYPE_T, LIST, ATTR1_TYPE, ATTR1,   \
+ 139:.././crypto/mbedtls//library/oid.c ****                                 ATTR2_TYPE, ATTR2)                          \
+ 140:.././crypto/mbedtls//library/oid.c **** int FN_NAME( ATTR1_TYPE ATTR1, ATTR2_TYPE ATTR2, const char **oid ,         \
+ 141:.././crypto/mbedtls//library/oid.c ****              size_t *olen )                                                 \
+ 142:.././crypto/mbedtls//library/oid.c **** {                                                                           \
+ 143:.././crypto/mbedtls//library/oid.c ****     const TYPE_T *cur = LIST;                                               \
+ 144:.././crypto/mbedtls//library/oid.c ****     while( cur->descriptor.asn1 != NULL ) {                                 \
+ 145:.././crypto/mbedtls//library/oid.c ****         if( cur->ATTR1 == ATTR1 && cur->ATTR2 == ATTR2 ) {                  \
+ 146:.././crypto/mbedtls//library/oid.c ****             *oid = cur->descriptor.asn1;                                    \
+ 147:.././crypto/mbedtls//library/oid.c ****             *olen = cur->descriptor.asn1_len;                               \
+ 148:.././crypto/mbedtls//library/oid.c ****             return( 0 );                                                    \
+ 149:.././crypto/mbedtls//library/oid.c ****         }                                                                   \
+ 150:.././crypto/mbedtls//library/oid.c ****         cur++;                                                              \
+ 151:.././crypto/mbedtls//library/oid.c ****     }                                                                       \
+ 152:.././crypto/mbedtls//library/oid.c ****     return( MBEDTLS_ERR_OID_NOT_FOUND );                                   \
+ 153:.././crypto/mbedtls//library/oid.c **** }
+ 154:.././crypto/mbedtls//library/oid.c **** 
+ 155:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_X509_USE_C) || defined(MBEDTLS_X509_CREATE_C)
+ 156:.././crypto/mbedtls//library/oid.c **** /*
+ 157:.././crypto/mbedtls//library/oid.c ****  * For X520 attribute types
+ 158:.././crypto/mbedtls//library/oid.c ****  */
+ 159:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 160:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 161:.././crypto/mbedtls//library/oid.c ****     const char          *short_name;
+ 162:.././crypto/mbedtls//library/oid.c **** } oid_x520_attr_t;
+ 163:.././crypto/mbedtls//library/oid.c **** 
+ 164:.././crypto/mbedtls//library/oid.c **** static const oid_x520_attr_t oid_x520_attr_type[] =
+ 165:.././crypto/mbedtls//library/oid.c **** {
+ 166:.././crypto/mbedtls//library/oid.c ****     {
+ 167:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_CN ),          "id-at-commonName",               "Common Name" },
+ 168:.././crypto/mbedtls//library/oid.c ****         "CN",
+ 169:.././crypto/mbedtls//library/oid.c ****     },
+ 170:.././crypto/mbedtls//library/oid.c ****     {
+ 171:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_COUNTRY ),     "id-at-countryName",              "Country" },
+ 172:.././crypto/mbedtls//library/oid.c ****         "C",
+ 173:.././crypto/mbedtls//library/oid.c ****     },
+ 174:.././crypto/mbedtls//library/oid.c ****     {
+ 175:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_LOCALITY ),    "id-at-locality",                 "Locality" },
+ 176:.././crypto/mbedtls//library/oid.c ****         "L",
+ 177:.././crypto/mbedtls//library/oid.c ****     },
+ 178:.././crypto/mbedtls//library/oid.c ****     {
+ 179:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_STATE ),       "id-at-state",                    "State" },
+ 180:.././crypto/mbedtls//library/oid.c ****         "ST",
+ 181:.././crypto/mbedtls//library/oid.c ****     },
+ 182:.././crypto/mbedtls//library/oid.c ****     {
+ 183:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_ORGANIZATION ),"id-at-organizationName",         "Organization" }
+ 184:.././crypto/mbedtls//library/oid.c ****         "O",
+ 185:.././crypto/mbedtls//library/oid.c ****     },
+ 186:.././crypto/mbedtls//library/oid.c ****     {
+ 187:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_ORG_UNIT ),    "id-at-organizationalUnitName",   "Org Unit" },
+ 188:.././crypto/mbedtls//library/oid.c ****         "OU",
+ 189:.././crypto/mbedtls//library/oid.c ****     },
+ 190:.././crypto/mbedtls//library/oid.c ****     {
+ 191:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS9_EMAIL ),    "emailAddress",                   "E-mail address"
+ 192:.././crypto/mbedtls//library/oid.c ****         "emailAddress",
+ 193:.././crypto/mbedtls//library/oid.c ****     },
+ 194:.././crypto/mbedtls//library/oid.c ****     {
+ 195:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_SERIAL_NUMBER ),"id-at-serialNumber",            "Serial number" 
+ 196:.././crypto/mbedtls//library/oid.c ****         "serialNumber",
+ 197:.././crypto/mbedtls//library/oid.c ****     },
+ 198:.././crypto/mbedtls//library/oid.c ****     {
+ 199:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_POSTAL_ADDRESS ),"id-at-postalAddress",          "Postal address"
+ 200:.././crypto/mbedtls//library/oid.c ****         "postalAddress",
+ 201:.././crypto/mbedtls//library/oid.c ****     },
+ 202:.././crypto/mbedtls//library/oid.c ****     {
+ 203:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_POSTAL_CODE ), "id-at-postalCode",               "Postal code" },
+ 204:.././crypto/mbedtls//library/oid.c ****         "postalCode",
+ 205:.././crypto/mbedtls//library/oid.c ****     },
+ 206:.././crypto/mbedtls//library/oid.c ****     {
+ 207:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_SUR_NAME ),    "id-at-surName",                  "Surname" },
+ 208:.././crypto/mbedtls//library/oid.c ****         "SN",
+ 209:.././crypto/mbedtls//library/oid.c ****     },
+ 210:.././crypto/mbedtls//library/oid.c ****     {
+ 211:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_GIVEN_NAME ),  "id-at-givenName",                "Given name" },
+ 212:.././crypto/mbedtls//library/oid.c ****         "GN",
+ 213:.././crypto/mbedtls//library/oid.c ****     },
+ 214:.././crypto/mbedtls//library/oid.c ****     {
+ 215:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_INITIALS ),    "id-at-initials",                 "Initials" },
+ 216:.././crypto/mbedtls//library/oid.c ****         "initials",
+ 217:.././crypto/mbedtls//library/oid.c ****     },
+ 218:.././crypto/mbedtls//library/oid.c ****     {
+ 219:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_GENERATION_QUALIFIER ), "id-at-generationQualifier", "Generation 
+ 220:.././crypto/mbedtls//library/oid.c ****         "generationQualifier",
+ 221:.././crypto/mbedtls//library/oid.c ****     },
+ 222:.././crypto/mbedtls//library/oid.c ****     {
+ 223:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_TITLE ),       "id-at-title",                    "Title" },
+ 224:.././crypto/mbedtls//library/oid.c ****         "title",
+ 225:.././crypto/mbedtls//library/oid.c ****     },
+ 226:.././crypto/mbedtls//library/oid.c ****     {
+ 227:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_DN_QUALIFIER ),"id-at-dnQualifier",              "Distinguished N
+ 228:.././crypto/mbedtls//library/oid.c ****         "dnQualifier",
+ 229:.././crypto/mbedtls//library/oid.c ****     },
+ 230:.././crypto/mbedtls//library/oid.c ****     {
+ 231:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_PSEUDONYM ),   "id-at-pseudonym",                "Pseudonym" },
+ 232:.././crypto/mbedtls//library/oid.c ****         "pseudonym",
+ 233:.././crypto/mbedtls//library/oid.c ****     },
+ 234:.././crypto/mbedtls//library/oid.c ****     {
+ 235:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DOMAIN_COMPONENT ), "id-domainComponent",           "Domain componen
+ 236:.././crypto/mbedtls//library/oid.c ****         "DC",
+ 237:.././crypto/mbedtls//library/oid.c ****     },
+ 238:.././crypto/mbedtls//library/oid.c ****     {
+ 239:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_AT_UNIQUE_IDENTIFIER ), "id-at-uniqueIdentifier",    "Unique Identif
+ 240:.././crypto/mbedtls//library/oid.c ****         "uniqueIdentifier",
+ 241:.././crypto/mbedtls//library/oid.c ****     },
+ 242:.././crypto/mbedtls//library/oid.c ****     {
+ 243:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 244:.././crypto/mbedtls//library/oid.c ****         NULL,
+ 245:.././crypto/mbedtls//library/oid.c ****     }
+ 246:.././crypto/mbedtls//library/oid.c **** };
+ 247:.././crypto/mbedtls//library/oid.c **** 
+ 248:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_x520_attr_t, x520_attr, oid_x520_attr_type)
+ 249:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_attr_short_name, oid_x520_attr_t, x520_attr, const char *, short_n
+ 250:.././crypto/mbedtls//library/oid.c **** 
+ 251:.././crypto/mbedtls//library/oid.c **** /*
+ 252:.././crypto/mbedtls//library/oid.c ****  * For X509 extensions
+ 253:.././crypto/mbedtls//library/oid.c ****  */
+ 254:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 255:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 256:.././crypto/mbedtls//library/oid.c ****     int                 ext_type;
+ 257:.././crypto/mbedtls//library/oid.c **** } oid_x509_ext_t;
+ 258:.././crypto/mbedtls//library/oid.c **** 
+ 259:.././crypto/mbedtls//library/oid.c **** static const oid_x509_ext_t oid_x509_ext[] =
+ 260:.././crypto/mbedtls//library/oid.c **** {
+ 261:.././crypto/mbedtls//library/oid.c ****     {
+ 262:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_BASIC_CONSTRAINTS ),    "id-ce-basicConstraints",   "Basic Constrain
+ 263:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_X509_EXT_BASIC_CONSTRAINTS,
+ 264:.././crypto/mbedtls//library/oid.c ****     },
+ 265:.././crypto/mbedtls//library/oid.c ****     {
+ 266:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_KEY_USAGE ),            "id-ce-keyUsage",           "Key Usage" },
+ 267:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_X509_EXT_KEY_USAGE,
+ 268:.././crypto/mbedtls//library/oid.c ****     },
+ 269:.././crypto/mbedtls//library/oid.c ****     {
+ 270:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EXTENDED_KEY_USAGE ),   "id-ce-extKeyUsage",        "Extended Key Us
+ 271:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_X509_EXT_EXTENDED_KEY_USAGE,
+ 272:.././crypto/mbedtls//library/oid.c ****     },
+ 273:.././crypto/mbedtls//library/oid.c ****     {
+ 274:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_SUBJECT_ALT_NAME ),     "id-ce-subjectAltName",     "Subject Alt Nam
+ 275:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_X509_EXT_SUBJECT_ALT_NAME,
+ 276:.././crypto/mbedtls//library/oid.c ****     },
+ 277:.././crypto/mbedtls//library/oid.c ****     {
+ 278:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_NS_CERT_TYPE ),         "id-netscape-certtype",     "Netscape Certif
+ 279:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_X509_EXT_NS_CERT_TYPE,
+ 280:.././crypto/mbedtls//library/oid.c ****     },
+ 281:.././crypto/mbedtls//library/oid.c ****     {
+ 282:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 283:.././crypto/mbedtls//library/oid.c ****         0,
+ 284:.././crypto/mbedtls//library/oid.c ****     },
+ 285:.././crypto/mbedtls//library/oid.c **** };
+ 286:.././crypto/mbedtls//library/oid.c **** 
+ 287:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_x509_ext_t, x509_ext, oid_x509_ext)
+ 288:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_x509_ext_type, oid_x509_ext_t, x509_ext, int, ext_type)
+ 289:.././crypto/mbedtls//library/oid.c **** 
+ 290:.././crypto/mbedtls//library/oid.c **** static const mbedtls_oid_descriptor_t oid_ext_key_usage[] =
+ 291:.././crypto/mbedtls//library/oid.c **** {
+ 292:.././crypto/mbedtls//library/oid.c ****     { ADD_LEN( MBEDTLS_OID_SERVER_AUTH ),      "id-kp-serverAuth",      "TLS Web Server Authenticat
+ 293:.././crypto/mbedtls//library/oid.c ****     { ADD_LEN( MBEDTLS_OID_CLIENT_AUTH ),      "id-kp-clientAuth",      "TLS Web Client Authenticat
+ 294:.././crypto/mbedtls//library/oid.c ****     { ADD_LEN( MBEDTLS_OID_CODE_SIGNING ),     "id-kp-codeSigning",     "Code Signing" },
+ 295:.././crypto/mbedtls//library/oid.c ****     { ADD_LEN( MBEDTLS_OID_EMAIL_PROTECTION ), "id-kp-emailProtection", "E-mail Protection" },
+ 296:.././crypto/mbedtls//library/oid.c ****     { ADD_LEN( MBEDTLS_OID_TIME_STAMPING ),    "id-kp-timeStamping",    "Time Stamping" },
+ 297:.././crypto/mbedtls//library/oid.c ****     { ADD_LEN( MBEDTLS_OID_OCSP_SIGNING ),     "id-kp-OCSPSigning",     "OCSP Signing" },
+ 298:.././crypto/mbedtls//library/oid.c ****     { NULL, 0, NULL, NULL },
+ 299:.././crypto/mbedtls//library/oid.c **** };
+ 300:.././crypto/mbedtls//library/oid.c **** 
+ 301:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(mbedtls_oid_descriptor_t, ext_key_usage, oid_ext_key_usage)
+ 302:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_extended_key_usage, mbedtls_oid_descriptor_t, ext_key_usage, const
+ 303:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_X509_USE_C || MBEDTLS_X509_CREATE_C */
+ 304:.././crypto/mbedtls//library/oid.c **** 
+ 305:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD_C)
+ 306:.././crypto/mbedtls//library/oid.c **** /*
+ 307:.././crypto/mbedtls//library/oid.c ****  * For SignatureAlgorithmIdentifier
+ 308:.././crypto/mbedtls//library/oid.c ****  */
+ 309:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 310:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 311:.././crypto/mbedtls//library/oid.c ****     mbedtls_md_type_t           md_alg;
+ 312:.././crypto/mbedtls//library/oid.c ****     mbedtls_pk_type_t           pk_alg;
+ 313:.././crypto/mbedtls//library/oid.c **** } oid_sig_alg_t;
+ 314:.././crypto/mbedtls//library/oid.c **** 
+ 315:.././crypto/mbedtls//library/oid.c **** static const oid_sig_alg_t oid_sig_alg[] =
+ 316:.././crypto/mbedtls//library/oid.c **** {
+ 317:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_RSA_C)
+ 318:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD2_C)
+ 319:.././crypto/mbedtls//library/oid.c ****     {
+ 320:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_MD2 ),        "md2WithRSAEncryption",     "RSA with MD2" },
+ 321:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_MD2,      MBEDTLS_PK_RSA,
+ 322:.././crypto/mbedtls//library/oid.c ****     },
+ 323:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD2_C */
+ 324:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD4_C)
+ 325:.././crypto/mbedtls//library/oid.c ****     {
+ 326:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_MD4 ),        "md4WithRSAEncryption",     "RSA with MD4" },
+ 327:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_MD4,      MBEDTLS_PK_RSA,
+ 328:.././crypto/mbedtls//library/oid.c ****     },
+ 329:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD4_C */
+ 330:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD5_C)
+ 331:.././crypto/mbedtls//library/oid.c ****     {
+ 332:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_MD5 ),        "md5WithRSAEncryption",     "RSA with MD5" },
+ 333:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_MD5,      MBEDTLS_PK_RSA,
+ 334:.././crypto/mbedtls//library/oid.c ****     },
+ 335:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD5_C */
+ 336:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA1_C)
+ 337:.././crypto/mbedtls//library/oid.c ****     {
+ 338:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_SHA1 ),       "sha-1WithRSAEncryption",   "RSA with SHA1" },
+ 339:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA1,     MBEDTLS_PK_RSA,
+ 340:.././crypto/mbedtls//library/oid.c ****     },
+ 341:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA1_C */
+ 342:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA256_C)
+ 343:.././crypto/mbedtls//library/oid.c ****     {
+ 344:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_SHA224 ),     "sha224WithRSAEncryption",  "RSA with SHA-224" }
+ 345:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA224,   MBEDTLS_PK_RSA,
+ 346:.././crypto/mbedtls//library/oid.c ****     },
+ 347:.././crypto/mbedtls//library/oid.c ****     {
+ 348:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_SHA256 ),     "sha256WithRSAEncryption",  "RSA with SHA-256" }
+ 349:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA256,   MBEDTLS_PK_RSA,
+ 350:.././crypto/mbedtls//library/oid.c ****     },
+ 351:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA256_C */
+ 352:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA512_C)
+ 353:.././crypto/mbedtls//library/oid.c ****     {
+ 354:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_SHA384 ),     "sha384WithRSAEncryption",  "RSA with SHA-384" }
+ 355:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA384,   MBEDTLS_PK_RSA,
+ 356:.././crypto/mbedtls//library/oid.c ****     },
+ 357:.././crypto/mbedtls//library/oid.c ****     {
+ 358:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_SHA512 ),     "sha512WithRSAEncryption",  "RSA with SHA-512" }
+ 359:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA512,   MBEDTLS_PK_RSA,
+ 360:.././crypto/mbedtls//library/oid.c ****     },
+ 361:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA512_C */
+ 362:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA1_C)
+ 363:.././crypto/mbedtls//library/oid.c ****     {
+ 364:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_RSA_SHA_OBS ),      "sha-1WithRSAEncryption",   "RSA with SHA1" },
+ 365:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA1,     MBEDTLS_PK_RSA,
+ 366:.././crypto/mbedtls//library/oid.c ****     },
+ 367:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA1_C */
+ 368:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_RSA_C */
+ 369:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECDSA_C)
+ 370:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA1_C)
+ 371:.././crypto/mbedtls//library/oid.c ****     {
+ 372:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_ECDSA_SHA1 ),       "ecdsa-with-SHA1",      "ECDSA with SHA1" },
+ 373:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA1,     MBEDTLS_PK_ECDSA,
+ 374:.././crypto/mbedtls//library/oid.c ****     },
+ 375:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA1_C */
+ 376:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA256_C)
+ 377:.././crypto/mbedtls//library/oid.c ****     {
+ 378:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_ECDSA_SHA224 ),     "ecdsa-with-SHA224",    "ECDSA with SHA224" },
+ 379:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA224,   MBEDTLS_PK_ECDSA,
+ 380:.././crypto/mbedtls//library/oid.c ****     },
+ 381:.././crypto/mbedtls//library/oid.c ****     {
+ 382:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_ECDSA_SHA256 ),     "ecdsa-with-SHA256",    "ECDSA with SHA256" },
+ 383:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA256,   MBEDTLS_PK_ECDSA,
+ 384:.././crypto/mbedtls//library/oid.c ****     },
+ 385:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA256_C */
+ 386:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA512_C)
+ 387:.././crypto/mbedtls//library/oid.c ****     {
+ 388:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_ECDSA_SHA384 ),     "ecdsa-with-SHA384",    "ECDSA with SHA384" },
+ 389:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA384,   MBEDTLS_PK_ECDSA,
+ 390:.././crypto/mbedtls//library/oid.c ****     },
+ 391:.././crypto/mbedtls//library/oid.c ****     {
+ 392:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_ECDSA_SHA512 ),     "ecdsa-with-SHA512",    "ECDSA with SHA512" },
+ 393:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA512,   MBEDTLS_PK_ECDSA,
+ 394:.././crypto/mbedtls//library/oid.c ****     },
+ 395:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA512_C */
+ 396:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECDSA_C */
+ 397:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_RSA_C)
+ 398:.././crypto/mbedtls//library/oid.c ****     {
+ 399:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_RSASSA_PSS ),        "RSASSA-PSS",           "RSASSA-PSS" },
+ 400:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_NONE,     MBEDTLS_PK_RSASSA_PSS,
+ 401:.././crypto/mbedtls//library/oid.c ****     },
+ 402:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_RSA_C */
+ 403:.././crypto/mbedtls//library/oid.c ****     {
+ 404:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 405:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_NONE, MBEDTLS_PK_NONE,
+ 406:.././crypto/mbedtls//library/oid.c ****     },
+ 407:.././crypto/mbedtls//library/oid.c **** };
+ 408:.././crypto/mbedtls//library/oid.c **** 
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_sig_alg_t, sig_alg, oid_sig_alg)
+  32              		.loc 1 409 1 view -0
+  33              		.cfi_startproc
+  34              		@ args = 0, pretend = 0, frame = 0
+  35              		@ frame_needed = 0, uses_anonymous_args = 0
+  36              		.loc 1 409 1 view .LVU1
+  37 0000 70B5     		push	{r4, r5, r6, lr}
+  38              	.LCFI0:
+  39              		.cfi_def_cfa_offset 16
+  40              		.cfi_offset 4, -16
+  41              		.cfi_offset 5, -12
+  42              		.cfi_offset 6, -8
+  43              		.cfi_offset 14, -4
+  44              		.loc 1 409 1 is_stmt 0 view .LVU2
+  45 0002 0923     		movs	r3, #9
+  46 0004 0600     		movs	r6, r0
+  47 0006 4568     		ldr	r5, [r0, #4]
+  48 0008 084C     		ldr	r4, .L10
+  49 000a 0948     		ldr	r0, .L10+4
+  50              	.LVL1:
+  51              		.loc 1 409 1 view .LVU3
+  52 000c 04E0     		b	.L4
+  53              	.LVL2:
+  54              	.L2:
+  55              		.loc 1 409 1 is_stmt 1 view .LVU4
+  56 000e 6069     		ldr	r0, [r4, #20]
+  57 0010 1434     		adds	r4, r4, #20
+  58              	.LVL3:
+  59              		.loc 1 409 1 view .LVU5
+  60              		.loc 1 409 1 view .LVU6
+  61 0012 0028     		cmp	r0, #0
+  62 0014 09D0     		beq	.L1
+  63 0016 6368     		ldr	r3, [r4, #4]
+  64              	.LVL4:
+  65              	.L4:
+  66              		.loc 1 409 1 view .LVU7
+  67 0018 9D42     		cmp	r5, r3
+  68 001a F8D1     		bne	.L2
+  69 001c 2A00     		movs	r2, r5
+  70 001e B168     		ldr	r1, [r6, #8]
+  71 0020 FFF7FEFF 		bl	memcmp
+  72              	.LVL5:
+  73 0024 0028     		cmp	r0, #0
+  74 0026 F2D1     		bne	.L2
+  75 0028 2000     		movs	r0, r4
+  76              	.L1:
+  77              		.loc 1 409 1 is_stmt 0 view .LVU8
+  78              		@ sp needed
+  79              	.LVL6:
+  80              	.LVL7:
+  81              		.loc 1 409 1 view .LVU9
+  82 002a 70BD     		pop	{r4, r5, r6, pc}
+  83              	.L11:
+  84              		.align	2
+  85              	.L10:
+  86 002c 00000000 		.word	.LANCHOR0
+  87 0030 00000000 		.word	.LC0
+  88              		.cfi_endproc
+  89              	.LFE25:
+  91              		.section	.text.mbedtls_oid_get_sig_alg_desc,"ax",%progbits
+  92              		.align	1
+  93              		.p2align 2,,3
+  94              		.global	mbedtls_oid_get_sig_alg_desc
+  95              		.syntax unified
+  96              		.code	16
+  97              		.thumb_func
+  98              		.fpu softvfp
+ 100              	mbedtls_oid_get_sig_alg_desc:
+ 101              	.LVL8:
+ 102              	.LFB13:
+ 410:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 103              		.loc 1 410 1 is_stmt 1 view -0
+ 104              		.cfi_startproc
+ 105              		@ args = 0, pretend = 0, frame = 0
+ 106              		@ frame_needed = 0, uses_anonymous_args = 0
+ 107              		.loc 1 410 1 view .LVU11
+ 108              	.LBB6:
+ 109              	.LBI6:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 110              		.loc 1 409 1 view .LVU12
+ 111              	.LBB7:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 112              		.loc 1 409 1 view .LVU13
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 113              		.loc 1 409 1 view .LVU14
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 114              		.loc 1 409 1 view .LVU15
+ 115              	.LBE7:
+ 116              	.LBE6:
+ 117              		.loc 1 410 1 is_stmt 0 view .LVU16
+ 118 0000 10B5     		push	{r4, lr}
+ 119              	.LCFI1:
+ 120              		.cfi_def_cfa_offset 8
+ 121              		.cfi_offset 4, -8
+ 122              		.cfi_offset 14, -4
+ 123              		.loc 1 410 1 view .LVU17
+ 124 0002 0C00     		movs	r4, r1
+ 125              	.LBB9:
+ 126              	.LBB8:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 127              		.loc 1 409 1 view .LVU18
+ 128 0004 0028     		cmp	r0, #0
+ 129 0006 07D0     		beq	.L15
+ 130 0008 FFF7FEFF 		bl	oid_sig_alg_from_asn1.part.0
+ 131              	.LVL9:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 132              		.loc 1 409 1 view .LVU19
+ 133              	.LBE8:
+ 134              	.LBE9:
+ 135              		.loc 1 410 1 is_stmt 1 view .LVU20
+ 136 000c 0028     		cmp	r0, #0
+ 137 000e 03D0     		beq	.L15
+ 138              		.loc 1 410 1 discriminator 2 view .LVU21
+ 139              		.loc 1 410 1 discriminator 2 view .LVU22
+ 140 0010 C368     		ldr	r3, [r0, #12]
+ 141 0012 0020     		movs	r0, #0
+ 142              	.LVL10:
+ 143              		.loc 1 410 1 is_stmt 0 discriminator 2 view .LVU23
+ 144 0014 2360     		str	r3, [r4]
+ 145              	.L12:
+ 146              		.loc 1 410 1 view .LVU24
+ 147              		@ sp needed
+ 148              	.LVL11:
+ 149              		.loc 1 410 1 view .LVU25
+ 150 0016 10BD     		pop	{r4, pc}
+ 151              	.LVL12:
+ 152              	.L15:
+ 153              		.loc 1 410 1 view .LVU26
+ 154 0018 2E20     		movs	r0, #46
+ 155 001a 4042     		rsbs	r0, r0, #0
+ 156 001c FBE7     		b	.L12
+ 157              		.cfi_endproc
+ 158              	.LFE13:
+ 160 001e C046     		.section	.text.mbedtls_oid_get_sig_alg,"ax",%progbits
+ 161              		.align	1
+ 162              		.p2align 2,,3
+ 163              		.global	mbedtls_oid_get_sig_alg
+ 164              		.syntax unified
+ 165              		.code	16
+ 166              		.thumb_func
+ 167              		.fpu softvfp
+ 169              	mbedtls_oid_get_sig_alg:
+ 170              	.LVL13:
+ 171              	.LFB14:
+ 411:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR2(mbedtls_oid_get_sig_alg, oid_sig_alg_t, sig_alg, mbedtls_md_type_t, md_alg, mbedtl
+ 172              		.loc 1 411 1 is_stmt 1 view -0
+ 173              		.cfi_startproc
+ 174              		@ args = 0, pretend = 0, frame = 0
+ 175              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176              		.loc 1 411 1 view .LVU28
+ 177              	.LBB10:
+ 178              	.LBI10:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 179              		.loc 1 409 1 view .LVU29
+ 180              	.LBB11:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 181              		.loc 1 409 1 view .LVU30
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 182              		.loc 1 409 1 view .LVU31
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 183              		.loc 1 409 1 view .LVU32
+ 184              	.LBE11:
+ 185              	.LBE10:
+ 186              		.loc 1 411 1 is_stmt 0 view .LVU33
+ 187 0000 70B5     		push	{r4, r5, r6, lr}
+ 188              	.LCFI2:
+ 189              		.cfi_def_cfa_offset 16
+ 190              		.cfi_offset 4, -16
+ 191              		.cfi_offset 5, -12
+ 192              		.cfi_offset 6, -8
+ 193              		.cfi_offset 14, -4
+ 194              		.loc 1 411 1 view .LVU34
+ 195 0002 0D00     		movs	r5, r1
+ 196 0004 1400     		movs	r4, r2
+ 197              	.LBB13:
+ 198              	.LBB12:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 199              		.loc 1 409 1 view .LVU35
+ 200 0006 0028     		cmp	r0, #0
+ 201 0008 09D0     		beq	.L19
+ 202 000a FFF7FEFF 		bl	oid_sig_alg_from_asn1.part.0
+ 203              	.LVL14:
+ 409:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_DESCRIPTOR_ATTR1(mbedtls_oid_get_sig_alg_desc, oid_sig_alg_t, sig_alg, const char *, des
+ 204              		.loc 1 409 1 view .LVU36
+ 205              	.LBE12:
+ 206              	.LBE13:
+ 207              		.loc 1 411 1 is_stmt 1 view .LVU37
+ 208 000e 0028     		cmp	r0, #0
+ 209 0010 05D0     		beq	.L19
+ 210              		.loc 1 411 1 discriminator 2 view .LVU38
+ 211 0012 037C     		ldrb	r3, [r0, #16]
+ 212 0014 2B70     		strb	r3, [r5]
+ 213              		.loc 1 411 1 discriminator 2 view .LVU39
+ 214 0016 437C     		ldrb	r3, [r0, #17]
+ 215 0018 0020     		movs	r0, #0
+ 216              	.LVL15:
+ 217              		.loc 1 411 1 is_stmt 0 discriminator 2 view .LVU40
+ 218 001a 2370     		strb	r3, [r4]
+ 219              		.loc 1 411 1 is_stmt 1 discriminator 2 view .LVU41
+ 220              	.L16:
+ 221              		.loc 1 411 1 is_stmt 0 view .LVU42
+ 222              		@ sp needed
+ 223              	.LVL16:
+ 224              	.LVL17:
+ 225              		.loc 1 411 1 view .LVU43
+ 226 001c 70BD     		pop	{r4, r5, r6, pc}
+ 227              	.LVL18:
+ 228              	.L19:
+ 229              		.loc 1 411 1 view .LVU44
+ 230 001e 2E20     		movs	r0, #46
+ 231 0020 4042     		rsbs	r0, r0, #0
+ 232 0022 FBE7     		b	.L16
+ 233              		.cfi_endproc
+ 234              	.LFE14:
+ 236              		.section	.text.mbedtls_oid_get_oid_by_sig_alg,"ax",%progbits
+ 237              		.align	1
+ 238              		.p2align 2,,3
+ 239              		.global	mbedtls_oid_get_oid_by_sig_alg
+ 240              		.syntax unified
+ 241              		.code	16
+ 242              		.thumb_func
+ 243              		.fpu softvfp
+ 245              	mbedtls_oid_get_oid_by_sig_alg:
+ 246              	.LVL19:
+ 247              	.LFB15:
+ 412:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_OID_BY_ATTR2(mbedtls_oid_get_oid_by_sig_alg, oid_sig_alg_t, oid_sig_alg, mbedtls_pk_type
+ 248              		.loc 1 412 1 is_stmt 1 view -0
+ 249              		.cfi_startproc
+ 250              		@ args = 0, pretend = 0, frame = 0
+ 251              		@ frame_needed = 0, uses_anonymous_args = 0
+ 252              		.loc 1 412 1 view .LVU46
+ 253              		.loc 1 412 1 view .LVU47
+ 254              		.loc 1 412 1 view .LVU48
+ 255 0000 70B5     		push	{r4, r5, r6, lr}
+ 256              	.LCFI3:
+ 257              		.cfi_def_cfa_offset 16
+ 258              		.cfi_offset 4, -16
+ 259              		.cfi_offset 5, -12
+ 260              		.cfi_offset 6, -8
+ 261              		.cfi_offset 14, -4
+ 262              		.loc 1 412 1 is_stmt 0 view .LVU49
+ 263 0002 0126     		movs	r6, #1
+ 264 0004 0A4C     		ldr	r4, .L25
+ 265 0006 0B4D     		ldr	r5, .L25+4
+ 266 0008 04E0     		b	.L23
+ 267              	.LVL20:
+ 268              	.L21:
+ 269              		.loc 1 412 1 is_stmt 1 discriminator 5 view .LVU50
+ 270 000a 6569     		ldr	r5, [r4, #20]
+ 271 000c 1434     		adds	r4, r4, #20
+ 272              	.LVL21:
+ 273              		.loc 1 412 1 discriminator 5 view .LVU51
+ 274 000e 002D     		cmp	r5, #0
+ 275 0010 0AD0     		beq	.L24
+ 276 0012 667C     		ldrb	r6, [r4, #17]
+ 277              	.LVL22:
+ 278              	.L23:
+ 279              		.loc 1 412 1 discriminator 7 view .LVU52
+ 280 0014 8642     		cmp	r6, r0
+ 281 0016 F8D1     		bne	.L21
+ 282              		.loc 1 412 1 is_stmt 0 discriminator 2 view .LVU53
+ 283 0018 267C     		ldrb	r6, [r4, #16]
+ 284 001a 8E42     		cmp	r6, r1
+ 285 001c F5D1     		bne	.L21
+ 286              		.loc 1 412 1 is_stmt 1 discriminator 4 view .LVU54
+ 287 001e 1560     		str	r5, [r2]
+ 288              		.loc 1 412 1 discriminator 4 view .LVU55
+ 289              		.loc 1 412 1 discriminator 4 view .LVU56
+ 290 0020 6268     		ldr	r2, [r4, #4]
+ 291              	.LVL23:
+ 292              		.loc 1 412 1 is_stmt 0 discriminator 4 view .LVU57
+ 293 0022 0020     		movs	r0, #0
+ 294              	.LVL24:
+ 295              		.loc 1 412 1 discriminator 4 view .LVU58
+ 296 0024 1A60     		str	r2, [r3]
+ 297 0026 01E0     		b	.L20
+ 298              	.LVL25:
+ 299              	.L24:
+ 300              		.loc 1 412 1 view .LVU59
+ 301 0028 2E20     		movs	r0, #46
+ 302              	.LVL26:
+ 303              		.loc 1 412 1 view .LVU60
+ 304 002a 4042     		rsbs	r0, r0, #0
+ 305              	.LVL27:
+ 306              	.L20:
+ 307              		.loc 1 412 1 view .LVU61
+ 308              		@ sp needed
+ 309              	.LVL28:
+ 310              		.loc 1 412 1 view .LVU62
+ 311 002c 70BD     		pop	{r4, r5, r6, pc}
+ 312              	.L26:
+ 313 002e C046     		.align	2
+ 314              	.L25:
+ 315 0030 00000000 		.word	.LANCHOR0
+ 316 0034 00000000 		.word	.LC0
+ 317              		.cfi_endproc
+ 318              	.LFE15:
+ 320              		.section	.rodata.str1.4
+ 321 000a 0000     		.align	2
+ 322              	.LC5:
+ 323 000c 2A864886 		.ascii	"*\206H\206\367\015\001\001\001\000"
+ 323      F70D0101 
+ 323      0100
+ 324              		.section	.text.mbedtls_oid_get_pk_alg,"ax",%progbits
+ 325              		.align	1
+ 326              		.p2align 2,,3
+ 327              		.global	mbedtls_oid_get_pk_alg
+ 328              		.syntax unified
+ 329              		.code	16
+ 330              		.thumb_func
+ 331              		.fpu softvfp
+ 333              	mbedtls_oid_get_pk_alg:
+ 334              	.LVL29:
+ 335              	.LFB17:
+ 413:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD_C */
+ 414:.././crypto/mbedtls//library/oid.c **** 
+ 415:.././crypto/mbedtls//library/oid.c **** /*
+ 416:.././crypto/mbedtls//library/oid.c ****  * For PublicKeyInfo (PKCS1, RFC 5480)
+ 417:.././crypto/mbedtls//library/oid.c ****  */
+ 418:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 419:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 420:.././crypto/mbedtls//library/oid.c ****     mbedtls_pk_type_t           pk_alg;
+ 421:.././crypto/mbedtls//library/oid.c **** } oid_pk_alg_t;
+ 422:.././crypto/mbedtls//library/oid.c **** 
+ 423:.././crypto/mbedtls//library/oid.c **** static const oid_pk_alg_t oid_pk_alg[] =
+ 424:.././crypto/mbedtls//library/oid.c **** {
+ 425:.././crypto/mbedtls//library/oid.c ****     {
+ 426:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS1_RSA ),      "rsaEncryption",   "RSA" },
+ 427:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_PK_RSA,
+ 428:.././crypto/mbedtls//library/oid.c ****     },
+ 429:.././crypto/mbedtls//library/oid.c ****     {
+ 430:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_ALG_UNRESTRICTED ),  "id-ecPublicKey",   "Generic EC key" },
+ 431:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_PK_ECKEY,
+ 432:.././crypto/mbedtls//library/oid.c ****     },
+ 433:.././crypto/mbedtls//library/oid.c ****     {
+ 434:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_ALG_ECDH ),          "id-ecDH",          "EC key for ECDH" },
+ 435:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_PK_ECKEY_DH,
+ 436:.././crypto/mbedtls//library/oid.c ****     },
+ 437:.././crypto/mbedtls//library/oid.c ****     {
+ 438:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 439:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_PK_NONE,
+ 440:.././crypto/mbedtls//library/oid.c ****     },
+ 441:.././crypto/mbedtls//library/oid.c **** };
+ 442:.././crypto/mbedtls//library/oid.c **** 
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_pk_alg_t, pk_alg, oid_pk_alg)
+ 444:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 336              		.loc 1 444 1 is_stmt 1 view -0
+ 337              		.cfi_startproc
+ 338              		@ args = 0, pretend = 0, frame = 0
+ 339              		@ frame_needed = 0, uses_anonymous_args = 0
+ 340              		.loc 1 444 1 view .LVU64
+ 341              	.LBB16:
+ 342              	.LBI16:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 343              		.loc 1 443 1 view .LVU65
+ 344              	.LBB17:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 345              		.loc 1 443 1 view .LVU66
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 346              		.loc 1 443 1 view .LVU67
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 347              		.loc 1 443 1 view .LVU68
+ 348              	.LBE17:
+ 349              	.LBE16:
+ 350              		.loc 1 444 1 is_stmt 0 view .LVU69
+ 351 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 352              	.LCFI4:
+ 353              		.cfi_def_cfa_offset 24
+ 354              		.cfi_offset 3, -24
+ 355              		.cfi_offset 4, -20
+ 356              		.cfi_offset 5, -16
+ 357              		.cfi_offset 6, -12
+ 358              		.cfi_offset 7, -8
+ 359              		.cfi_offset 14, -4
+ 360              		.loc 1 444 1 view .LVU70
+ 361 0002 0500     		movs	r5, r0
+ 362 0004 0E00     		movs	r6, r1
+ 363              	.LBB19:
+ 364              	.LBB18:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 365              		.loc 1 443 1 view .LVU71
+ 366 0006 0028     		cmp	r0, #0
+ 367 0008 15D0     		beq	.L33
+ 368 000a 0C4C     		ldr	r4, .L34
+ 369 000c 4768     		ldr	r7, [r0, #4]
+ 370 000e 0923     		movs	r3, #9
+ 371 0010 0B48     		ldr	r0, .L34+4
+ 372              	.LVL30:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 373              		.loc 1 443 1 view .LVU72
+ 374 0012 5034     		adds	r4, r4, #80
+ 375 0014 04E0     		b	.L31
+ 376              	.LVL31:
+ 377              	.L29:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 378              		.loc 1 443 1 is_stmt 1 view .LVU73
+ 379 0016 6069     		ldr	r0, [r4, #20]
+ 380 0018 1434     		adds	r4, r4, #20
+ 381              	.LVL32:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 382              		.loc 1 443 1 view .LVU74
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 383              		.loc 1 443 1 view .LVU75
+ 384 001a 0028     		cmp	r0, #0
+ 385 001c 0BD0     		beq	.L33
+ 386 001e 6368     		ldr	r3, [r4, #4]
+ 387              	.LVL33:
+ 388              	.L31:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 389              		.loc 1 443 1 view .LVU76
+ 390 0020 9F42     		cmp	r7, r3
+ 391 0022 F8D1     		bne	.L29
+ 392 0024 3A00     		movs	r2, r7
+ 393 0026 A968     		ldr	r1, [r5, #8]
+ 394 0028 FFF7FEFF 		bl	memcmp
+ 395              	.LVL34:
+ 396 002c 0028     		cmp	r0, #0
+ 397 002e F2D1     		bne	.L29
+ 398              	.LVL35:
+ 443:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_pk_alg, oid_pk_alg_t, pk_alg, mbedtls_pk_type_t, pk_alg)
+ 399              		.loc 1 443 1 is_stmt 0 view .LVU77
+ 400              	.LBE18:
+ 401              	.LBE19:
+ 402              		.loc 1 444 1 is_stmt 1 view .LVU78
+ 403              		.loc 1 444 1 view .LVU79
+ 404 0030 237C     		ldrb	r3, [r4, #16]
+ 405 0032 3370     		strb	r3, [r6]
+ 406              		.loc 1 444 1 view .LVU80
+ 407              	.LVL36:
+ 408              	.L27:
+ 409              		.loc 1 444 1 is_stmt 0 view .LVU81
+ 410              		@ sp needed
+ 411              	.LVL37:
+ 412              	.LVL38:
+ 413              		.loc 1 444 1 view .LVU82
+ 414 0034 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 415              	.LVL39:
+ 416              	.L33:
+ 417              		.loc 1 444 1 view .LVU83
+ 418 0036 2E20     		movs	r0, #46
+ 419 0038 4042     		rsbs	r0, r0, #0
+ 420              	.LVL40:
+ 421              		.loc 1 444 1 view .LVU84
+ 422 003a FBE7     		b	.L27
+ 423              	.L35:
+ 424              		.align	2
+ 425              	.L34:
+ 426 003c 00000000 		.word	.LANCHOR0
+ 427 0040 0C000000 		.word	.LC5
+ 428              		.cfi_endproc
+ 429              	.LFE17:
+ 431              		.section	.text.mbedtls_oid_get_oid_by_pk_alg,"ax",%progbits
+ 432              		.align	1
+ 433              		.p2align 2,,3
+ 434              		.global	mbedtls_oid_get_oid_by_pk_alg
+ 435              		.syntax unified
+ 436              		.code	16
+ 437              		.thumb_func
+ 438              		.fpu softvfp
+ 440              	mbedtls_oid_get_oid_by_pk_alg:
+ 441              	.LVL41:
+ 442              	.LFB18:
+ 445:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_OID_BY_ATTR1(mbedtls_oid_get_oid_by_pk_alg, oid_pk_alg_t, oid_pk_alg, mbedtls_pk_type_t,
+ 443              		.loc 1 445 1 is_stmt 1 view -0
+ 444              		.cfi_startproc
+ 445              		@ args = 0, pretend = 0, frame = 0
+ 446              		@ frame_needed = 0, uses_anonymous_args = 0
+ 447              		.loc 1 445 1 view .LVU86
+ 448              		.loc 1 445 1 view .LVU87
+ 449              		.loc 1 445 1 view .LVU88
+ 450 0000 0A4B     		ldr	r3, .L41
+ 451 0002 30B5     		push	{r4, r5, lr}
+ 452              	.LCFI5:
+ 453              		.cfi_def_cfa_offset 12
+ 454              		.cfi_offset 4, -12
+ 455              		.cfi_offset 5, -8
+ 456              		.cfi_offset 14, -4
+ 457              		.loc 1 445 1 is_stmt 0 view .LVU89
+ 458 0004 5033     		adds	r3, r3, #80
+ 459 0006 0125     		movs	r5, #1
+ 460 0008 094C     		ldr	r4, .L41+4
+ 461 000a 04E0     		b	.L39
+ 462              	.LVL42:
+ 463              	.L37:
+ 464              		.loc 1 445 1 is_stmt 1 discriminator 3 view .LVU90
+ 465 000c 5C69     		ldr	r4, [r3, #20]
+ 466 000e 1433     		adds	r3, r3, #20
+ 467              	.LVL43:
+ 468              		.loc 1 445 1 discriminator 3 view .LVU91
+ 469 0010 002C     		cmp	r4, #0
+ 470 0012 07D0     		beq	.L40
+ 471 0014 1D7C     		ldrb	r5, [r3, #16]
+ 472              	.LVL44:
+ 473              	.L39:
+ 474              		.loc 1 445 1 discriminator 5 view .LVU92
+ 475 0016 8542     		cmp	r5, r0
+ 476 0018 F8D1     		bne	.L37
+ 477              		.loc 1 445 1 discriminator 2 view .LVU93
+ 478 001a 0020     		movs	r0, #0
+ 479              	.LVL45:
+ 480              		.loc 1 445 1 is_stmt 0 discriminator 2 view .LVU94
+ 481 001c 5B68     		ldr	r3, [r3, #4]
+ 482              	.LVL46:
+ 483              		.loc 1 445 1 discriminator 2 view .LVU95
+ 484 001e 0C60     		str	r4, [r1]
+ 485              		.loc 1 445 1 is_stmt 1 discriminator 2 view .LVU96
+ 486              		.loc 1 445 1 discriminator 2 view .LVU97
+ 487 0020 1360     		str	r3, [r2]
+ 488              	.L36:
+ 489              		.loc 1 445 1 is_stmt 0 view .LVU98
+ 490              		@ sp needed
+ 491 0022 30BD     		pop	{r4, r5, pc}
+ 492              	.LVL47:
+ 493              	.L40:
+ 494              		.loc 1 445 1 view .LVU99
+ 495 0024 2E20     		movs	r0, #46
+ 496              	.LVL48:
+ 497              		.loc 1 445 1 view .LVU100
+ 498 0026 4042     		rsbs	r0, r0, #0
+ 499 0028 FBE7     		b	.L36
+ 500              	.L42:
+ 501 002a C046     		.align	2
+ 502              	.L41:
+ 503 002c 00000000 		.word	.LANCHOR0
+ 504 0030 0C000000 		.word	.LC5
+ 505              		.cfi_endproc
+ 506              	.LFE18:
+ 508              		.section	.rodata.str1.4
+ 509 0016 0000     		.align	2
+ 510              	.LC10:
+ 511 0018 2B0E0302 		.ascii	"+\016\003\002\007\000"
+ 511      0700
+ 512              		.section	.text.mbedtls_oid_get_cipher_alg,"ax",%progbits
+ 513              		.align	1
+ 514              		.p2align 2,,3
+ 515              		.global	mbedtls_oid_get_cipher_alg
+ 516              		.syntax unified
+ 517              		.code	16
+ 518              		.thumb_func
+ 519              		.fpu softvfp
+ 521              	mbedtls_oid_get_cipher_alg:
+ 522              	.LVL49:
+ 523              	.LFB20:
+ 446:.././crypto/mbedtls//library/oid.c **** 
+ 447:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_C)
+ 448:.././crypto/mbedtls//library/oid.c **** /*
+ 449:.././crypto/mbedtls//library/oid.c ****  * For namedCurve (RFC 5480)
+ 450:.././crypto/mbedtls//library/oid.c ****  */
+ 451:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 452:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 453:.././crypto/mbedtls//library/oid.c ****     mbedtls_ecp_group_id        grp_id;
+ 454:.././crypto/mbedtls//library/oid.c **** } oid_ecp_grp_t;
+ 455:.././crypto/mbedtls//library/oid.c **** 
+ 456:.././crypto/mbedtls//library/oid.c **** static const oid_ecp_grp_t oid_ecp_grp[] =
+ 457:.././crypto/mbedtls//library/oid.c **** {
+ 458:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP192R1_ENABLED)
+ 459:.././crypto/mbedtls//library/oid.c ****     {
+ 460:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP192R1 ), "secp192r1",    "secp192r1" },
+ 461:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP192R1,
+ 462:.././crypto/mbedtls//library/oid.c ****     },
+ 463:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP192R1_ENABLED */
+ 464:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP224R1_ENABLED)
+ 465:.././crypto/mbedtls//library/oid.c ****     {
+ 466:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP224R1 ), "secp224r1",    "secp224r1" },
+ 467:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP224R1,
+ 468:.././crypto/mbedtls//library/oid.c ****     },
+ 469:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP224R1_ENABLED */
+ 470:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP256R1_ENABLED)
+ 471:.././crypto/mbedtls//library/oid.c ****     {
+ 472:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP256R1 ), "secp256r1",    "secp256r1" },
+ 473:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP256R1,
+ 474:.././crypto/mbedtls//library/oid.c ****     },
+ 475:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP256R1_ENABLED */
+ 476:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP384R1_ENABLED)
+ 477:.././crypto/mbedtls//library/oid.c ****     {
+ 478:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP384R1 ), "secp384r1",    "secp384r1" },
+ 479:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP384R1,
+ 480:.././crypto/mbedtls//library/oid.c ****     },
+ 481:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP384R1_ENABLED */
+ 482:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP521R1_ENABLED)
+ 483:.././crypto/mbedtls//library/oid.c ****     {
+ 484:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP521R1 ), "secp521r1",    "secp521r1" },
+ 485:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP521R1,
+ 486:.././crypto/mbedtls//library/oid.c ****     },
+ 487:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP521R1_ENABLED */
+ 488:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP192K1_ENABLED)
+ 489:.././crypto/mbedtls//library/oid.c ****     {
+ 490:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP192K1 ), "secp192k1",    "secp192k1" },
+ 491:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP192K1,
+ 492:.././crypto/mbedtls//library/oid.c ****     },
+ 493:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP192K1_ENABLED */
+ 494:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP224K1_ENABLED)
+ 495:.././crypto/mbedtls//library/oid.c ****     {
+ 496:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP224K1 ), "secp224k1",    "secp224k1" },
+ 497:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP224K1,
+ 498:.././crypto/mbedtls//library/oid.c ****     },
+ 499:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP224K1_ENABLED */
+ 500:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_SECP256K1_ENABLED)
+ 501:.././crypto/mbedtls//library/oid.c ****     {
+ 502:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_SECP256K1 ), "secp256k1",    "secp256k1" },
+ 503:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_SECP256K1,
+ 504:.././crypto/mbedtls//library/oid.c ****     },
+ 505:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_SECP256K1_ENABLED */
+ 506:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_BP256R1_ENABLED)
+ 507:.././crypto/mbedtls//library/oid.c ****     {
+ 508:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_BP256R1 ),   "brainpoolP256r1","brainpool256r1" },
+ 509:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_BP256R1,
+ 510:.././crypto/mbedtls//library/oid.c ****     },
+ 511:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_BP256R1_ENABLED */
+ 512:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_BP384R1_ENABLED)
+ 513:.././crypto/mbedtls//library/oid.c ****     {
+ 514:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_BP384R1 ),   "brainpoolP384r1","brainpool384r1" },
+ 515:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_BP384R1,
+ 516:.././crypto/mbedtls//library/oid.c ****     },
+ 517:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_BP384R1_ENABLED */
+ 518:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_ECP_DP_BP512R1_ENABLED)
+ 519:.././crypto/mbedtls//library/oid.c ****     {
+ 520:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_EC_GRP_BP512R1 ),   "brainpoolP512r1","brainpool512r1" },
+ 521:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_BP512R1,
+ 522:.././crypto/mbedtls//library/oid.c ****     },
+ 523:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_DP_BP512R1_ENABLED */
+ 524:.././crypto/mbedtls//library/oid.c ****     {
+ 525:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 526:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_ECP_DP_NONE,
+ 527:.././crypto/mbedtls//library/oid.c ****     },
+ 528:.././crypto/mbedtls//library/oid.c **** };
+ 529:.././crypto/mbedtls//library/oid.c **** 
+ 530:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_ecp_grp_t, grp_id, oid_ecp_grp)
+ 531:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_ec_grp, oid_ecp_grp_t, grp_id, mbedtls_ecp_group_id, grp_id)
+ 532:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_OID_BY_ATTR1(mbedtls_oid_get_oid_by_ec_grp, oid_ecp_grp_t, oid_ecp_grp, mbedtls_ecp_grou
+ 533:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_ECP_C */
+ 534:.././crypto/mbedtls//library/oid.c **** 
+ 535:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_CIPHER_C)
+ 536:.././crypto/mbedtls//library/oid.c **** /*
+ 537:.././crypto/mbedtls//library/oid.c ****  * For PKCS#5 PBES2 encryption algorithm
+ 538:.././crypto/mbedtls//library/oid.c ****  */
+ 539:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 540:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 541:.././crypto/mbedtls//library/oid.c ****     mbedtls_cipher_type_t       cipher_alg;
+ 542:.././crypto/mbedtls//library/oid.c **** } oid_cipher_alg_t;
+ 543:.././crypto/mbedtls//library/oid.c **** 
+ 544:.././crypto/mbedtls//library/oid.c **** static const oid_cipher_alg_t oid_cipher_alg[] =
+ 545:.././crypto/mbedtls//library/oid.c **** {
+ 546:.././crypto/mbedtls//library/oid.c ****     {
+ 547:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DES_CBC ),              "desCBC",       "DES-CBC" },
+ 548:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_CIPHER_DES_CBC,
+ 549:.././crypto/mbedtls//library/oid.c ****     },
+ 550:.././crypto/mbedtls//library/oid.c ****     {
+ 551:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DES_EDE3_CBC ),         "des-ede3-cbc", "DES-EDE3-CBC" },
+ 552:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_CIPHER_DES_EDE3_CBC,
+ 553:.././crypto/mbedtls//library/oid.c ****     },
+ 554:.././crypto/mbedtls//library/oid.c ****     {
+ 555:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 556:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_CIPHER_NONE,
+ 557:.././crypto/mbedtls//library/oid.c ****     },
+ 558:.././crypto/mbedtls//library/oid.c **** };
+ 559:.././crypto/mbedtls//library/oid.c **** 
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_cipher_alg_t, cipher_alg, oid_cipher_alg)
+ 561:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 524              		.loc 1 561 1 is_stmt 1 view -0
+ 525              		.cfi_startproc
+ 526              		@ args = 0, pretend = 0, frame = 0
+ 527              		@ frame_needed = 0, uses_anonymous_args = 0
+ 528              		.loc 1 561 1 view .LVU102
+ 529              	.LBB22:
+ 530              	.LBI22:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 531              		.loc 1 560 1 view .LVU103
+ 532              	.LBB23:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 533              		.loc 1 560 1 view .LVU104
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 534              		.loc 1 560 1 view .LVU105
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 535              		.loc 1 560 1 view .LVU106
+ 536              	.LBE23:
+ 537              	.LBE22:
+ 538              		.loc 1 561 1 is_stmt 0 view .LVU107
+ 539 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 540              	.LCFI6:
+ 541              		.cfi_def_cfa_offset 24
+ 542              		.cfi_offset 3, -24
+ 543              		.cfi_offset 4, -20
+ 544              		.cfi_offset 5, -16
+ 545              		.cfi_offset 6, -12
+ 546              		.cfi_offset 7, -8
+ 547              		.cfi_offset 14, -4
+ 548              		.loc 1 561 1 view .LVU108
+ 549 0002 0500     		movs	r5, r0
+ 550 0004 0E00     		movs	r6, r1
+ 551              	.LBB25:
+ 552              	.LBB24:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 553              		.loc 1 560 1 view .LVU109
+ 554 0006 0028     		cmp	r0, #0
+ 555 0008 15D0     		beq	.L49
+ 556 000a 0C4C     		ldr	r4, .L50
+ 557 000c 4768     		ldr	r7, [r0, #4]
+ 558 000e 0523     		movs	r3, #5
+ 559 0010 0B48     		ldr	r0, .L50+4
+ 560              	.LVL50:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 561              		.loc 1 560 1 view .LVU110
+ 562 0012 2034     		adds	r4, r4, #32
+ 563 0014 04E0     		b	.L47
+ 564              	.LVL51:
+ 565              	.L45:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 566              		.loc 1 560 1 is_stmt 1 view .LVU111
+ 567 0016 6069     		ldr	r0, [r4, #20]
+ 568 0018 1434     		adds	r4, r4, #20
+ 569              	.LVL52:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 570              		.loc 1 560 1 view .LVU112
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 571              		.loc 1 560 1 view .LVU113
+ 572 001a 0028     		cmp	r0, #0
+ 573 001c 0BD0     		beq	.L49
+ 574 001e 6368     		ldr	r3, [r4, #4]
+ 575              	.LVL53:
+ 576              	.L47:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 577              		.loc 1 560 1 view .LVU114
+ 578 0020 9F42     		cmp	r7, r3
+ 579 0022 F8D1     		bne	.L45
+ 580 0024 3A00     		movs	r2, r7
+ 581 0026 A968     		ldr	r1, [r5, #8]
+ 582 0028 FFF7FEFF 		bl	memcmp
+ 583              	.LVL54:
+ 584 002c 0028     		cmp	r0, #0
+ 585 002e F2D1     		bne	.L45
+ 586              	.LVL55:
+ 560:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_cipher_alg, oid_cipher_alg_t, cipher_alg, mbedtls_cipher_type_t, c
+ 587              		.loc 1 560 1 is_stmt 0 view .LVU115
+ 588              	.LBE24:
+ 589              	.LBE25:
+ 590              		.loc 1 561 1 is_stmt 1 view .LVU116
+ 591              		.loc 1 561 1 view .LVU117
+ 592 0030 237C     		ldrb	r3, [r4, #16]
+ 593 0032 3370     		strb	r3, [r6]
+ 594              		.loc 1 561 1 view .LVU118
+ 595              	.LVL56:
+ 596              	.L43:
+ 597              		.loc 1 561 1 is_stmt 0 view .LVU119
+ 598              		@ sp needed
+ 599              	.LVL57:
+ 600              	.LVL58:
+ 601              		.loc 1 561 1 view .LVU120
+ 602 0034 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 603              	.LVL59:
+ 604              	.L49:
+ 605              		.loc 1 561 1 view .LVU121
+ 606 0036 2E20     		movs	r0, #46
+ 607 0038 4042     		rsbs	r0, r0, #0
+ 608              	.LVL60:
+ 609              		.loc 1 561 1 view .LVU122
+ 610 003a FBE7     		b	.L43
+ 611              	.L51:
+ 612              		.align	2
+ 613              	.L50:
+ 614 003c 80000000 		.word	.LANCHOR1
+ 615 0040 18000000 		.word	.LC10
+ 616              		.cfi_endproc
+ 617              	.LFE20:
+ 619              		.section	.rodata.str1.4
+ 620 001e 0000     		.align	2
+ 621              	.LC13:
+ 622 0020 60864801 		.ascii	"`\206H\001e\003\004\002\004\000"
+ 622      65030402 
+ 622      0400
+ 623              		.section	.text.mbedtls_oid_get_md_alg,"ax",%progbits
+ 624              		.align	1
+ 625              		.p2align 2,,3
+ 626              		.global	mbedtls_oid_get_md_alg
+ 627              		.syntax unified
+ 628              		.code	16
+ 629              		.thumb_func
+ 630              		.fpu softvfp
+ 632              	mbedtls_oid_get_md_alg:
+ 633              	.LVL61:
+ 634              	.LFB22:
+ 562:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_CIPHER_C */
+ 563:.././crypto/mbedtls//library/oid.c **** 
+ 564:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD_C)
+ 565:.././crypto/mbedtls//library/oid.c **** /*
+ 566:.././crypto/mbedtls//library/oid.c ****  * For digestAlgorithm
+ 567:.././crypto/mbedtls//library/oid.c ****  */
+ 568:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 569:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 570:.././crypto/mbedtls//library/oid.c ****     mbedtls_md_type_t           md_alg;
+ 571:.././crypto/mbedtls//library/oid.c **** } oid_md_alg_t;
+ 572:.././crypto/mbedtls//library/oid.c **** 
+ 573:.././crypto/mbedtls//library/oid.c **** static const oid_md_alg_t oid_md_alg[] =
+ 574:.././crypto/mbedtls//library/oid.c **** {
+ 575:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD2_C)
+ 576:.././crypto/mbedtls//library/oid.c ****     {
+ 577:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_MD2 ),       "id-md2",       "MD2" },
+ 578:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_MD2,
+ 579:.././crypto/mbedtls//library/oid.c ****     },
+ 580:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD2_C */
+ 581:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD4_C)
+ 582:.././crypto/mbedtls//library/oid.c ****     {
+ 583:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_MD4 ),       "id-md4",       "MD4" },
+ 584:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_MD4,
+ 585:.././crypto/mbedtls//library/oid.c ****     },
+ 586:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD4_C */
+ 587:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_MD5_C)
+ 588:.././crypto/mbedtls//library/oid.c ****     {
+ 589:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_MD5 ),       "id-md5",       "MD5" },
+ 590:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_MD5,
+ 591:.././crypto/mbedtls//library/oid.c ****     },
+ 592:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD5_C */
+ 593:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA1_C)
+ 594:.././crypto/mbedtls//library/oid.c ****     {
+ 595:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_SHA1 ),      "id-sha1",      "SHA-1" },
+ 596:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA1,
+ 597:.././crypto/mbedtls//library/oid.c ****     },
+ 598:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA1_C */
+ 599:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA256_C)
+ 600:.././crypto/mbedtls//library/oid.c ****     {
+ 601:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_SHA224 ),    "id-sha224",    "SHA-224" },
+ 602:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA224,
+ 603:.././crypto/mbedtls//library/oid.c ****     },
+ 604:.././crypto/mbedtls//library/oid.c ****     {
+ 605:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_SHA256 ),    "id-sha256",    "SHA-256" },
+ 606:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA256,
+ 607:.././crypto/mbedtls//library/oid.c ****     },
+ 608:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA256_C */
+ 609:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_SHA512_C)
+ 610:.././crypto/mbedtls//library/oid.c ****     {
+ 611:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_SHA384 ),    "id-sha384",    "SHA-384" },
+ 612:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA384,
+ 613:.././crypto/mbedtls//library/oid.c ****     },
+ 614:.././crypto/mbedtls//library/oid.c ****     {
+ 615:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_DIGEST_ALG_SHA512 ),    "id-sha512",    "SHA-512" },
+ 616:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA512,
+ 617:.././crypto/mbedtls//library/oid.c ****     },
+ 618:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_SHA512_C */
+ 619:.././crypto/mbedtls//library/oid.c ****     {
+ 620:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 621:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_NONE,
+ 622:.././crypto/mbedtls//library/oid.c ****     },
+ 623:.././crypto/mbedtls//library/oid.c **** };
+ 624:.././crypto/mbedtls//library/oid.c **** 
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_md_alg_t, md_alg, oid_md_alg)
+ 626:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 635              		.loc 1 626 1 is_stmt 1 view -0
+ 636              		.cfi_startproc
+ 637              		@ args = 0, pretend = 0, frame = 0
+ 638              		@ frame_needed = 0, uses_anonymous_args = 0
+ 639              		.loc 1 626 1 view .LVU124
+ 640              	.LBB28:
+ 641              	.LBI28:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 642              		.loc 1 625 1 view .LVU125
+ 643              	.LBB29:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 644              		.loc 1 625 1 view .LVU126
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 645              		.loc 1 625 1 view .LVU127
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 646              		.loc 1 625 1 view .LVU128
+ 647              	.LBE29:
+ 648              	.LBE28:
+ 649              		.loc 1 626 1 is_stmt 0 view .LVU129
+ 650 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 651              	.LCFI7:
+ 652              		.cfi_def_cfa_offset 24
+ 653              		.cfi_offset 3, -24
+ 654              		.cfi_offset 4, -20
+ 655              		.cfi_offset 5, -16
+ 656              		.cfi_offset 6, -12
+ 657              		.cfi_offset 7, -8
+ 658              		.cfi_offset 14, -4
+ 659              		.loc 1 626 1 view .LVU130
+ 660 0002 0500     		movs	r5, r0
+ 661 0004 0E00     		movs	r6, r1
+ 662              	.LBB31:
+ 663              	.LBB30:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 664              		.loc 1 625 1 view .LVU131
+ 665 0006 0028     		cmp	r0, #0
+ 666 0008 15D0     		beq	.L58
+ 667 000a 0C4C     		ldr	r4, .L59
+ 668 000c 4768     		ldr	r7, [r0, #4]
+ 669 000e 0923     		movs	r3, #9
+ 670 0010 0B48     		ldr	r0, .L59+4
+ 671              	.LVL62:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 672              		.loc 1 625 1 view .LVU132
+ 673 0012 5C34     		adds	r4, r4, #92
+ 674 0014 04E0     		b	.L56
+ 675              	.LVL63:
+ 676              	.L54:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 677              		.loc 1 625 1 is_stmt 1 view .LVU133
+ 678 0016 6069     		ldr	r0, [r4, #20]
+ 679 0018 1434     		adds	r4, r4, #20
+ 680              	.LVL64:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 681              		.loc 1 625 1 view .LVU134
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 682              		.loc 1 625 1 view .LVU135
+ 683 001a 0028     		cmp	r0, #0
+ 684 001c 0BD0     		beq	.L58
+ 685 001e 6368     		ldr	r3, [r4, #4]
+ 686              	.LVL65:
+ 687              	.L56:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 688              		.loc 1 625 1 view .LVU136
+ 689 0020 9F42     		cmp	r7, r3
+ 690 0022 F8D1     		bne	.L54
+ 691 0024 3A00     		movs	r2, r7
+ 692 0026 A968     		ldr	r1, [r5, #8]
+ 693 0028 FFF7FEFF 		bl	memcmp
+ 694              	.LVL66:
+ 695 002c 0028     		cmp	r0, #0
+ 696 002e F2D1     		bne	.L54
+ 697              	.LVL67:
+ 625:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR1(mbedtls_oid_get_md_alg, oid_md_alg_t, md_alg, mbedtls_md_type_t, md_alg)
+ 698              		.loc 1 625 1 is_stmt 0 view .LVU137
+ 699              	.LBE30:
+ 700              	.LBE31:
+ 701              		.loc 1 626 1 is_stmt 1 view .LVU138
+ 702              		.loc 1 626 1 view .LVU139
+ 703 0030 237C     		ldrb	r3, [r4, #16]
+ 704 0032 3370     		strb	r3, [r6]
+ 705              		.loc 1 626 1 view .LVU140
+ 706              	.LVL68:
+ 707              	.L52:
+ 708              		.loc 1 626 1 is_stmt 0 view .LVU141
+ 709              		@ sp needed
+ 710              	.LVL69:
+ 711              	.LVL70:
+ 712              		.loc 1 626 1 view .LVU142
+ 713 0034 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 714              	.LVL71:
+ 715              	.L58:
+ 716              		.loc 1 626 1 view .LVU143
+ 717 0036 2E20     		movs	r0, #46
+ 718 0038 4042     		rsbs	r0, r0, #0
+ 719              	.LVL72:
+ 720              		.loc 1 626 1 view .LVU144
+ 721 003a FBE7     		b	.L52
+ 722              	.L60:
+ 723              		.align	2
+ 724              	.L59:
+ 725 003c 80000000 		.word	.LANCHOR1
+ 726 0040 20000000 		.word	.LC13
+ 727              		.cfi_endproc
+ 728              	.LFE22:
+ 730              		.section	.text.mbedtls_oid_get_oid_by_md,"ax",%progbits
+ 731              		.align	1
+ 732              		.p2align 2,,3
+ 733              		.global	mbedtls_oid_get_oid_by_md
+ 734              		.syntax unified
+ 735              		.code	16
+ 736              		.thumb_func
+ 737              		.fpu softvfp
+ 739              	mbedtls_oid_get_oid_by_md:
+ 740              	.LVL73:
+ 741              	.LFB23:
+ 627:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_OID_BY_ATTR1(mbedtls_oid_get_oid_by_md, oid_md_alg_t, oid_md_alg, mbedtls_md_type_t, md_
+ 742              		.loc 1 627 1 is_stmt 1 view -0
+ 743              		.cfi_startproc
+ 744              		@ args = 0, pretend = 0, frame = 0
+ 745              		@ frame_needed = 0, uses_anonymous_args = 0
+ 746              		.loc 1 627 1 view .LVU146
+ 747              		.loc 1 627 1 view .LVU147
+ 748              		.loc 1 627 1 view .LVU148
+ 749 0000 0A4B     		ldr	r3, .L66
+ 750 0002 30B5     		push	{r4, r5, lr}
+ 751              	.LCFI8:
+ 752              		.cfi_def_cfa_offset 12
+ 753              		.cfi_offset 4, -12
+ 754              		.cfi_offset 5, -8
+ 755              		.cfi_offset 14, -4
+ 756              		.loc 1 627 1 is_stmt 0 view .LVU149
+ 757 0004 5C33     		adds	r3, r3, #92
+ 758 0006 0525     		movs	r5, #5
+ 759 0008 094C     		ldr	r4, .L66+4
+ 760 000a 04E0     		b	.L64
+ 761              	.LVL74:
+ 762              	.L62:
+ 763              		.loc 1 627 1 is_stmt 1 discriminator 3 view .LVU150
+ 764 000c 5C69     		ldr	r4, [r3, #20]
+ 765 000e 1433     		adds	r3, r3, #20
+ 766              	.LVL75:
+ 767              		.loc 1 627 1 discriminator 3 view .LVU151
+ 768 0010 002C     		cmp	r4, #0
+ 769 0012 07D0     		beq	.L65
+ 770 0014 1D7C     		ldrb	r5, [r3, #16]
+ 771              	.LVL76:
+ 772              	.L64:
+ 773              		.loc 1 627 1 discriminator 5 view .LVU152
+ 774 0016 8542     		cmp	r5, r0
+ 775 0018 F8D1     		bne	.L62
+ 776              		.loc 1 627 1 discriminator 2 view .LVU153
+ 777 001a 0020     		movs	r0, #0
+ 778              	.LVL77:
+ 779              		.loc 1 627 1 is_stmt 0 discriminator 2 view .LVU154
+ 780 001c 5B68     		ldr	r3, [r3, #4]
+ 781              	.LVL78:
+ 782              		.loc 1 627 1 discriminator 2 view .LVU155
+ 783 001e 0C60     		str	r4, [r1]
+ 784              		.loc 1 627 1 is_stmt 1 discriminator 2 view .LVU156
+ 785              		.loc 1 627 1 discriminator 2 view .LVU157
+ 786 0020 1360     		str	r3, [r2]
+ 787              	.L61:
+ 788              		.loc 1 627 1 is_stmt 0 view .LVU158
+ 789              		@ sp needed
+ 790 0022 30BD     		pop	{r4, r5, pc}
+ 791              	.LVL79:
+ 792              	.L65:
+ 793              		.loc 1 627 1 view .LVU159
+ 794 0024 2E20     		movs	r0, #46
+ 795              	.LVL80:
+ 796              		.loc 1 627 1 view .LVU160
+ 797 0026 4042     		rsbs	r0, r0, #0
+ 798 0028 FBE7     		b	.L61
+ 799              	.L67:
+ 800 002a C046     		.align	2
+ 801              	.L66:
+ 802 002c 80000000 		.word	.LANCHOR1
+ 803 0030 20000000 		.word	.LC13
+ 804              		.cfi_endproc
+ 805              	.LFE23:
+ 807              		.global	__aeabi_uidiv
+ 808              		.section	.rodata.str1.4
+ 809 002a 0000     		.align	2
+ 810              	.LC18:
+ 811 002c 25642E25 		.ascii	"%d.%d\000"
+ 811      6400
+ 812              		.global	__aeabi_uidivmod
+ 813 0032 0000     		.align	2
+ 814              	.LC20:
+ 815 0034 2E256400 		.ascii	".%d\000"
+ 816              		.section	.text.mbedtls_oid_get_numeric_string,"ax",%progbits
+ 817              		.align	1
+ 818              		.p2align 2,,3
+ 819              		.global	mbedtls_oid_get_numeric_string
+ 820              		.syntax unified
+ 821              		.code	16
+ 822              		.thumb_func
+ 823              		.fpu softvfp
+ 825              	mbedtls_oid_get_numeric_string:
+ 826              	.LVL81:
+ 827              	.LFB24:
+ 628:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_MD_C */
+ 629:.././crypto/mbedtls//library/oid.c **** 
+ 630:.././crypto/mbedtls//library/oid.c **** #if defined(MBEDTLS_PKCS12_C)
+ 631:.././crypto/mbedtls//library/oid.c **** /*
+ 632:.././crypto/mbedtls//library/oid.c ****  * For PKCS#12 PBEs
+ 633:.././crypto/mbedtls//library/oid.c ****  */
+ 634:.././crypto/mbedtls//library/oid.c **** typedef struct {
+ 635:.././crypto/mbedtls//library/oid.c ****     mbedtls_oid_descriptor_t    descriptor;
+ 636:.././crypto/mbedtls//library/oid.c ****     mbedtls_md_type_t           md_alg;
+ 637:.././crypto/mbedtls//library/oid.c ****     mbedtls_cipher_type_t       cipher_alg;
+ 638:.././crypto/mbedtls//library/oid.c **** } oid_pkcs12_pbe_alg_t;
+ 639:.././crypto/mbedtls//library/oid.c **** 
+ 640:.././crypto/mbedtls//library/oid.c **** static const oid_pkcs12_pbe_alg_t oid_pkcs12_pbe_alg[] =
+ 641:.././crypto/mbedtls//library/oid.c **** {
+ 642:.././crypto/mbedtls//library/oid.c ****     {
+ 643:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS12_PBE_SHA1_DES3_EDE_CBC ), "pbeWithSHAAnd3-KeyTripleDES-CBC", "
+ 644:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA1,      MBEDTLS_CIPHER_DES_EDE3_CBC,
+ 645:.././crypto/mbedtls//library/oid.c ****     },
+ 646:.././crypto/mbedtls//library/oid.c ****     {
+ 647:.././crypto/mbedtls//library/oid.c ****         { ADD_LEN( MBEDTLS_OID_PKCS12_PBE_SHA1_DES2_EDE_CBC ), "pbeWithSHAAnd2-KeyTripleDES-CBC", "
+ 648:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_SHA1,      MBEDTLS_CIPHER_DES_EDE_CBC,
+ 649:.././crypto/mbedtls//library/oid.c ****     },
+ 650:.././crypto/mbedtls//library/oid.c ****     {
+ 651:.././crypto/mbedtls//library/oid.c ****         { NULL, 0, NULL, NULL },
+ 652:.././crypto/mbedtls//library/oid.c ****         MBEDTLS_MD_NONE, MBEDTLS_CIPHER_NONE,
+ 653:.././crypto/mbedtls//library/oid.c ****     },
+ 654:.././crypto/mbedtls//library/oid.c **** };
+ 655:.././crypto/mbedtls//library/oid.c **** 
+ 656:.././crypto/mbedtls//library/oid.c **** FN_OID_TYPED_FROM_ASN1(oid_pkcs12_pbe_alg_t, pkcs12_pbe_alg, oid_pkcs12_pbe_alg)
+ 657:.././crypto/mbedtls//library/oid.c **** FN_OID_GET_ATTR2(mbedtls_oid_get_pkcs12_pbe_alg, oid_pkcs12_pbe_alg_t, pkcs12_pbe_alg, mbedtls_md_t
+ 658:.././crypto/mbedtls//library/oid.c **** #endif /* MBEDTLS_PKCS12_C */
+ 659:.././crypto/mbedtls//library/oid.c **** 
+ 660:.././crypto/mbedtls//library/oid.c **** #define OID_SAFE_SNPRINTF                               \
+ 661:.././crypto/mbedtls//library/oid.c ****     do {                                                \
+ 662:.././crypto/mbedtls//library/oid.c ****         if( ret < 0 || (size_t) ret >= n )              \
+ 663:.././crypto/mbedtls//library/oid.c ****             return( MBEDTLS_ERR_OID_BUF_TOO_SMALL );    \
+ 664:.././crypto/mbedtls//library/oid.c ****                                                         \
+ 665:.././crypto/mbedtls//library/oid.c ****         n -= (size_t) ret;                              \
+ 666:.././crypto/mbedtls//library/oid.c ****         p += (size_t) ret;                              \
+ 667:.././crypto/mbedtls//library/oid.c ****     } while( 0 )
+ 668:.././crypto/mbedtls//library/oid.c **** 
+ 669:.././crypto/mbedtls//library/oid.c **** /* Return the x.y.z.... style numeric string for the given OID */
+ 670:.././crypto/mbedtls//library/oid.c **** int mbedtls_oid_get_numeric_string( char *buf, size_t size,
+ 671:.././crypto/mbedtls//library/oid.c ****                             const mbedtls_asn1_buf *oid )
+ 672:.././crypto/mbedtls//library/oid.c **** {
+ 828              		.loc 1 672 1 is_stmt 1 view -0
+ 829              		.cfi_startproc
+ 830              		@ args = 0, pretend = 0, frame = 0
+ 831              		@ frame_needed = 0, uses_anonymous_args = 0
+ 673:.././crypto/mbedtls//library/oid.c ****     int ret;
+ 832              		.loc 1 673 5 view .LVU162
+ 674:.././crypto/mbedtls//library/oid.c ****     size_t i, n;
+ 833              		.loc 1 674 5 view .LVU163
+ 675:.././crypto/mbedtls//library/oid.c ****     unsigned int value;
+ 834              		.loc 1 675 5 view .LVU164
+ 676:.././crypto/mbedtls//library/oid.c ****     char *p;
+ 835              		.loc 1 676 5 view .LVU165
+ 677:.././crypto/mbedtls//library/oid.c **** 
+ 678:.././crypto/mbedtls//library/oid.c ****     p = buf;
+ 836              		.loc 1 678 5 view .LVU166
+ 672:.././crypto/mbedtls//library/oid.c ****     int ret;
+ 837              		.loc 1 672 1 is_stmt 0 view .LVU167
+ 838 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 839              	.LCFI9:
+ 840              		.cfi_def_cfa_offset 20
+ 841              		.cfi_offset 4, -20
+ 842              		.cfi_offset 5, -16
+ 843              		.cfi_offset 6, -12
+ 844              		.cfi_offset 7, -8
+ 845              		.cfi_offset 14, -4
+ 846 0002 DE46     		mov	lr, fp
+ 847 0004 5746     		mov	r7, r10
+ 848 0006 4546     		mov	r5, r8
+ 849 0008 4E46     		mov	r6, r9
+ 850 000a E0B5     		push	{r5, r6, r7, lr}
+ 851              	.LCFI10:
+ 852              		.cfi_def_cfa_offset 36
+ 853              		.cfi_offset 8, -36
+ 854              		.cfi_offset 9, -32
+ 855              		.cfi_offset 10, -28
+ 856              		.cfi_offset 11, -24
+ 679:.././crypto/mbedtls//library/oid.c ****     n = size;
+ 680:.././crypto/mbedtls//library/oid.c **** 
+ 681:.././crypto/mbedtls//library/oid.c ****     /* First byte contains first two dots */
+ 682:.././crypto/mbedtls//library/oid.c ****     if( oid->len > 0 )
+ 857              		.loc 1 682 7 view .LVU168
+ 858 000c 5368     		ldr	r3, [r2, #4]
+ 672:.././crypto/mbedtls//library/oid.c ****     int ret;
+ 859              		.loc 1 672 1 view .LVU169
+ 860 000e 0700     		movs	r7, r0
+ 861              	.LVL82:
+ 679:.././crypto/mbedtls//library/oid.c ****     n = size;
+ 862              		.loc 1 679 5 is_stmt 1 view .LVU170
+ 672:.././crypto/mbedtls//library/oid.c ****     int ret;
+ 863              		.loc 1 672 1 is_stmt 0 view .LVU171
+ 864 0010 8B46     		mov	fp, r1
+ 865              	.LVL83:
+ 866              		.loc 1 682 5 is_stmt 1 view .LVU172
+ 672:.././crypto/mbedtls//library/oid.c ****     int ret;
+ 867              		.loc 1 672 1 is_stmt 0 view .LVU173
+ 868 0012 9046     		mov	r8, r2
+ 869 0014 0020     		movs	r0, #0
+ 870              	.LVL84:
+ 672:.././crypto/mbedtls//library/oid.c ****     int ret;
+ 871              		.loc 1 672 1 view .LVU174
+ 872 0016 83B0     		sub	sp, sp, #12
+ 873              	.LCFI11:
+ 874              		.cfi_def_cfa_offset 48
+ 875              		.loc 1 682 7 view .LVU175
+ 876 0018 002B     		cmp	r3, #0
+ 877 001a 06D1     		bne	.L80
+ 878              	.LVL85:
+ 879              	.L68:
+ 683:.././crypto/mbedtls//library/oid.c ****     {
+ 684:.././crypto/mbedtls//library/oid.c ****         ret = mbedtls_snprintf( p, n, "%d.%d", oid->p[0] / 40, oid->p[0] % 40 );
+ 685:.././crypto/mbedtls//library/oid.c ****         OID_SAFE_SNPRINTF;
+ 686:.././crypto/mbedtls//library/oid.c ****     }
+ 687:.././crypto/mbedtls//library/oid.c **** 
+ 688:.././crypto/mbedtls//library/oid.c ****     value = 0;
+ 689:.././crypto/mbedtls//library/oid.c ****     for( i = 1; i < oid->len; i++ )
+ 690:.././crypto/mbedtls//library/oid.c ****     {
+ 691:.././crypto/mbedtls//library/oid.c ****         /* Prevent overflow in value. */
+ 692:.././crypto/mbedtls//library/oid.c ****         if( ( ( value << 7 ) >> 7 ) != value )
+ 693:.././crypto/mbedtls//library/oid.c ****             return( MBEDTLS_ERR_OID_BUF_TOO_SMALL );
+ 694:.././crypto/mbedtls//library/oid.c **** 
+ 695:.././crypto/mbedtls//library/oid.c ****         value <<= 7;
+ 696:.././crypto/mbedtls//library/oid.c ****         value += oid->p[i] & 0x7F;
+ 697:.././crypto/mbedtls//library/oid.c **** 
+ 698:.././crypto/mbedtls//library/oid.c ****         if( !( oid->p[i] & 0x80 ) )
+ 699:.././crypto/mbedtls//library/oid.c ****         {
+ 700:.././crypto/mbedtls//library/oid.c ****             /* Last byte */
+ 701:.././crypto/mbedtls//library/oid.c ****             ret = mbedtls_snprintf( p, n, ".%d", value );
+ 702:.././crypto/mbedtls//library/oid.c ****             OID_SAFE_SNPRINTF;
+ 703:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 704:.././crypto/mbedtls//library/oid.c ****         }
+ 705:.././crypto/mbedtls//library/oid.c ****     }
+ 706:.././crypto/mbedtls//library/oid.c **** 
+ 707:.././crypto/mbedtls//library/oid.c ****     return( (int) ( size - n ) );
+ 708:.././crypto/mbedtls//library/oid.c **** }
+ 880              		.loc 1 708 1 view .LVU176
+ 881 001c 03B0     		add	sp, sp, #12
+ 882              		@ sp needed
+ 883              	.LVL86:
+ 884              	.LVL87:
+ 885              	.LVL88:
+ 886              		.loc 1 708 1 view .LVU177
+ 887 001e 3CBC     		pop	{r2, r3, r4, r5}
+ 888 0020 9046     		mov	r8, r2
+ 889 0022 9946     		mov	r9, r3
+ 890 0024 A246     		mov	r10, r4
+ 891 0026 AB46     		mov	fp, r5
+ 892 0028 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 893              	.LVL89:
+ 894              	.L80:
+ 684:.././crypto/mbedtls//library/oid.c ****         OID_SAFE_SNPRINTF;
+ 895              		.loc 1 684 9 is_stmt 1 view .LVU178
+ 684:.././crypto/mbedtls//library/oid.c ****         OID_SAFE_SNPRINTF;
+ 896              		.loc 1 684 54 is_stmt 0 view .LVU179
+ 897 002a 9368     		ldr	r3, [r2, #8]
+ 684:.././crypto/mbedtls//library/oid.c ****         OID_SAFE_SNPRINTF;
+ 898              		.loc 1 684 15 view .LVU180
+ 899 002c 2821     		movs	r1, #40
+ 900              	.LVL90:
+ 684:.././crypto/mbedtls//library/oid.c ****         OID_SAFE_SNPRINTF;
+ 901              		.loc 1 684 54 view .LVU181
+ 902 002e 1D78     		ldrb	r5, [r3]
+ 684:.././crypto/mbedtls//library/oid.c ****         OID_SAFE_SNPRINTF;
+ 903              		.loc 1 684 15 view .LVU182
+ 904 0030 2800     		movs	r0, r5
+ 905 0032 FFF7FEFF 		bl	__aeabi_uidiv
+ 906              	.LVL91:
+ 684:.././crypto/mbedtls//library/oid.c ****         OID_SAFE_SNPRINTF;
+ 907              		.loc 1 684 15 view .LVU183
+ 908 0036 2821     		movs	r1, #40
+ 909 0038 C4B2     		uxtb	r4, r0
+ 910 003a 2800     		movs	r0, r5
+ 911 003c FFF7FEFF 		bl	__aeabi_uidivmod
+ 912              	.LVL92:
+ 913 0040 C9B2     		uxtb	r1, r1
+ 914 0042 0091     		str	r1, [sp]
+ 915 0044 2300     		movs	r3, r4
+ 916 0046 5946     		mov	r1, fp
+ 917 0048 3800     		movs	r0, r7
+ 918 004a 224A     		ldr	r2, .L84
+ 919 004c FFF7FEFF 		bl	snprintf
+ 920              	.LVL93:
+ 685:.././crypto/mbedtls//library/oid.c ****     }
+ 921              		.loc 1 685 9 is_stmt 1 view .LVU184
+ 685:.././crypto/mbedtls//library/oid.c ****     }
+ 922              		.loc 1 685 9 view .LVU185
+ 923 0050 0028     		cmp	r0, #0
+ 924 0052 20DB     		blt	.L72
+ 685:.././crypto/mbedtls//library/oid.c ****     }
+ 925              		.loc 1 685 9 is_stmt 0 discriminator 2 view .LVU186
+ 926 0054 5845     		cmp	r0, fp
+ 927 0056 1ED2     		bcs	.L72
+ 685:.././crypto/mbedtls//library/oid.c ****     }
+ 928              		.loc 1 685 9 is_stmt 1 discriminator 4 view .LVU187
+ 929 0058 5B46     		mov	r3, fp
+ 930 005a 1E1A     		subs	r6, r3, r0
+ 931              	.LVL94:
+ 685:.././crypto/mbedtls//library/oid.c ****     }
+ 932              		.loc 1 685 9 discriminator 4 view .LVU188
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 933              		.loc 1 689 5 is_stmt 0 discriminator 4 view .LVU189
+ 934 005c 4346     		mov	r3, r8
+ 935 005e 5A68     		ldr	r2, [r3, #4]
+ 685:.././crypto/mbedtls//library/oid.c ****     }
+ 936              		.loc 1 685 9 discriminator 4 view .LVU190
+ 937 0060 3F18     		adds	r7, r7, r0
+ 938              	.LVL95:
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 939              		.loc 1 689 17 is_stmt 1 discriminator 4 view .LVU191
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 940              		.loc 1 689 5 is_stmt 0 discriminator 4 view .LVU192
+ 941 0062 012A     		cmp	r2, #1
+ 942 0064 DAD9     		bls	.L68
+ 943              	.LVL96:
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 944              		.loc 1 689 5 discriminator 4 view .LVU193
+ 945 0066 9968     		ldr	r1, [r3, #8]
+ 696:.././crypto/mbedtls//library/oid.c **** 
+ 946              		.loc 1 696 28 view .LVU194
+ 947 0068 7F23     		movs	r3, #127
+ 948              	.LVL97:
+ 696:.././crypto/mbedtls//library/oid.c **** 
+ 949              		.loc 1 696 28 view .LVU195
+ 950 006a 9946     		mov	r9, r3
+ 701:.././crypto/mbedtls//library/oid.c ****             OID_SAFE_SNPRINTF;
+ 951              		.loc 1 701 19 view .LVU196
+ 952 006c 1A4B     		ldr	r3, .L84+4
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 953              		.loc 1 689 5 view .LVU197
+ 954 006e 0225     		movs	r5, #2
+ 955 0070 0020     		movs	r0, #0
+ 956              	.LVL98:
+ 701:.././crypto/mbedtls//library/oid.c ****             OID_SAFE_SNPRINTF;
+ 957              		.loc 1 701 19 view .LVU198
+ 958 0072 9A46     		mov	r10, r3
+ 959              	.LVL99:
+ 960              	.L73:
+ 695:.././crypto/mbedtls//library/oid.c ****         value += oid->p[i] & 0x7F;
+ 961              		.loc 1 695 9 is_stmt 1 view .LVU199
+ 696:.././crypto/mbedtls//library/oid.c **** 
+ 962              		.loc 1 696 9 view .LVU200
+ 696:.././crypto/mbedtls//library/oid.c **** 
+ 963              		.loc 1 696 24 is_stmt 0 view .LVU201
+ 964 0074 4B19     		adds	r3, r1, r5
+ 965 0076 013B     		subs	r3, r3, #1
+ 966 0078 1C78     		ldrb	r4, [r3]
+ 696:.././crypto/mbedtls//library/oid.c **** 
+ 967              		.loc 1 696 28 view .LVU202
+ 968 007a 4B46     		mov	r3, r9
+ 969 007c 2340     		ands	r3, r4
+ 698:.././crypto/mbedtls//library/oid.c ****         {
+ 970              		.loc 1 698 11 view .LVU203
+ 971 007e 64B2     		sxtb	r4, r4
+ 696:.././crypto/mbedtls//library/oid.c **** 
+ 972              		.loc 1 696 15 view .LVU204
+ 973 0080 1B18     		adds	r3, r3, r0
+ 974              	.LVL100:
+ 698:.././crypto/mbedtls//library/oid.c ****         {
+ 975              		.loc 1 698 9 is_stmt 1 view .LVU205
+ 698:.././crypto/mbedtls//library/oid.c ****         {
+ 976              		.loc 1 698 11 is_stmt 0 view .LVU206
+ 977 0082 002C     		cmp	r4, #0
+ 978 0084 0ADA     		bge	.L81
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 979              		.loc 1 689 31 is_stmt 1 discriminator 2 view .LVU207
+ 980              	.LVL101:
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 981              		.loc 1 689 17 discriminator 2 view .LVU208
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 982              		.loc 1 689 5 is_stmt 0 discriminator 2 view .LVU209
+ 983 0086 AA42     		cmp	r2, r5
+ 984 0088 1DD9     		bls	.L82
+ 692:.././crypto/mbedtls//library/oid.c ****             return( MBEDTLS_ERR_OID_BUF_TOO_SMALL );
+ 985              		.loc 1 692 9 is_stmt 1 view .LVU210
+ 692:.././crypto/mbedtls//library/oid.c ****             return( MBEDTLS_ERR_OID_BUF_TOO_SMALL );
+ 986              		.loc 1 692 30 is_stmt 0 view .LVU211
+ 987 008a D801     		lsls	r0, r3, #7
+ 988 008c C409     		lsrs	r4, r0, #7
+ 692:.././crypto/mbedtls//library/oid.c ****             return( MBEDTLS_ERR_OID_BUF_TOO_SMALL );
+ 989              		.loc 1 692 11 view .LVU212
+ 990 008e 9C42     		cmp	r4, r3
+ 991 0090 01D1     		bne	.L72
+ 992 0092 0135     		adds	r5, r5, #1
+ 993              	.LVL102:
+ 692:.././crypto/mbedtls//library/oid.c ****             return( MBEDTLS_ERR_OID_BUF_TOO_SMALL );
+ 994              		.loc 1 692 11 view .LVU213
+ 995 0094 EEE7     		b	.L73
+ 996              	.LVL103:
+ 997              	.L72:
+ 685:.././crypto/mbedtls//library/oid.c ****     }
+ 998              		.loc 1 685 9 view .LVU214
+ 999 0096 0B20     		movs	r0, #11
+ 1000 0098 4042     		rsbs	r0, r0, #0
+ 1001 009a BFE7     		b	.L68
+ 1002              	.LVL104:
+ 1003              	.L81:
+ 701:.././crypto/mbedtls//library/oid.c ****             OID_SAFE_SNPRINTF;
+ 1004              		.loc 1 701 13 is_stmt 1 view .LVU215
+ 701:.././crypto/mbedtls//library/oid.c ****             OID_SAFE_SNPRINTF;
+ 1005              		.loc 1 701 19 is_stmt 0 view .LVU216
+ 1006 009c 5246     		mov	r2, r10
+ 1007 009e 3100     		movs	r1, r6
+ 1008 00a0 3800     		movs	r0, r7
+ 1009 00a2 FFF7FEFF 		bl	snprintf
+ 1010              	.LVL105:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1011              		.loc 1 702 13 is_stmt 1 view .LVU217
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1012              		.loc 1 702 13 view .LVU218
+ 1013 00a6 0028     		cmp	r0, #0
+ 1014 00a8 F5DB     		blt	.L72
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1015              		.loc 1 702 13 is_stmt 0 discriminator 2 view .LVU219
+ 1016 00aa B042     		cmp	r0, r6
+ 1017 00ac F3D2     		bcs	.L72
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1018              		.loc 1 702 13 is_stmt 1 discriminator 4 view .LVU220
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 1019              		.loc 1 689 5 is_stmt 0 discriminator 4 view .LVU221
+ 1020 00ae 4246     		mov	r2, r8
+ 1021 00b0 5268     		ldr	r2, [r2, #4]
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1022              		.loc 1 702 13 discriminator 4 view .LVU222
+ 1023 00b2 331A     		subs	r3, r6, r0
+ 1024              	.LVL106:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1025              		.loc 1 702 13 is_stmt 1 discriminator 4 view .LVU223
+ 1026 00b4 3F18     		adds	r7, r7, r0
+ 1027              	.LVL107:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1028              		.loc 1 702 13 discriminator 4 view .LVU224
+ 703:.././crypto/mbedtls//library/oid.c ****         }
+ 1029              		.loc 1 703 13 discriminator 4 view .LVU225
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 1030              		.loc 1 689 31 discriminator 4 view .LVU226
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 1031              		.loc 1 689 17 discriminator 4 view .LVU227
+ 689:.././crypto/mbedtls//library/oid.c ****     {
+ 1032              		.loc 1 689 5 is_stmt 0 discriminator 4 view .LVU228
+ 1033 00b6 AA42     		cmp	r2, r5
+ 1034 00b8 08D9     		bls	.L83
+ 1035 00ba 4146     		mov	r1, r8
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1036              		.loc 1 702 13 view .LVU229
+ 1037 00bc 1E00     		movs	r6, r3
+ 1038 00be 0020     		movs	r0, #0
+ 1039              	.LVL108:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1040              		.loc 1 702 13 view .LVU230
+ 1041 00c0 8968     		ldr	r1, [r1, #8]
+ 1042 00c2 0135     		adds	r5, r5, #1
+ 1043              	.LVL109:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1044              		.loc 1 702 13 view .LVU231
+ 1045 00c4 D6E7     		b	.L73
+ 1046              	.LVL110:
+ 1047              	.L82:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1048              		.loc 1 702 13 view .LVU232
+ 1049 00c6 5B46     		mov	r3, fp
+ 1050              	.LVL111:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1051              		.loc 1 702 13 view .LVU233
+ 1052 00c8 981B     		subs	r0, r3, r6
+ 1053              	.LVL112:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1054              		.loc 1 702 13 view .LVU234
+ 1055 00ca A7E7     		b	.L68
+ 1056              	.LVL113:
+ 1057              	.L83:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1058              		.loc 1 702 13 view .LVU235
+ 1059 00cc 801B     		subs	r0, r0, r6
+ 1060              	.LVL114:
+ 702:.././crypto/mbedtls//library/oid.c ****             value = 0;
+ 1061              		.loc 1 702 13 view .LVU236
+ 1062 00ce 5844     		add	r0, r0, fp
+ 1063 00d0 A4E7     		b	.L68
+ 1064              	.L85:
+ 1065 00d2 C046     		.align	2
+ 1066              	.L84:
+ 1067 00d4 2C000000 		.word	.LC18
+ 1068 00d8 34000000 		.word	.LC20
+ 1069              		.cfi_endproc
+ 1070              	.LFE24:
+ 1072              		.section	.rodata.str1.4
+ 1073              		.align	2
+ 1074              	.LC22:
+ 1075 0038 69642D73 		.ascii	"id-sha224\000"
+ 1075      68613232 
+ 1075      3400
+ 1076 0042 0000     		.align	2
+ 1077              	.LC23:
+ 1078 0044 5348412D 		.ascii	"SHA-224\000"
+ 1078      32323400 
+ 1079              		.align	2
+ 1080              	.LC24:
+ 1081 004c 60864801 		.ascii	"`\206H\001e\003\004\002\001\000"
+ 1081      65030402 
+ 1081      0100
+ 1082 0056 0000     		.align	2
+ 1083              	.LC25:
+ 1084 0058 69642D73 		.ascii	"id-sha256\000"
+ 1084      68613235 
+ 1084      3600
+ 1085 0062 0000     		.align	2
+ 1086              	.LC26:
+ 1087 0064 5348412D 		.ascii	"SHA-256\000"
+ 1087      32353600 
+ 1088              		.align	2
+ 1089              	.LC27:
+ 1090 006c 64657343 		.ascii	"desCBC\000"
+ 1090      424300
+ 1091 0073 00       		.align	2
+ 1092              	.LC28:
+ 1093 0074 4445532D 		.ascii	"DES-CBC\000"
+ 1093      43424300 
+ 1094              		.align	2
+ 1095              	.LC29:
+ 1096 007c 2A864886 		.ascii	"*\206H\206\367\015\003\007\000"
+ 1096      F70D0307 
+ 1096      00
+ 1097 0085 000000   		.align	2
+ 1098              	.LC30:
+ 1099 0088 6465732D 		.ascii	"des-ede3-cbc\000"
+ 1099      65646533 
+ 1099      2D636263 
+ 1099      00
+ 1100 0095 000000   		.align	2
+ 1101              	.LC31:
+ 1102 0098 4445532D 		.ascii	"DES-EDE3-CBC\000"
+ 1102      45444533 
+ 1102      2D434243 
+ 1102      00
+ 1103 00a5 000000   		.align	2
+ 1104              	.LC32:
+ 1105 00a8 72736145 		.ascii	"rsaEncryption\000"
+ 1105      6E637279 
+ 1105      7074696F 
+ 1105      6E00
+ 1106 00b6 0000     		.align	2
+ 1107              	.LC33:
+ 1108 00b8 52534100 		.ascii	"RSA\000"
+ 1109              		.align	2
+ 1110              	.LC34:
+ 1111 00bc 2A8648CE 		.ascii	"*\206H\316=\002\001\000"
+ 1111      3D020100 
+ 1112              		.align	2
+ 1113              	.LC35:
+ 1114 00c4 69642D65 		.ascii	"id-ecPublicKey\000"
+ 1114      63507562 
+ 1114      6C69634B 
+ 1114      657900
+ 1115 00d3 00       		.align	2
+ 1116              	.LC36:
+ 1117 00d4 47656E65 		.ascii	"Generic EC key\000"
+ 1117      72696320 
+ 1117      4543206B 
+ 1117      657900
+ 1118 00e3 00       		.align	2
+ 1119              	.LC37:
+ 1120 00e4 2B810401 		.ascii	"+\201\004\001\014\000"
+ 1120      0C00
+ 1121 00ea 0000     		.align	2
+ 1122              	.LC38:
+ 1123 00ec 69642D65 		.ascii	"id-ecDH\000"
+ 1123      63444800 
+ 1124              		.align	2
+ 1125              	.LC39:
+ 1126 00f4 4543206B 		.ascii	"EC key for ECDH\000"
+ 1126      65792066 
+ 1126      6F722045 
+ 1126      43444800 
+ 1127              		.align	2
+ 1128              	.LC40:
+ 1129 0104 73686132 		.ascii	"sha224WithRSAEncryption\000"
+ 1129      32345769 
+ 1129      74685253 
+ 1129      41456E63 
+ 1129      72797074 
+ 1130              		.align	2
+ 1131              	.LC41:
+ 1132 011c 52534120 		.ascii	"RSA with SHA-224\000"
+ 1132      77697468 
+ 1132      20534841 
+ 1132      2D323234 
+ 1132      00
+ 1133 012d 000000   		.align	2
+ 1134              	.LC42:
+ 1135 0130 2A864886 		.ascii	"*\206H\206\367\015\001\001\013\000"
+ 1135      F70D0101 
+ 1135      0B00
+ 1136 013a 0000     		.align	2
+ 1137              	.LC43:
+ 1138 013c 73686132 		.ascii	"sha256WithRSAEncryption\000"
+ 1138      35365769 
+ 1138      74685253 
+ 1138      41456E63 
+ 1138      72797074 
+ 1139              		.align	2
+ 1140              	.LC44:
+ 1141 0154 52534120 		.ascii	"RSA with SHA-256\000"
+ 1141      77697468 
+ 1141      20534841 
+ 1141      2D323536 
+ 1141      00
+ 1142 0165 000000   		.align	2
+ 1143              	.LC45:
+ 1144 0168 2A864886 		.ascii	"*\206H\206\367\015\001\001\012\000"
+ 1144      F70D0101 
+ 1144      0A00
+ 1145 0172 0000     		.align	2
+ 1146              	.LC46:
+ 1147 0174 52534153 		.ascii	"RSASSA-PSS\000"
+ 1147      53412D50 
+ 1147      535300
+ 1148              		.section	.rodata
+ 1149              		.align	2
+ 1150              		.set	.LANCHOR0,. + 0
+ 1151              		.set	.LANCHOR1,. + 128
+ 1154              	oid_sig_alg:
+ 1155 0000 00000000 		.word	.LC0
+ 1156 0004 09000000 		.word	9
+ 1157 0008 04010000 		.word	.LC40
+ 1158 000c 1C010000 		.word	.LC41
+ 1159 0010 05       		.byte	5
+ 1160 0011 01       		.byte	1
+ 1161 0012 0000     		.space	2
+ 1162 0014 30010000 		.word	.LC42
+ 1163 0018 09000000 		.word	9
+ 1164 001c 3C010000 		.word	.LC43
+ 1165 0020 54010000 		.word	.LC44
+ 1166 0024 06       		.byte	6
+ 1167 0025 01       		.byte	1
+ 1168 0026 0000     		.space	2
+ 1169 0028 68010000 		.word	.LC45
+ 1170 002c 09000000 		.word	9
+ 1171 0030 74010000 		.word	.LC46
+ 1172 0034 74010000 		.word	.LC46
+ 1173 0038 00       		.byte	0
+ 1174 0039 06       		.byte	6
+ 1175 003a 0000     		.space	2
+ 1176 003c 00000000 		.word	0
+ 1177 0040 00000000 		.word	0
+ 1178 0044 00000000 		.word	0
+ 1179 0048 00000000 		.word	0
+ 1180 004c 00       		.byte	0
+ 1181 004d 00       		.byte	0
+ 1182 004e 0000     		.space	2
+ 1185              	oid_pk_alg:
+ 1186 0050 0C000000 		.word	.LC5
+ 1187 0054 09000000 		.word	9
+ 1188 0058 A8000000 		.word	.LC32
+ 1189 005c B8000000 		.word	.LC33
+ 1190 0060 01       		.byte	1
+ 1191 0061 000000   		.space	3
+ 1192 0064 BC000000 		.word	.LC34
+ 1193 0068 07000000 		.word	7
+ 1194 006c C4000000 		.word	.LC35
+ 1195 0070 D4000000 		.word	.LC36
+ 1196 0074 02       		.byte	2
+ 1197 0075 000000   		.space	3
+ 1198 0078 E4000000 		.word	.LC37
+ 1199 007c 05000000 		.word	5
+ 1200 0080 EC000000 		.word	.LC38
+ 1201 0084 F4000000 		.word	.LC39
+ 1202 0088 03       		.byte	3
+ 1203 0089 000000   		.space	3
+ 1204 008c 00000000 		.word	0
+ 1205 0090 00000000 		.word	0
+ 1206 0094 00000000 		.word	0
+ 1207 0098 00000000 		.word	0
+ 1208 009c 00       		.byte	0
+ 1209 009d 000000   		.space	3
+ 1212              	oid_cipher_alg:
+ 1213 00a0 18000000 		.word	.LC10
+ 1214 00a4 05000000 		.word	5
+ 1215 00a8 6C000000 		.word	.LC27
+ 1216 00ac 74000000 		.word	.LC28
+ 1217 00b0 21       		.byte	33
+ 1218 00b1 000000   		.space	3
+ 1219 00b4 7C000000 		.word	.LC29
+ 1220 00b8 08000000 		.word	8
+ 1221 00bc 88000000 		.word	.LC30
+ 1222 00c0 98000000 		.word	.LC31
+ 1223 00c4 25       		.byte	37
+ 1224 00c5 000000   		.space	3
+ 1225 00c8 00000000 		.word	0
+ 1226 00cc 00000000 		.word	0
+ 1227 00d0 00000000 		.word	0
+ 1228 00d4 00000000 		.word	0
+ 1229 00d8 00       		.byte	0
+ 1230 00d9 000000   		.space	3
+ 1233              	oid_md_alg:
+ 1234 00dc 20000000 		.word	.LC13
+ 1235 00e0 09000000 		.word	9
+ 1236 00e4 38000000 		.word	.LC22
+ 1237 00e8 44000000 		.word	.LC23
+ 1238 00ec 05       		.byte	5
+ 1239 00ed 000000   		.space	3
+ 1240 00f0 4C000000 		.word	.LC24
+ 1241 00f4 09000000 		.word	9
+ 1242 00f8 58000000 		.word	.LC25
+ 1243 00fc 64000000 		.word	.LC26
+ 1244 0100 06       		.byte	6
+ 1245 0101 000000   		.space	3
+ 1246 0104 00000000 		.word	0
+ 1247 0108 00000000 		.word	0
+ 1248 010c 00000000 		.word	0
+ 1249 0110 00000000 		.word	0
+ 1250 0114 00       		.byte	0
+ 1251 0115 000000   		.space	3
+ 1252              		.text
+ 1253              	.Letext0:
+ 1254              		.file 2 ".././crypto/mbedtls//include/mbedtls/asn1.h"
+ 1255              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 1256              		.file 4 ".././crypto/mbedtls//include/mbedtls/md.h"
+ 1257              		.file 5 ".././crypto/mbedtls//include/mbedtls/pk.h"
+ 1258              		.file 6 ".././crypto/mbedtls//include/mbedtls/cipher.h"
+ 1259              		.file 7 ".././crypto/mbedtls//include/mbedtls/oid.h"
+ 1260              		.file 8 "/usr/include/newlib/sys/_types.h"
+ 1261              		.file 9 "/usr/include/newlib/sys/reent.h"
+ 1262              		.file 10 "/usr/include/newlib/sys/lock.h"
+ 1263              		.file 11 "/usr/include/newlib/time.h"
+ 1264              		.file 12 "/usr/include/newlib/stdlib.h"
+ 1265              		.file 13 "/usr/include/newlib/stdio.h"
+ 1266              		.file 14 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 oid.c
+     /tmp/ccAsGKCQ.s:16     .rodata.str1.4:0000000000000000 $d
+     /tmp/ccAsGKCQ.s:20     .text.oid_sig_alg_from_asn1.part.0:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:28     .text.oid_sig_alg_from_asn1.part.0:0000000000000000 oid_sig_alg_from_asn1.part.0
+     /tmp/ccAsGKCQ.s:86     .text.oid_sig_alg_from_asn1.part.0:000000000000002c $d
+     /tmp/ccAsGKCQ.s:92     .text.mbedtls_oid_get_sig_alg_desc:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:100    .text.mbedtls_oid_get_sig_alg_desc:0000000000000000 mbedtls_oid_get_sig_alg_desc
+     /tmp/ccAsGKCQ.s:161    .text.mbedtls_oid_get_sig_alg:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:169    .text.mbedtls_oid_get_sig_alg:0000000000000000 mbedtls_oid_get_sig_alg
+     /tmp/ccAsGKCQ.s:237    .text.mbedtls_oid_get_oid_by_sig_alg:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:245    .text.mbedtls_oid_get_oid_by_sig_alg:0000000000000000 mbedtls_oid_get_oid_by_sig_alg
+     /tmp/ccAsGKCQ.s:315    .text.mbedtls_oid_get_oid_by_sig_alg:0000000000000030 $d
+     /tmp/ccAsGKCQ.s:325    .text.mbedtls_oid_get_pk_alg:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:333    .text.mbedtls_oid_get_pk_alg:0000000000000000 mbedtls_oid_get_pk_alg
+     /tmp/ccAsGKCQ.s:426    .text.mbedtls_oid_get_pk_alg:000000000000003c $d
+     /tmp/ccAsGKCQ.s:432    .text.mbedtls_oid_get_oid_by_pk_alg:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:440    .text.mbedtls_oid_get_oid_by_pk_alg:0000000000000000 mbedtls_oid_get_oid_by_pk_alg
+     /tmp/ccAsGKCQ.s:503    .text.mbedtls_oid_get_oid_by_pk_alg:000000000000002c $d
+     /tmp/ccAsGKCQ.s:513    .text.mbedtls_oid_get_cipher_alg:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:521    .text.mbedtls_oid_get_cipher_alg:0000000000000000 mbedtls_oid_get_cipher_alg
+     /tmp/ccAsGKCQ.s:614    .text.mbedtls_oid_get_cipher_alg:000000000000003c $d
+     /tmp/ccAsGKCQ.s:624    .text.mbedtls_oid_get_md_alg:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:632    .text.mbedtls_oid_get_md_alg:0000000000000000 mbedtls_oid_get_md_alg
+     /tmp/ccAsGKCQ.s:725    .text.mbedtls_oid_get_md_alg:000000000000003c $d
+     /tmp/ccAsGKCQ.s:731    .text.mbedtls_oid_get_oid_by_md:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:739    .text.mbedtls_oid_get_oid_by_md:0000000000000000 mbedtls_oid_get_oid_by_md
+     /tmp/ccAsGKCQ.s:802    .text.mbedtls_oid_get_oid_by_md:000000000000002c $d
+     /tmp/ccAsGKCQ.s:817    .text.mbedtls_oid_get_numeric_string:0000000000000000 $t
+     /tmp/ccAsGKCQ.s:825    .text.mbedtls_oid_get_numeric_string:0000000000000000 mbedtls_oid_get_numeric_string
+     /tmp/ccAsGKCQ.s:1067   .text.mbedtls_oid_get_numeric_string:00000000000000d4 $d
+     /tmp/ccAsGKCQ.s:1149   .rodata:0000000000000000 $d
+     /tmp/ccAsGKCQ.s:1154   .rodata:0000000000000000 oid_sig_alg
+     /tmp/ccAsGKCQ.s:1185   .rodata:0000000000000050 oid_pk_alg
+     /tmp/ccAsGKCQ.s:1212   .rodata:00000000000000a0 oid_cipher_alg
+     /tmp/ccAsGKCQ.s:1233   .rodata:00000000000000dc oid_md_alg
+
+UNDEFINED SYMBOLS
+memcmp
+__aeabi_uidiv
+__aeabi_uidivmod
+snprintf

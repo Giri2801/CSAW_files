@@ -1,0 +1,2322 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"md.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.mbedtls_md_list,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.global	mbedtls_md_list
+  19              		.arch armv6s-m
+  20              		.syntax unified
+  21              		.code	16
+  22              		.thumb_func
+  23              		.fpu softvfp
+  25              	mbedtls_md_list:
+  26              	.LFB4:
+  27              		.file 1 ".././crypto/mbedtls//library/md.c"
+   1:.././crypto/mbedtls//library/md.c **** /**
+   2:.././crypto/mbedtls//library/md.c ****  * \file mbedtls_md.c
+   3:.././crypto/mbedtls//library/md.c ****  *
+   4:.././crypto/mbedtls//library/md.c ****  * \brief Generic message digest wrapper for mbed TLS
+   5:.././crypto/mbedtls//library/md.c ****  *
+   6:.././crypto/mbedtls//library/md.c ****  * \author Adriaan de Jong <dejong@fox-it.com>
+   7:.././crypto/mbedtls//library/md.c ****  *
+   8:.././crypto/mbedtls//library/md.c ****  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+   9:.././crypto/mbedtls//library/md.c ****  *  SPDX-License-Identifier: Apache-2.0
+  10:.././crypto/mbedtls//library/md.c ****  *
+  11:.././crypto/mbedtls//library/md.c ****  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
+  12:.././crypto/mbedtls//library/md.c ****  *  not use this file except in compliance with the License.
+  13:.././crypto/mbedtls//library/md.c ****  *  You may obtain a copy of the License at
+  14:.././crypto/mbedtls//library/md.c ****  *
+  15:.././crypto/mbedtls//library/md.c ****  *  http://www.apache.org/licenses/LICENSE-2.0
+  16:.././crypto/mbedtls//library/md.c ****  *
+  17:.././crypto/mbedtls//library/md.c ****  *  Unless required by applicable law or agreed to in writing, software
+  18:.././crypto/mbedtls//library/md.c ****  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  19:.././crypto/mbedtls//library/md.c ****  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  20:.././crypto/mbedtls//library/md.c ****  *  See the License for the specific language governing permissions and
+  21:.././crypto/mbedtls//library/md.c ****  *  limitations under the License.
+  22:.././crypto/mbedtls//library/md.c ****  *
+  23:.././crypto/mbedtls//library/md.c ****  *  This file is part of mbed TLS (https://tls.mbed.org)
+  24:.././crypto/mbedtls//library/md.c ****  */
+  25:.././crypto/mbedtls//library/md.c **** 
+  26:.././crypto/mbedtls//library/md.c **** #if !defined(MBEDTLS_CONFIG_FILE)
+  27:.././crypto/mbedtls//library/md.c **** #include "mbedtls/config.h"
+  28:.././crypto/mbedtls//library/md.c **** #else
+  29:.././crypto/mbedtls//library/md.c **** #include MBEDTLS_CONFIG_FILE
+  30:.././crypto/mbedtls//library/md.c **** #endif
+  31:.././crypto/mbedtls//library/md.c **** 
+  32:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD_C)
+  33:.././crypto/mbedtls//library/md.c **** 
+  34:.././crypto/mbedtls//library/md.c **** #include "mbedtls/md.h"
+  35:.././crypto/mbedtls//library/md.c **** #include "mbedtls/md_internal.h"
+  36:.././crypto/mbedtls//library/md.c **** 
+  37:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_PLATFORM_C)
+  38:.././crypto/mbedtls//library/md.c **** #include "mbedtls/platform.h"
+  39:.././crypto/mbedtls//library/md.c **** #else
+  40:.././crypto/mbedtls//library/md.c **** #include <stdlib.h>
+  41:.././crypto/mbedtls//library/md.c **** #define mbedtls_calloc    calloc
+  42:.././crypto/mbedtls//library/md.c **** #define mbedtls_free       free
+  43:.././crypto/mbedtls//library/md.c **** #endif
+  44:.././crypto/mbedtls//library/md.c **** 
+  45:.././crypto/mbedtls//library/md.c **** #include <string.h>
+  46:.././crypto/mbedtls//library/md.c **** 
+  47:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_FS_IO)
+  48:.././crypto/mbedtls//library/md.c **** #include <stdio.h>
+  49:.././crypto/mbedtls//library/md.c **** #endif
+  50:.././crypto/mbedtls//library/md.c **** 
+  51:.././crypto/mbedtls//library/md.c **** /* Implementation that should never be optimized out by the compiler */
+  52:.././crypto/mbedtls//library/md.c **** static void mbedtls_zeroize( void *v, size_t n ) {
+  53:.././crypto/mbedtls//library/md.c ****     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+  54:.././crypto/mbedtls//library/md.c **** }
+  55:.././crypto/mbedtls//library/md.c **** 
+  56:.././crypto/mbedtls//library/md.c **** /*
+  57:.././crypto/mbedtls//library/md.c ****  * Reminder: update profiles in x509_crt.c when adding a new hash!
+  58:.././crypto/mbedtls//library/md.c ****  */
+  59:.././crypto/mbedtls//library/md.c **** static const int supported_digests[] = {
+  60:.././crypto/mbedtls//library/md.c **** 
+  61:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA512_C)
+  62:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_SHA512,
+  63:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_SHA384,
+  64:.././crypto/mbedtls//library/md.c **** #endif
+  65:.././crypto/mbedtls//library/md.c **** 
+  66:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA256_C)
+  67:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_SHA256,
+  68:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_SHA224,
+  69:.././crypto/mbedtls//library/md.c **** #endif
+  70:.././crypto/mbedtls//library/md.c **** 
+  71:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA1_C)
+  72:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_SHA1,
+  73:.././crypto/mbedtls//library/md.c **** #endif
+  74:.././crypto/mbedtls//library/md.c **** 
+  75:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_RIPEMD160_C)
+  76:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_RIPEMD160,
+  77:.././crypto/mbedtls//library/md.c **** #endif
+  78:.././crypto/mbedtls//library/md.c **** 
+  79:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD5_C)
+  80:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_MD5,
+  81:.././crypto/mbedtls//library/md.c **** #endif
+  82:.././crypto/mbedtls//library/md.c **** 
+  83:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD4_C)
+  84:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_MD4,
+  85:.././crypto/mbedtls//library/md.c **** #endif
+  86:.././crypto/mbedtls//library/md.c **** 
+  87:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD2_C)
+  88:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_MD2,
+  89:.././crypto/mbedtls//library/md.c **** #endif
+  90:.././crypto/mbedtls//library/md.c **** 
+  91:.././crypto/mbedtls//library/md.c ****         MBEDTLS_MD_NONE
+  92:.././crypto/mbedtls//library/md.c **** };
+  93:.././crypto/mbedtls//library/md.c **** 
+  94:.././crypto/mbedtls//library/md.c **** const int *mbedtls_md_list( void )
+  95:.././crypto/mbedtls//library/md.c **** {
+  28              		.loc 1 95 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  96:.././crypto/mbedtls//library/md.c ****     return( supported_digests );
+  33              		.loc 1 96 5 view .LVU1
+  97:.././crypto/mbedtls//library/md.c **** }
+  34              		.loc 1 97 1 is_stmt 0 view .LVU2
+  35 0000 0048     		ldr	r0, .L3
+  36              		@ sp needed
+  37 0002 7047     		bx	lr
+  38              	.L4:
+  39              		.align	2
+  40              	.L3:
+  41 0004 00000000 		.word	.LANCHOR0
+  42              		.cfi_endproc
+  43              	.LFE4:
+  45              		.section	.rodata.str1.4,"aMS",%progbits,1
+  46              		.align	2
+  47              	.LC3:
+  48 0000 53484132 		.ascii	"SHA224\000"
+  48      323400
+  49 0007 00       		.align	2
+  50              	.LC5:
+  51 0008 53484132 		.ascii	"SHA256\000"
+  51      353600
+  52              		.section	.text.mbedtls_md_info_from_string,"ax",%progbits
+  53              		.align	1
+  54              		.p2align 2,,3
+  55              		.global	mbedtls_md_info_from_string
+  56              		.syntax unified
+  57              		.code	16
+  58              		.thumb_func
+  59              		.fpu softvfp
+  61              	mbedtls_md_info_from_string:
+  62              	.LVL0:
+  63              	.LFB5:
+  98:.././crypto/mbedtls//library/md.c **** 
+  99:.././crypto/mbedtls//library/md.c **** const mbedtls_md_info_t *mbedtls_md_info_from_string( const char *md_name )
+ 100:.././crypto/mbedtls//library/md.c **** {
+  64              		.loc 1 100 1 is_stmt 1 view -0
+  65              		.cfi_startproc
+  66              		@ args = 0, pretend = 0, frame = 0
+  67              		@ frame_needed = 0, uses_anonymous_args = 0
+ 101:.././crypto/mbedtls//library/md.c ****     if( NULL == md_name )
+  68              		.loc 1 101 5 view .LVU4
+ 100:.././crypto/mbedtls//library/md.c ****     if( NULL == md_name )
+  69              		.loc 1 100 1 is_stmt 0 view .LVU5
+  70 0000 10B5     		push	{r4, lr}
+  71              	.LCFI0:
+  72              		.cfi_def_cfa_offset 8
+  73              		.cfi_offset 4, -8
+  74              		.cfi_offset 14, -4
+ 100:.././crypto/mbedtls//library/md.c ****     if( NULL == md_name )
+  75              		.loc 1 100 1 view .LVU6
+  76 0002 041E     		subs	r4, r0, #0
+  77              		.loc 1 101 7 view .LVU7
+  78 0004 11D0     		beq	.L7
+ 102:.././crypto/mbedtls//library/md.c ****         return( NULL );
+ 103:.././crypto/mbedtls//library/md.c **** 
+ 104:.././crypto/mbedtls//library/md.c ****     /* Get the appropriate digest information */
+ 105:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD2_C)
+ 106:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "MD2", md_name ) )
+ 107:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_MD2 );
+ 108:.././crypto/mbedtls//library/md.c **** #endif
+ 109:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD4_C)
+ 110:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "MD4", md_name ) )
+ 111:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_MD4 );
+ 112:.././crypto/mbedtls//library/md.c **** #endif
+ 113:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD5_C)
+ 114:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "MD5", md_name ) )
+ 115:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_MD5 );
+ 116:.././crypto/mbedtls//library/md.c **** #endif
+ 117:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_RIPEMD160_C)
+ 118:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "RIPEMD160", md_name ) )
+ 119:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_RIPEMD160 );
+ 120:.././crypto/mbedtls//library/md.c **** #endif
+ 121:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA1_C)
+ 122:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "SHA1", md_name ) || !strcmp( "SHA", md_name ) )
+ 123:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_SHA1 );
+ 124:.././crypto/mbedtls//library/md.c **** #endif
+ 125:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA256_C)
+ 126:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "SHA224", md_name ) )
+  79              		.loc 1 126 5 is_stmt 1 view .LVU8
+  80              		.loc 1 126 10 is_stmt 0 view .LVU9
+  81 0006 0100     		movs	r1, r0
+  82 0008 0948     		ldr	r0, .L10
+  83              	.LVL1:
+  84              		.loc 1 126 10 view .LVU10
+  85 000a FFF7FEFF 		bl	strcmp
+  86              	.LVL2:
+  87              		.loc 1 126 7 view .LVU11
+  88 000e 0028     		cmp	r0, #0
+  89 0010 09D0     		beq	.L8
+ 127:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_SHA224 );
+ 128:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "SHA256", md_name ) )
+  90              		.loc 1 128 5 is_stmt 1 view .LVU12
+  91              		.loc 1 128 10 is_stmt 0 view .LVU13
+  92 0012 2100     		movs	r1, r4
+  93 0014 0748     		ldr	r0, .L10+4
+  94 0016 FFF7FEFF 		bl	strcmp
+  95              	.LVL3:
+  96 001a 0300     		movs	r3, r0
+ 102:.././crypto/mbedtls//library/md.c ****         return( NULL );
+  97              		.loc 1 102 15 view .LVU14
+  98 001c 0020     		movs	r0, #0
+  99              		.loc 1 128 7 view .LVU15
+ 100 001e 002B     		cmp	r3, #0
+ 101 0020 00D1     		bne	.L5
+ 129:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_SHA256 );
+ 102              		.loc 1 129 16 view .LVU16
+ 103 0022 0548     		ldr	r0, .L10+8
+ 104              	.L5:
+ 130:.././crypto/mbedtls//library/md.c **** #endif
+ 131:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA512_C)
+ 132:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "SHA384", md_name ) )
+ 133:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_SHA384 );
+ 134:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "SHA512", md_name ) )
+ 135:.././crypto/mbedtls//library/md.c ****         return mbedtls_md_info_from_type( MBEDTLS_MD_SHA512 );
+ 136:.././crypto/mbedtls//library/md.c **** #endif
+ 137:.././crypto/mbedtls//library/md.c ****     return( NULL );
+ 138:.././crypto/mbedtls//library/md.c **** }
+ 105              		.loc 1 138 1 view .LVU17
+ 106              		@ sp needed
+ 107              	.LVL4:
+ 108              		.loc 1 138 1 view .LVU18
+ 109 0024 10BD     		pop	{r4, pc}
+ 110              	.LVL5:
+ 111              	.L8:
+ 127:.././crypto/mbedtls//library/md.c ****     if( !strcmp( "SHA256", md_name ) )
+ 112              		.loc 1 127 16 view .LVU19
+ 113 0026 0548     		ldr	r0, .L10+12
+ 114 0028 FCE7     		b	.L5
+ 115              	.LVL6:
+ 116              	.L7:
+ 102:.././crypto/mbedtls//library/md.c **** 
+ 117              		.loc 1 102 15 view .LVU20
+ 118 002a 0020     		movs	r0, #0
+ 119              	.LVL7:
+ 102:.././crypto/mbedtls//library/md.c **** 
+ 120              		.loc 1 102 15 view .LVU21
+ 121 002c FAE7     		b	.L5
+ 122              	.L11:
+ 123 002e C046     		.align	2
+ 124              	.L10:
+ 125 0030 00000000 		.word	.LC3
+ 126 0034 08000000 		.word	.LC5
+ 127 0038 00000000 		.word	mbedtls_sha256_info
+ 128 003c 00000000 		.word	mbedtls_sha224_info
+ 129              		.cfi_endproc
+ 130              	.LFE5:
+ 132              		.section	.text.mbedtls_md_info_from_type,"ax",%progbits
+ 133              		.align	1
+ 134              		.p2align 2,,3
+ 135              		.global	mbedtls_md_info_from_type
+ 136              		.syntax unified
+ 137              		.code	16
+ 138              		.thumb_func
+ 139              		.fpu softvfp
+ 141              	mbedtls_md_info_from_type:
+ 142              	.LVL8:
+ 143              	.LFB6:
+ 139:.././crypto/mbedtls//library/md.c **** 
+ 140:.././crypto/mbedtls//library/md.c **** const mbedtls_md_info_t *mbedtls_md_info_from_type( mbedtls_md_type_t md_type )
+ 141:.././crypto/mbedtls//library/md.c **** {
+ 144              		.loc 1 141 1 is_stmt 1 view -0
+ 145              		.cfi_startproc
+ 146              		@ args = 0, pretend = 0, frame = 0
+ 147              		@ frame_needed = 0, uses_anonymous_args = 0
+ 148              		@ link register save eliminated.
+ 142:.././crypto/mbedtls//library/md.c ****     switch( md_type )
+ 149              		.loc 1 142 5 view .LVU23
+ 141:.././crypto/mbedtls//library/md.c ****     switch( md_type )
+ 150              		.loc 1 141 1 is_stmt 0 view .LVU24
+ 151 0000 0300     		movs	r3, r0
+ 152              		.loc 1 142 5 view .LVU25
+ 153 0002 0528     		cmp	r0, #5
+ 154 0004 04D0     		beq	.L14
+ 143:.././crypto/mbedtls//library/md.c ****     {
+ 144:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD2_C)
+ 145:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_MD2:
+ 146:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_md2_info );
+ 147:.././crypto/mbedtls//library/md.c **** #endif
+ 148:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD4_C)
+ 149:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_MD4:
+ 150:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_md4_info );
+ 151:.././crypto/mbedtls//library/md.c **** #endif
+ 152:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_MD5_C)
+ 153:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_MD5:
+ 154:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_md5_info );
+ 155:.././crypto/mbedtls//library/md.c **** #endif
+ 156:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_RIPEMD160_C)
+ 157:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_RIPEMD160:
+ 158:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_ripemd160_info );
+ 159:.././crypto/mbedtls//library/md.c **** #endif
+ 160:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA1_C)
+ 161:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_SHA1:
+ 162:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_sha1_info );
+ 163:.././crypto/mbedtls//library/md.c **** #endif
+ 164:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA256_C)
+ 165:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_SHA224:
+ 166:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_sha224_info );
+ 167:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_SHA256:
+ 168:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_sha256_info );
+ 169:.././crypto/mbedtls//library/md.c **** #endif
+ 170:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_SHA512_C)
+ 171:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_SHA384:
+ 172:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_sha384_info );
+ 173:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_SHA512:
+ 174:.././crypto/mbedtls//library/md.c ****             return( &mbedtls_sha512_info );
+ 175:.././crypto/mbedtls//library/md.c **** #endif
+ 176:.././crypto/mbedtls//library/md.c ****         default:
+ 177:.././crypto/mbedtls//library/md.c ****             return( NULL );
+ 155              		.loc 1 177 19 view .LVU26
+ 156 0006 0020     		movs	r0, #0
+ 157              	.LVL9:
+ 142:.././crypto/mbedtls//library/md.c ****     {
+ 158              		.loc 1 142 5 view .LVU27
+ 159 0008 062B     		cmp	r3, #6
+ 160 000a 00D1     		bne	.L12
+ 161 000c 0148     		ldr	r0, .L16
+ 162              	.L12:
+ 178:.././crypto/mbedtls//library/md.c ****     }
+ 179:.././crypto/mbedtls//library/md.c **** }
+ 163              		.loc 1 179 1 view .LVU28
+ 164              		@ sp needed
+ 165 000e 7047     		bx	lr
+ 166              	.LVL10:
+ 167              	.L14:
+ 166:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_SHA256:
+ 168              		.loc 1 166 21 view .LVU29
+ 169 0010 0148     		ldr	r0, .L16+4
+ 170              	.LVL11:
+ 166:.././crypto/mbedtls//library/md.c ****         case MBEDTLS_MD_SHA256:
+ 171              		.loc 1 166 21 view .LVU30
+ 172 0012 FCE7     		b	.L12
+ 173              	.L17:
+ 174              		.align	2
+ 175              	.L16:
+ 176 0014 00000000 		.word	mbedtls_sha256_info
+ 177 0018 00000000 		.word	mbedtls_sha224_info
+ 178              		.cfi_endproc
+ 179              	.LFE6:
+ 181              		.section	.text.mbedtls_md_init,"ax",%progbits
+ 182              		.align	1
+ 183              		.p2align 2,,3
+ 184              		.global	mbedtls_md_init
+ 185              		.syntax unified
+ 186              		.code	16
+ 187              		.thumb_func
+ 188              		.fpu softvfp
+ 190              	mbedtls_md_init:
+ 191              	.LVL12:
+ 192              	.LFB7:
+ 180:.././crypto/mbedtls//library/md.c **** 
+ 181:.././crypto/mbedtls//library/md.c **** void mbedtls_md_init( mbedtls_md_context_t *ctx )
+ 182:.././crypto/mbedtls//library/md.c **** {
+ 193              		.loc 1 182 1 is_stmt 1 view -0
+ 194              		.cfi_startproc
+ 195              		@ args = 0, pretend = 0, frame = 0
+ 196              		@ frame_needed = 0, uses_anonymous_args = 0
+ 183:.././crypto/mbedtls//library/md.c ****     memset( ctx, 0, sizeof( mbedtls_md_context_t ) );
+ 197              		.loc 1 183 5 view .LVU32
+ 182:.././crypto/mbedtls//library/md.c ****     memset( ctx, 0, sizeof( mbedtls_md_context_t ) );
+ 198              		.loc 1 182 1 is_stmt 0 view .LVU33
+ 199 0000 10B5     		push	{r4, lr}
+ 200              	.LCFI1:
+ 201              		.cfi_def_cfa_offset 8
+ 202              		.cfi_offset 4, -8
+ 203              		.cfi_offset 14, -4
+ 204              		.loc 1 183 5 view .LVU34
+ 205 0002 0C22     		movs	r2, #12
+ 206 0004 0021     		movs	r1, #0
+ 207 0006 FFF7FEFF 		bl	memset
+ 208              	.LVL13:
+ 184:.././crypto/mbedtls//library/md.c **** }
+ 209              		.loc 1 184 1 view .LVU35
+ 210              		@ sp needed
+ 211 000a 10BD     		pop	{r4, pc}
+ 212              		.cfi_endproc
+ 213              	.LFE7:
+ 215              		.section	.text.mbedtls_md_free,"ax",%progbits
+ 216              		.align	1
+ 217              		.p2align 2,,3
+ 218              		.global	mbedtls_md_free
+ 219              		.syntax unified
+ 220              		.code	16
+ 221              		.thumb_func
+ 222              		.fpu softvfp
+ 224              	mbedtls_md_free:
+ 225              	.LVL14:
+ 226              	.LFB8:
+ 185:.././crypto/mbedtls//library/md.c **** 
+ 186:.././crypto/mbedtls//library/md.c **** void mbedtls_md_free( mbedtls_md_context_t *ctx )
+ 187:.././crypto/mbedtls//library/md.c **** {
+ 227              		.loc 1 187 1 is_stmt 1 view -0
+ 228              		.cfi_startproc
+ 229              		@ args = 0, pretend = 0, frame = 0
+ 230              		@ frame_needed = 0, uses_anonymous_args = 0
+ 188:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 231              		.loc 1 188 5 view .LVU37
+ 187:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 232              		.loc 1 187 1 is_stmt 0 view .LVU38
+ 233 0000 10B5     		push	{r4, lr}
+ 234              	.LCFI2:
+ 235              		.cfi_def_cfa_offset 8
+ 236              		.cfi_offset 4, -8
+ 237              		.cfi_offset 14, -4
+ 187:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 238              		.loc 1 187 1 view .LVU39
+ 239 0002 041E     		subs	r4, r0, #0
+ 240              		.loc 1 188 7 view .LVU40
+ 241 0004 20D0     		beq	.L19
+ 242              		.loc 1 188 27 discriminator 1 view .LVU41
+ 243 0006 0368     		ldr	r3, [r0]
+ 244              		.loc 1 188 21 discriminator 1 view .LVU42
+ 245 0008 002B     		cmp	r3, #0
+ 246 000a 1DD0     		beq	.L19
+ 189:.././crypto/mbedtls//library/md.c ****         return;
+ 190:.././crypto/mbedtls//library/md.c **** 
+ 191:.././crypto/mbedtls//library/md.c ****     if( ctx->md_ctx != NULL )
+ 247              		.loc 1 191 5 is_stmt 1 view .LVU43
+ 248              		.loc 1 191 12 is_stmt 0 view .LVU44
+ 249 000c 4068     		ldr	r0, [r0, #4]
+ 250              	.LVL15:
+ 251              		.loc 1 191 7 view .LVU45
+ 252 000e 0028     		cmp	r0, #0
+ 253 0010 01D0     		beq	.L22
+ 192:.././crypto/mbedtls//library/md.c ****         ctx->md_info->ctx_free_func( ctx->md_ctx );
+ 254              		.loc 1 192 9 is_stmt 1 view .LVU46
+ 255 0012 5B6A     		ldr	r3, [r3, #36]
+ 256 0014 9847     		blx	r3
+ 257              	.LVL16:
+ 258              	.L22:
+ 259              	.LBB26:
+ 260              	.LBI26:
+ 186:.././crypto/mbedtls//library/md.c **** {
+ 261              		.loc 1 186 6 view .LVU47
+ 262              	.LBB27:
+ 193:.././crypto/mbedtls//library/md.c **** 
+ 194:.././crypto/mbedtls//library/md.c ****     if( ctx->hmac_ctx != NULL )
+ 263              		.loc 1 194 5 view .LVU48
+ 264              		.loc 1 194 12 is_stmt 0 view .LVU49
+ 265 0016 A068     		ldr	r0, [r4, #8]
+ 266              		.loc 1 194 7 view .LVU50
+ 267 0018 0028     		cmp	r0, #0
+ 268 001a 0DD0     		beq	.L23
+ 195:.././crypto/mbedtls//library/md.c ****     {
+ 196:.././crypto/mbedtls//library/md.c ****         mbedtls_zeroize( ctx->hmac_ctx, 2 * ctx->md_info->block_size );
+ 269              		.loc 1 196 9 is_stmt 1 view .LVU51
+ 270              		.loc 1 196 57 is_stmt 0 view .LVU52
+ 271 001c 2368     		ldr	r3, [r4]
+ 272              		.loc 1 196 43 view .LVU53
+ 273 001e DA68     		ldr	r2, [r3, #12]
+ 274 0020 5200     		lsls	r2, r2, #1
+ 275              	.LVL17:
+ 276              	.LBB28:
+ 277              	.LBI28:
+  52:.././crypto/mbedtls//library/md.c ****     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+ 278              		.loc 1 52 13 is_stmt 1 view .LVU54
+ 279              	.LBB29:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 280              		.loc 1 53 5 view .LVU55
+  53:.././crypto/mbedtls//library/md.c **** }
+ 281              		.loc 1 53 36 view .LVU56
+  53:.././crypto/mbedtls//library/md.c **** }
+ 282              		.loc 1 53 41 view .LVU57
+  53:.././crypto/mbedtls//library/md.c **** }
+ 283              		.loc 1 53 41 is_stmt 0 view .LVU58
+ 284 0022 07D0     		beq	.L24
+  53:.././crypto/mbedtls//library/md.c **** }
+ 285              		.loc 1 53 54 view .LVU59
+ 286 0024 0021     		movs	r1, #0
+ 287 0026 8218     		adds	r2, r0, r2
+ 288              	.LVL18:
+ 289              	.L25:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 290              		.loc 1 53 49 is_stmt 1 view .LVU60
+ 291 0028 0300     		movs	r3, r0
+  53:.././crypto/mbedtls//library/md.c **** }
+ 292              		.loc 1 53 51 is_stmt 0 view .LVU61
+ 293 002a 0130     		adds	r0, r0, #1
+ 294              	.LVL19:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 295              		.loc 1 53 54 view .LVU62
+ 296 002c 1970     		strb	r1, [r3]
+  53:.././crypto/mbedtls//library/md.c **** }
+ 297              		.loc 1 53 41 is_stmt 1 view .LVU63
+  53:.././crypto/mbedtls//library/md.c **** }
+ 298              		.loc 1 53 41 is_stmt 0 view .LVU64
+ 299 002e 9042     		cmp	r0, r2
+ 300 0030 FAD1     		bne	.L25
+ 301 0032 A068     		ldr	r0, [r4, #8]
+ 302              	.LVL20:
+ 303              	.L24:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 304              		.loc 1 53 41 view .LVU65
+ 305              	.LBE29:
+ 306              	.LBE28:
+ 197:.././crypto/mbedtls//library/md.c ****         mbedtls_free( ctx->hmac_ctx );
+ 307              		.loc 1 197 9 is_stmt 1 view .LVU66
+ 308 0034 FFF7FEFF 		bl	free
+ 309              	.LVL21:
+ 310              	.LBB30:
+ 311              	.LBB31:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 312              		.loc 1 53 41 view .LVU67
+ 313              	.L23:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 314              		.loc 1 53 41 is_stmt 0 view .LVU68
+ 315 0038 2100     		movs	r1, r4
+  53:.././crypto/mbedtls//library/md.c **** }
+ 316              		.loc 1 53 54 view .LVU69
+ 317 003a 0022     		movs	r2, #0
+ 318 003c 0C31     		adds	r1, r1, #12
+ 319              	.LVL22:
+ 320              	.L26:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 321              		.loc 1 53 49 is_stmt 1 view .LVU70
+ 322 003e 2300     		movs	r3, r4
+  53:.././crypto/mbedtls//library/md.c **** }
+ 323              		.loc 1 53 51 is_stmt 0 view .LVU71
+ 324 0040 0134     		adds	r4, r4, #1
+ 325              	.LVL23:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 326              		.loc 1 53 54 view .LVU72
+ 327 0042 1A70     		strb	r2, [r3]
+  53:.././crypto/mbedtls//library/md.c **** }
+ 328              		.loc 1 53 41 is_stmt 1 view .LVU73
+  53:.././crypto/mbedtls//library/md.c **** }
+ 329              		.loc 1 53 41 is_stmt 0 view .LVU74
+ 330 0044 A142     		cmp	r1, r4
+ 331 0046 FAD1     		bne	.L26
+ 332              	.LVL24:
+ 333              	.L19:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 334              		.loc 1 53 41 view .LVU75
+ 335              	.LBE31:
+ 336              	.LBE30:
+ 337              	.LBE27:
+ 338              	.LBE26:
+ 198:.././crypto/mbedtls//library/md.c ****     }
+ 199:.././crypto/mbedtls//library/md.c **** 
+ 200:.././crypto/mbedtls//library/md.c ****     mbedtls_zeroize( ctx, sizeof( mbedtls_md_context_t ) );
+ 201:.././crypto/mbedtls//library/md.c **** }
+ 339              		.loc 1 201 1 view .LVU76
+ 340              		@ sp needed
+ 341 0048 10BD     		pop	{r4, pc}
+ 342              		.cfi_endproc
+ 343              	.LFE8:
+ 345 004a C046     		.section	.text.mbedtls_md_clone,"ax",%progbits
+ 346              		.align	1
+ 347              		.p2align 2,,3
+ 348              		.global	mbedtls_md_clone
+ 349              		.syntax unified
+ 350              		.code	16
+ 351              		.thumb_func
+ 352              		.fpu softvfp
+ 354              	mbedtls_md_clone:
+ 355              	.LVL25:
+ 356              	.LFB9:
+ 202:.././crypto/mbedtls//library/md.c **** 
+ 203:.././crypto/mbedtls//library/md.c **** int mbedtls_md_clone( mbedtls_md_context_t *dst,
+ 204:.././crypto/mbedtls//library/md.c ****                       const mbedtls_md_context_t *src )
+ 205:.././crypto/mbedtls//library/md.c **** {
+ 357              		.loc 1 205 1 is_stmt 1 view -0
+ 358              		.cfi_startproc
+ 359              		@ args = 0, pretend = 0, frame = 0
+ 360              		@ frame_needed = 0, uses_anonymous_args = 0
+ 206:.././crypto/mbedtls//library/md.c ****     if( dst == NULL || dst->md_info == NULL ||
+ 361              		.loc 1 206 5 view .LVU78
+ 205:.././crypto/mbedtls//library/md.c ****     if( dst == NULL || dst->md_info == NULL ||
+ 362              		.loc 1 205 1 is_stmt 0 view .LVU79
+ 363 0000 10B5     		push	{r4, lr}
+ 364              	.LCFI3:
+ 365              		.cfi_def_cfa_offset 8
+ 366              		.cfi_offset 4, -8
+ 367              		.cfi_offset 14, -4
+ 368              		.loc 1 206 7 view .LVU80
+ 369 0002 0028     		cmp	r0, #0
+ 370 0004 0FD0     		beq	.L47
+ 371              		.loc 1 206 27 discriminator 1 view .LVU81
+ 372 0006 0368     		ldr	r3, [r0]
+ 373              		.loc 1 206 21 discriminator 1 view .LVU82
+ 374 0008 002B     		cmp	r3, #0
+ 375 000a 0CD0     		beq	.L47
+ 376              		.loc 1 206 45 discriminator 2 view .LVU83
+ 377 000c 0029     		cmp	r1, #0
+ 378 000e 0AD0     		beq	.L47
+ 207:.././crypto/mbedtls//library/md.c ****         src == NULL || src->md_info == NULL ||
+ 379              		.loc 1 207 27 view .LVU84
+ 380 0010 0A68     		ldr	r2, [r1]
+ 381              		.loc 1 207 21 view .LVU85
+ 382 0012 002A     		cmp	r2, #0
+ 383 0014 07D0     		beq	.L47
+ 384              		.loc 1 207 45 discriminator 1 view .LVU86
+ 385 0016 9342     		cmp	r3, r2
+ 386 0018 05D1     		bne	.L47
+ 208:.././crypto/mbedtls//library/md.c ****         dst->md_info != src->md_info )
+ 209:.././crypto/mbedtls//library/md.c ****     {
+ 210:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 211:.././crypto/mbedtls//library/md.c ****     }
+ 212:.././crypto/mbedtls//library/md.c **** 
+ 213:.././crypto/mbedtls//library/md.c ****     dst->md_info->clone_func( dst->md_ctx, src->md_ctx );
+ 387              		.loc 1 213 5 is_stmt 1 view .LVU87
+ 388 001a 4068     		ldr	r0, [r0, #4]
+ 389              	.LVL26:
+ 390              		.loc 1 213 5 is_stmt 0 view .LVU88
+ 391 001c 4968     		ldr	r1, [r1, #4]
+ 392              	.LVL27:
+ 393              		.loc 1 213 5 view .LVU89
+ 394 001e 9B6A     		ldr	r3, [r3, #40]
+ 395 0020 9847     		blx	r3
+ 396              	.LVL28:
+ 214:.././crypto/mbedtls//library/md.c **** 
+ 215:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 397              		.loc 1 215 5 is_stmt 1 view .LVU90
+ 398              		.loc 1 215 11 is_stmt 0 view .LVU91
+ 399 0022 0020     		movs	r0, #0
+ 400              	.L41:
+ 216:.././crypto/mbedtls//library/md.c **** }
+ 401              		.loc 1 216 1 view .LVU92
+ 402              		@ sp needed
+ 403 0024 10BD     		pop	{r4, pc}
+ 404              	.LVL29:
+ 405              	.L47:
+ 210:.././crypto/mbedtls//library/md.c ****     }
+ 406              		.loc 1 210 15 view .LVU93
+ 407 0026 0148     		ldr	r0, .L48
+ 408              	.LVL30:
+ 210:.././crypto/mbedtls//library/md.c ****     }
+ 409              		.loc 1 210 15 view .LVU94
+ 410 0028 FCE7     		b	.L41
+ 411              	.L49:
+ 412 002a C046     		.align	2
+ 413              	.L48:
+ 414 002c 00AFFFFF 		.word	-20736
+ 415              		.cfi_endproc
+ 416              	.LFE9:
+ 418              		.section	.text.mbedtls_md_setup,"ax",%progbits
+ 419              		.align	1
+ 420              		.p2align 2,,3
+ 421              		.global	mbedtls_md_setup
+ 422              		.syntax unified
+ 423              		.code	16
+ 424              		.thumb_func
+ 425              		.fpu softvfp
+ 427              	mbedtls_md_setup:
+ 428              	.LVL31:
+ 429              	.LFB11:
+ 217:.././crypto/mbedtls//library/md.c **** 
+ 218:.././crypto/mbedtls//library/md.c **** #if ! defined(MBEDTLS_DEPRECATED_REMOVED)
+ 219:.././crypto/mbedtls//library/md.c **** int mbedtls_md_init_ctx( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info )
+ 220:.././crypto/mbedtls//library/md.c **** {
+ 221:.././crypto/mbedtls//library/md.c ****     return mbedtls_md_setup( ctx, md_info, 1 );
+ 222:.././crypto/mbedtls//library/md.c **** }
+ 223:.././crypto/mbedtls//library/md.c **** #endif
+ 224:.././crypto/mbedtls//library/md.c **** 
+ 225:.././crypto/mbedtls//library/md.c **** int mbedtls_md_setup( mbedtls_md_context_t *ctx, const mbedtls_md_info_t *md_info, int hmac )
+ 226:.././crypto/mbedtls//library/md.c **** {
+ 430              		.loc 1 226 1 is_stmt 1 view -0
+ 431              		.cfi_startproc
+ 432              		@ args = 0, pretend = 0, frame = 0
+ 433              		@ frame_needed = 0, uses_anonymous_args = 0
+ 227:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL || ctx == NULL )
+ 434              		.loc 1 227 5 view .LVU96
+ 226:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL || ctx == NULL )
+ 435              		.loc 1 226 1 is_stmt 0 view .LVU97
+ 436 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 437              	.LCFI4:
+ 438              		.cfi_def_cfa_offset 24
+ 439              		.cfi_offset 3, -24
+ 440              		.cfi_offset 4, -20
+ 441              		.cfi_offset 5, -16
+ 442              		.cfi_offset 6, -12
+ 443              		.cfi_offset 7, -8
+ 444              		.cfi_offset 14, -4
+ 226:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL || ctx == NULL )
+ 445              		.loc 1 226 1 view .LVU98
+ 446 0002 0500     		movs	r5, r0
+ 447 0004 0C00     		movs	r4, r1
+ 448 0006 1700     		movs	r7, r2
+ 449              		.loc 1 227 7 view .LVU99
+ 450 0008 0029     		cmp	r1, #0
+ 451 000a 17D0     		beq	.L54
+ 452              		.loc 1 227 25 discriminator 1 view .LVU100
+ 453 000c 0028     		cmp	r0, #0
+ 454 000e 15D0     		beq	.L54
+ 228:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 229:.././crypto/mbedtls//library/md.c **** 
+ 230:.././crypto/mbedtls//library/md.c ****     if( ( ctx->md_ctx = md_info->ctx_alloc_func() ) == NULL )
+ 455              		.loc 1 230 5 is_stmt 1 view .LVU101
+ 456              		.loc 1 230 25 is_stmt 0 view .LVU102
+ 457 0010 0B6A     		ldr	r3, [r1, #32]
+ 458 0012 9847     		blx	r3
+ 459              	.LVL32:
+ 460              		.loc 1 230 25 view .LVU103
+ 461 0014 061E     		subs	r6, r0, #0
+ 462              		.loc 1 230 23 view .LVU104
+ 463 0016 6860     		str	r0, [r5, #4]
+ 464              		.loc 1 230 7 view .LVU105
+ 465 0018 12D0     		beq	.L55
+ 231:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_ALLOC_FAILED );
+ 232:.././crypto/mbedtls//library/md.c **** 
+ 233:.././crypto/mbedtls//library/md.c ****     if( hmac != 0 )
+ 466              		.loc 1 233 5 is_stmt 1 view .LVU106
+ 467              		.loc 1 233 7 is_stmt 0 view .LVU107
+ 468 001a 002F     		cmp	r7, #0
+ 469 001c 02D1     		bne	.L59
+ 470              	.L52:
+ 234:.././crypto/mbedtls//library/md.c ****     {
+ 235:.././crypto/mbedtls//library/md.c ****         ctx->hmac_ctx = mbedtls_calloc( 2, md_info->block_size );
+ 236:.././crypto/mbedtls//library/md.c ****         if( ctx->hmac_ctx == NULL )
+ 237:.././crypto/mbedtls//library/md.c ****         {
+ 238:.././crypto/mbedtls//library/md.c ****             md_info->ctx_free_func( ctx->md_ctx );
+ 239:.././crypto/mbedtls//library/md.c ****             return( MBEDTLS_ERR_MD_ALLOC_FAILED );
+ 240:.././crypto/mbedtls//library/md.c ****         }
+ 241:.././crypto/mbedtls//library/md.c ****     }
+ 242:.././crypto/mbedtls//library/md.c **** 
+ 243:.././crypto/mbedtls//library/md.c ****     ctx->md_info = md_info;
+ 471              		.loc 1 243 5 is_stmt 1 view .LVU108
+ 244:.././crypto/mbedtls//library/md.c **** 
+ 245:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 472              		.loc 1 245 11 is_stmt 0 view .LVU109
+ 473 001e 0020     		movs	r0, #0
+ 243:.././crypto/mbedtls//library/md.c **** 
+ 474              		.loc 1 243 18 view .LVU110
+ 475 0020 2C60     		str	r4, [r5]
+ 476              		.loc 1 245 5 is_stmt 1 view .LVU111
+ 477              	.L50:
+ 246:.././crypto/mbedtls//library/md.c **** }
+ 478              		.loc 1 246 1 is_stmt 0 view .LVU112
+ 479              		@ sp needed
+ 480              	.LVL33:
+ 481              	.LVL34:
+ 482              	.LVL35:
+ 483              		.loc 1 246 1 view .LVU113
+ 484 0022 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 485              	.LVL36:
+ 486              	.L59:
+ 235:.././crypto/mbedtls//library/md.c ****         if( ctx->hmac_ctx == NULL )
+ 487              		.loc 1 235 9 is_stmt 1 view .LVU114
+ 235:.././crypto/mbedtls//library/md.c ****         if( ctx->hmac_ctx == NULL )
+ 488              		.loc 1 235 25 is_stmt 0 view .LVU115
+ 489 0024 0220     		movs	r0, #2
+ 490 0026 E168     		ldr	r1, [r4, #12]
+ 491 0028 FFF7FEFF 		bl	calloc
+ 492              	.LVL37:
+ 235:.././crypto/mbedtls//library/md.c ****         if( ctx->hmac_ctx == NULL )
+ 493              		.loc 1 235 23 view .LVU116
+ 494 002c A860     		str	r0, [r5, #8]
+ 236:.././crypto/mbedtls//library/md.c ****         {
+ 495              		.loc 1 236 9 is_stmt 1 view .LVU117
+ 236:.././crypto/mbedtls//library/md.c ****         {
+ 496              		.loc 1 236 11 is_stmt 0 view .LVU118
+ 497 002e 0028     		cmp	r0, #0
+ 498 0030 F5D1     		bne	.L52
+ 238:.././crypto/mbedtls//library/md.c ****             return( MBEDTLS_ERR_MD_ALLOC_FAILED );
+ 499              		.loc 1 238 13 is_stmt 1 view .LVU119
+ 500 0032 3000     		movs	r0, r6
+ 501 0034 636A     		ldr	r3, [r4, #36]
+ 502 0036 9847     		blx	r3
+ 503              	.LVL38:
+ 239:.././crypto/mbedtls//library/md.c ****         }
+ 504              		.loc 1 239 13 view .LVU120
+ 239:.././crypto/mbedtls//library/md.c ****         }
+ 505              		.loc 1 239 19 is_stmt 0 view .LVU121
+ 506 0038 0248     		ldr	r0, .L60
+ 507 003a F2E7     		b	.L50
+ 508              	.LVL39:
+ 509              	.L54:
+ 228:.././crypto/mbedtls//library/md.c **** 
+ 510              		.loc 1 228 15 view .LVU122
+ 511 003c 0248     		ldr	r0, .L60+4
+ 512              	.LVL40:
+ 228:.././crypto/mbedtls//library/md.c **** 
+ 513              		.loc 1 228 15 view .LVU123
+ 514 003e F0E7     		b	.L50
+ 515              	.LVL41:
+ 516              	.L55:
+ 231:.././crypto/mbedtls//library/md.c **** 
+ 517              		.loc 1 231 15 view .LVU124
+ 518 0040 0048     		ldr	r0, .L60
+ 519 0042 EEE7     		b	.L50
+ 520              	.L61:
+ 521              		.align	2
+ 522              	.L60:
+ 523 0044 80AEFFFF 		.word	-20864
+ 524 0048 00AFFFFF 		.word	-20736
+ 525              		.cfi_endproc
+ 526              	.LFE11:
+ 528              		.section	.text.mbedtls_md_init_ctx,"ax",%progbits
+ 529              		.align	1
+ 530              		.p2align 2,,3
+ 531              		.global	mbedtls_md_init_ctx
+ 532              		.syntax unified
+ 533              		.code	16
+ 534              		.thumb_func
+ 535              		.fpu softvfp
+ 537              	mbedtls_md_init_ctx:
+ 538              	.LVL42:
+ 539              	.LFB10:
+ 220:.././crypto/mbedtls//library/md.c ****     return mbedtls_md_setup( ctx, md_info, 1 );
+ 540              		.loc 1 220 1 is_stmt 1 view -0
+ 541              		.cfi_startproc
+ 542              		@ args = 0, pretend = 0, frame = 0
+ 543              		@ frame_needed = 0, uses_anonymous_args = 0
+ 221:.././crypto/mbedtls//library/md.c **** }
+ 544              		.loc 1 221 5 view .LVU126
+ 220:.././crypto/mbedtls//library/md.c ****     return mbedtls_md_setup( ctx, md_info, 1 );
+ 545              		.loc 1 220 1 is_stmt 0 view .LVU127
+ 546 0000 10B5     		push	{r4, lr}
+ 547              	.LCFI5:
+ 548              		.cfi_def_cfa_offset 8
+ 549              		.cfi_offset 4, -8
+ 550              		.cfi_offset 14, -4
+ 221:.././crypto/mbedtls//library/md.c **** }
+ 551              		.loc 1 221 12 view .LVU128
+ 552 0002 0122     		movs	r2, #1
+ 553 0004 FFF7FEFF 		bl	mbedtls_md_setup
+ 554              	.LVL43:
+ 222:.././crypto/mbedtls//library/md.c **** #endif
+ 555              		.loc 1 222 1 view .LVU129
+ 556              		@ sp needed
+ 557 0008 10BD     		pop	{r4, pc}
+ 558              		.cfi_endproc
+ 559              	.LFE10:
+ 561 000a C046     		.section	.text.mbedtls_md_starts,"ax",%progbits
+ 562              		.align	1
+ 563              		.p2align 2,,3
+ 564              		.global	mbedtls_md_starts
+ 565              		.syntax unified
+ 566              		.code	16
+ 567              		.thumb_func
+ 568              		.fpu softvfp
+ 570              	mbedtls_md_starts:
+ 571              	.LVL44:
+ 572              	.LFB12:
+ 247:.././crypto/mbedtls//library/md.c **** 
+ 248:.././crypto/mbedtls//library/md.c **** int mbedtls_md_starts( mbedtls_md_context_t *ctx )
+ 249:.././crypto/mbedtls//library/md.c **** {
+ 573              		.loc 1 249 1 is_stmt 1 view -0
+ 574              		.cfi_startproc
+ 575              		@ args = 0, pretend = 0, frame = 0
+ 576              		@ frame_needed = 0, uses_anonymous_args = 0
+ 250:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 577              		.loc 1 250 5 view .LVU131
+ 249:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 578              		.loc 1 249 1 is_stmt 0 view .LVU132
+ 579 0000 10B5     		push	{r4, lr}
+ 580              	.LCFI6:
+ 581              		.cfi_def_cfa_offset 8
+ 582              		.cfi_offset 4, -8
+ 583              		.cfi_offset 14, -4
+ 584              		.loc 1 250 7 view .LVU133
+ 585 0002 0028     		cmp	r0, #0
+ 586 0004 07D0     		beq	.L66
+ 587              		.loc 1 250 27 discriminator 1 view .LVU134
+ 588 0006 0368     		ldr	r3, [r0]
+ 589              		.loc 1 250 21 discriminator 1 view .LVU135
+ 590 0008 002B     		cmp	r3, #0
+ 591 000a 04D0     		beq	.L66
+ 251:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 252:.././crypto/mbedtls//library/md.c **** 
+ 253:.././crypto/mbedtls//library/md.c ****     ctx->md_info->starts_func( ctx->md_ctx );
+ 592              		.loc 1 253 5 is_stmt 1 view .LVU136
+ 593 000c 4068     		ldr	r0, [r0, #4]
+ 594              	.LVL45:
+ 595              		.loc 1 253 5 is_stmt 0 view .LVU137
+ 596 000e 1B69     		ldr	r3, [r3, #16]
+ 597 0010 9847     		blx	r3
+ 598              	.LVL46:
+ 254:.././crypto/mbedtls//library/md.c **** 
+ 255:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 599              		.loc 1 255 5 is_stmt 1 view .LVU138
+ 600              		.loc 1 255 11 is_stmt 0 view .LVU139
+ 601 0012 0020     		movs	r0, #0
+ 602              	.L63:
+ 256:.././crypto/mbedtls//library/md.c **** }
+ 603              		.loc 1 256 1 view .LVU140
+ 604              		@ sp needed
+ 605 0014 10BD     		pop	{r4, pc}
+ 606              	.LVL47:
+ 607              	.L66:
+ 251:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 608              		.loc 1 251 15 view .LVU141
+ 609 0016 0148     		ldr	r0, .L67
+ 610              	.LVL48:
+ 251:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 611              		.loc 1 251 15 view .LVU142
+ 612 0018 FCE7     		b	.L63
+ 613              	.L68:
+ 614 001a C046     		.align	2
+ 615              	.L67:
+ 616 001c 00AFFFFF 		.word	-20736
+ 617              		.cfi_endproc
+ 618              	.LFE12:
+ 620              		.section	.text.mbedtls_md_update,"ax",%progbits
+ 621              		.align	1
+ 622              		.p2align 2,,3
+ 623              		.global	mbedtls_md_update
+ 624              		.syntax unified
+ 625              		.code	16
+ 626              		.thumb_func
+ 627              		.fpu softvfp
+ 629              	mbedtls_md_update:
+ 630              	.LVL49:
+ 631              	.LFB13:
+ 257:.././crypto/mbedtls//library/md.c **** 
+ 258:.././crypto/mbedtls//library/md.c **** int mbedtls_md_update( mbedtls_md_context_t *ctx, const unsigned char *input, size_t ilen )
+ 259:.././crypto/mbedtls//library/md.c **** {
+ 632              		.loc 1 259 1 is_stmt 1 view -0
+ 633              		.cfi_startproc
+ 634              		@ args = 0, pretend = 0, frame = 0
+ 635              		@ frame_needed = 0, uses_anonymous_args = 0
+ 260:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 636              		.loc 1 260 5 view .LVU144
+ 259:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 637              		.loc 1 259 1 is_stmt 0 view .LVU145
+ 638 0000 10B5     		push	{r4, lr}
+ 639              	.LCFI7:
+ 640              		.cfi_def_cfa_offset 8
+ 641              		.cfi_offset 4, -8
+ 642              		.cfi_offset 14, -4
+ 643              		.loc 1 260 7 view .LVU146
+ 644 0002 0028     		cmp	r0, #0
+ 645 0004 07D0     		beq	.L72
+ 646              		.loc 1 260 27 discriminator 1 view .LVU147
+ 647 0006 0368     		ldr	r3, [r0]
+ 648              		.loc 1 260 21 discriminator 1 view .LVU148
+ 649 0008 002B     		cmp	r3, #0
+ 650 000a 04D0     		beq	.L72
+ 261:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 262:.././crypto/mbedtls//library/md.c **** 
+ 263:.././crypto/mbedtls//library/md.c ****     ctx->md_info->update_func( ctx->md_ctx, input, ilen );
+ 651              		.loc 1 263 5 is_stmt 1 view .LVU149
+ 652 000c 4068     		ldr	r0, [r0, #4]
+ 653              	.LVL50:
+ 654              		.loc 1 263 5 is_stmt 0 view .LVU150
+ 655 000e 5B69     		ldr	r3, [r3, #20]
+ 656 0010 9847     		blx	r3
+ 657              	.LVL51:
+ 264:.././crypto/mbedtls//library/md.c **** 
+ 265:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 658              		.loc 1 265 5 is_stmt 1 view .LVU151
+ 659              		.loc 1 265 11 is_stmt 0 view .LVU152
+ 660 0012 0020     		movs	r0, #0
+ 661              	.L69:
+ 266:.././crypto/mbedtls//library/md.c **** }
+ 662              		.loc 1 266 1 view .LVU153
+ 663              		@ sp needed
+ 664 0014 10BD     		pop	{r4, pc}
+ 665              	.LVL52:
+ 666              	.L72:
+ 261:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 667              		.loc 1 261 15 view .LVU154
+ 668 0016 0148     		ldr	r0, .L73
+ 669              	.LVL53:
+ 261:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 670              		.loc 1 261 15 view .LVU155
+ 671 0018 FCE7     		b	.L69
+ 672              	.L74:
+ 673 001a C046     		.align	2
+ 674              	.L73:
+ 675 001c 00AFFFFF 		.word	-20736
+ 676              		.cfi_endproc
+ 677              	.LFE13:
+ 679              		.section	.text.mbedtls_md_finish,"ax",%progbits
+ 680              		.align	1
+ 681              		.p2align 2,,3
+ 682              		.global	mbedtls_md_finish
+ 683              		.syntax unified
+ 684              		.code	16
+ 685              		.thumb_func
+ 686              		.fpu softvfp
+ 688              	mbedtls_md_finish:
+ 689              	.LVL54:
+ 690              	.LFB14:
+ 267:.././crypto/mbedtls//library/md.c **** 
+ 268:.././crypto/mbedtls//library/md.c **** int mbedtls_md_finish( mbedtls_md_context_t *ctx, unsigned char *output )
+ 269:.././crypto/mbedtls//library/md.c **** {
+ 691              		.loc 1 269 1 is_stmt 1 view -0
+ 692              		.cfi_startproc
+ 693              		@ args = 0, pretend = 0, frame = 0
+ 694              		@ frame_needed = 0, uses_anonymous_args = 0
+ 270:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 695              		.loc 1 270 5 view .LVU157
+ 269:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 696              		.loc 1 269 1 is_stmt 0 view .LVU158
+ 697 0000 10B5     		push	{r4, lr}
+ 698              	.LCFI8:
+ 699              		.cfi_def_cfa_offset 8
+ 700              		.cfi_offset 4, -8
+ 701              		.cfi_offset 14, -4
+ 702              		.loc 1 270 7 view .LVU159
+ 703 0002 0028     		cmp	r0, #0
+ 704 0004 07D0     		beq	.L78
+ 705              		.loc 1 270 27 discriminator 1 view .LVU160
+ 706 0006 0368     		ldr	r3, [r0]
+ 707              		.loc 1 270 21 discriminator 1 view .LVU161
+ 708 0008 002B     		cmp	r3, #0
+ 709 000a 04D0     		beq	.L78
+ 271:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 272:.././crypto/mbedtls//library/md.c **** 
+ 273:.././crypto/mbedtls//library/md.c ****     ctx->md_info->finish_func( ctx->md_ctx, output );
+ 710              		.loc 1 273 5 is_stmt 1 view .LVU162
+ 711 000c 4068     		ldr	r0, [r0, #4]
+ 712              	.LVL55:
+ 713              		.loc 1 273 5 is_stmt 0 view .LVU163
+ 714 000e 9B69     		ldr	r3, [r3, #24]
+ 715 0010 9847     		blx	r3
+ 716              	.LVL56:
+ 274:.././crypto/mbedtls//library/md.c **** 
+ 275:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 717              		.loc 1 275 5 is_stmt 1 view .LVU164
+ 718              		.loc 1 275 11 is_stmt 0 view .LVU165
+ 719 0012 0020     		movs	r0, #0
+ 720              	.L75:
+ 276:.././crypto/mbedtls//library/md.c **** }
+ 721              		.loc 1 276 1 view .LVU166
+ 722              		@ sp needed
+ 723 0014 10BD     		pop	{r4, pc}
+ 724              	.LVL57:
+ 725              	.L78:
+ 271:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 726              		.loc 1 271 15 view .LVU167
+ 727 0016 0148     		ldr	r0, .L79
+ 728              	.LVL58:
+ 271:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 729              		.loc 1 271 15 view .LVU168
+ 730 0018 FCE7     		b	.L75
+ 731              	.L80:
+ 732 001a C046     		.align	2
+ 733              	.L79:
+ 734 001c 00AFFFFF 		.word	-20736
+ 735              		.cfi_endproc
+ 736              	.LFE14:
+ 738              		.section	.text.mbedtls_md,"ax",%progbits
+ 739              		.align	1
+ 740              		.p2align 2,,3
+ 741              		.global	mbedtls_md
+ 742              		.syntax unified
+ 743              		.code	16
+ 744              		.thumb_func
+ 745              		.fpu softvfp
+ 747              	mbedtls_md:
+ 748              	.LVL59:
+ 749              	.LFB15:
+ 277:.././crypto/mbedtls//library/md.c **** 
+ 278:.././crypto/mbedtls//library/md.c **** int mbedtls_md( const mbedtls_md_info_t *md_info, const unsigned char *input, size_t ilen,
+ 279:.././crypto/mbedtls//library/md.c ****             unsigned char *output )
+ 280:.././crypto/mbedtls//library/md.c **** {
+ 750              		.loc 1 280 1 is_stmt 1 view -0
+ 751              		.cfi_startproc
+ 752              		@ args = 0, pretend = 0, frame = 0
+ 753              		@ frame_needed = 0, uses_anonymous_args = 0
+ 281:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 754              		.loc 1 281 5 view .LVU170
+ 280:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 755              		.loc 1 280 1 is_stmt 0 view .LVU171
+ 756 0000 10B5     		push	{r4, lr}
+ 757              	.LCFI9:
+ 758              		.cfi_def_cfa_offset 8
+ 759              		.cfi_offset 4, -8
+ 760              		.cfi_offset 14, -4
+ 280:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 761              		.loc 1 280 1 view .LVU172
+ 762 0002 0400     		movs	r4, r0
+ 763 0004 0800     		movs	r0, r1
+ 764              	.LVL60:
+ 280:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 765              		.loc 1 280 1 view .LVU173
+ 766 0006 1100     		movs	r1, r2
+ 767              	.LVL61:
+ 280:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 768              		.loc 1 280 1 view .LVU174
+ 769 0008 1A00     		movs	r2, r3
+ 770              	.LVL62:
+ 771              		.loc 1 281 7 view .LVU175
+ 772 000a 002C     		cmp	r4, #0
+ 773 000c 03D0     		beq	.L83
+ 282:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 283:.././crypto/mbedtls//library/md.c **** 
+ 284:.././crypto/mbedtls//library/md.c ****     md_info->digest_func( input, ilen, output );
+ 774              		.loc 1 284 5 is_stmt 1 view .LVU176
+ 775 000e E369     		ldr	r3, [r4, #28]
+ 776              	.LVL63:
+ 777              		.loc 1 284 5 is_stmt 0 view .LVU177
+ 778 0010 9847     		blx	r3
+ 779              	.LVL64:
+ 285:.././crypto/mbedtls//library/md.c **** 
+ 286:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 780              		.loc 1 286 5 is_stmt 1 view .LVU178
+ 781              		.loc 1 286 11 is_stmt 0 view .LVU179
+ 782 0012 0020     		movs	r0, #0
+ 783              	.L81:
+ 287:.././crypto/mbedtls//library/md.c **** }
+ 784              		.loc 1 287 1 view .LVU180
+ 785              		@ sp needed
+ 786              	.LVL65:
+ 787              		.loc 1 287 1 view .LVU181
+ 788 0014 10BD     		pop	{r4, pc}
+ 789              	.LVL66:
+ 790              	.L83:
+ 282:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 791              		.loc 1 282 15 view .LVU182
+ 792 0016 0148     		ldr	r0, .L84
+ 793              	.LVL67:
+ 282:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 794              		.loc 1 282 15 view .LVU183
+ 795 0018 FCE7     		b	.L81
+ 796              	.L85:
+ 797 001a C046     		.align	2
+ 798              	.L84:
+ 799 001c 00AFFFFF 		.word	-20736
+ 800              		.cfi_endproc
+ 801              	.LFE15:
+ 803              		.section	.text.mbedtls_md_hmac_starts,"ax",%progbits
+ 804              		.align	1
+ 805              		.p2align 2,,3
+ 806              		.global	mbedtls_md_hmac_starts
+ 807              		.syntax unified
+ 808              		.code	16
+ 809              		.thumb_func
+ 810              		.fpu softvfp
+ 812              	mbedtls_md_hmac_starts:
+ 813              	.LVL68:
+ 814              	.LFB16:
+ 288:.././crypto/mbedtls//library/md.c **** 
+ 289:.././crypto/mbedtls//library/md.c **** #if defined(MBEDTLS_FS_IO)
+ 290:.././crypto/mbedtls//library/md.c **** int mbedtls_md_file( const mbedtls_md_info_t *md_info, const char *path, unsigned char *output )
+ 291:.././crypto/mbedtls//library/md.c **** {
+ 292:.././crypto/mbedtls//library/md.c ****     int ret;
+ 293:.././crypto/mbedtls//library/md.c ****     FILE *f;
+ 294:.././crypto/mbedtls//library/md.c ****     size_t n;
+ 295:.././crypto/mbedtls//library/md.c ****     mbedtls_md_context_t ctx;
+ 296:.././crypto/mbedtls//library/md.c ****     unsigned char buf[1024];
+ 297:.././crypto/mbedtls//library/md.c **** 
+ 298:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 299:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 300:.././crypto/mbedtls//library/md.c **** 
+ 301:.././crypto/mbedtls//library/md.c ****     if( ( f = fopen( path, "rb" ) ) == NULL )
+ 302:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_FILE_IO_ERROR );
+ 303:.././crypto/mbedtls//library/md.c **** 
+ 304:.././crypto/mbedtls//library/md.c ****     mbedtls_md_init( &ctx );
+ 305:.././crypto/mbedtls//library/md.c **** 
+ 306:.././crypto/mbedtls//library/md.c ****     if( ( ret = mbedtls_md_setup( &ctx, md_info, 0 ) ) != 0 )
+ 307:.././crypto/mbedtls//library/md.c ****         goto cleanup;
+ 308:.././crypto/mbedtls//library/md.c **** 
+ 309:.././crypto/mbedtls//library/md.c ****     md_info->starts_func( ctx.md_ctx );
+ 310:.././crypto/mbedtls//library/md.c **** 
+ 311:.././crypto/mbedtls//library/md.c ****     while( ( n = fread( buf, 1, sizeof( buf ), f ) ) > 0 )
+ 312:.././crypto/mbedtls//library/md.c ****         md_info->update_func( ctx.md_ctx, buf, n );
+ 313:.././crypto/mbedtls//library/md.c **** 
+ 314:.././crypto/mbedtls//library/md.c ****     if( ferror( f ) != 0 )
+ 315:.././crypto/mbedtls//library/md.c ****     {
+ 316:.././crypto/mbedtls//library/md.c ****         ret = MBEDTLS_ERR_MD_FILE_IO_ERROR;
+ 317:.././crypto/mbedtls//library/md.c ****         goto cleanup;
+ 318:.././crypto/mbedtls//library/md.c ****     }
+ 319:.././crypto/mbedtls//library/md.c **** 
+ 320:.././crypto/mbedtls//library/md.c ****     md_info->finish_func( ctx.md_ctx, output );
+ 321:.././crypto/mbedtls//library/md.c **** 
+ 322:.././crypto/mbedtls//library/md.c **** cleanup:
+ 323:.././crypto/mbedtls//library/md.c ****     fclose( f );
+ 324:.././crypto/mbedtls//library/md.c ****     mbedtls_md_free( &ctx );
+ 325:.././crypto/mbedtls//library/md.c **** 
+ 326:.././crypto/mbedtls//library/md.c ****     return( ret );
+ 327:.././crypto/mbedtls//library/md.c **** }
+ 328:.././crypto/mbedtls//library/md.c **** #endif /* MBEDTLS_FS_IO */
+ 329:.././crypto/mbedtls//library/md.c **** 
+ 330:.././crypto/mbedtls//library/md.c **** int mbedtls_md_hmac_starts( mbedtls_md_context_t *ctx, const unsigned char *key, size_t keylen )
+ 331:.././crypto/mbedtls//library/md.c **** {
+ 815              		.loc 1 331 1 is_stmt 1 view -0
+ 816              		.cfi_startproc
+ 817              		@ args = 0, pretend = 0, frame = 32
+ 818              		@ frame_needed = 0, uses_anonymous_args = 0
+ 332:.././crypto/mbedtls//library/md.c ****     unsigned char sum[MBEDTLS_MD_MAX_SIZE];
+ 819              		.loc 1 332 5 view .LVU185
+ 333:.././crypto/mbedtls//library/md.c ****     unsigned char *ipad, *opad;
+ 820              		.loc 1 333 5 view .LVU186
+ 334:.././crypto/mbedtls//library/md.c ****     size_t i;
+ 821              		.loc 1 334 5 view .LVU187
+ 335:.././crypto/mbedtls//library/md.c **** 
+ 336:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL || ctx->hmac_ctx == NULL )
+ 822              		.loc 1 336 5 view .LVU188
+ 331:.././crypto/mbedtls//library/md.c ****     unsigned char sum[MBEDTLS_MD_MAX_SIZE];
+ 823              		.loc 1 331 1 is_stmt 0 view .LVU189
+ 824 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 825              	.LCFI10:
+ 826              		.cfi_def_cfa_offset 20
+ 827              		.cfi_offset 4, -20
+ 828              		.cfi_offset 5, -16
+ 829              		.cfi_offset 6, -12
+ 830              		.cfi_offset 7, -8
+ 831              		.cfi_offset 14, -4
+ 832 0002 CE46     		mov	lr, r9
+ 833 0004 4746     		mov	r7, r8
+ 834 0006 80B5     		push	{r7, lr}
+ 835              	.LCFI11:
+ 836              		.cfi_def_cfa_offset 28
+ 837              		.cfi_offset 8, -28
+ 838              		.cfi_offset 9, -24
+ 839 0008 8046     		mov	r8, r0
+ 840 000a 0E00     		movs	r6, r1
+ 841 000c 9146     		mov	r9, r2
+ 842 000e 89B0     		sub	sp, sp, #36
+ 843              	.LCFI12:
+ 844              		.cfi_def_cfa_offset 64
+ 845              		.loc 1 336 7 view .LVU190
+ 846 0010 0028     		cmp	r0, #0
+ 847 0012 5AD0     		beq	.L94
+ 848              		.loc 1 336 27 discriminator 1 view .LVU191
+ 849 0014 0368     		ldr	r3, [r0]
+ 850              		.loc 1 336 21 discriminator 1 view .LVU192
+ 851 0016 002B     		cmp	r3, #0
+ 852 0018 57D0     		beq	.L94
+ 853              		.loc 1 336 51 discriminator 2 view .LVU193
+ 854 001a 8568     		ldr	r5, [r0, #8]
+ 855              		.loc 1 336 45 discriminator 2 view .LVU194
+ 856 001c 002D     		cmp	r5, #0
+ 857 001e 54D0     		beq	.L94
+ 337:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 338:.././crypto/mbedtls//library/md.c **** 
+ 339:.././crypto/mbedtls//library/md.c ****     if( keylen > (size_t) ctx->md_info->block_size )
+ 858              		.loc 1 339 5 is_stmt 1 view .LVU195
+ 859              		.loc 1 339 18 is_stmt 0 view .LVU196
+ 860 0020 DA68     		ldr	r2, [r3, #12]
+ 861              	.LVL69:
+ 862              		.loc 1 339 7 view .LVU197
+ 863 0022 4A45     		cmp	r2, r9
+ 864 0024 36D3     		bcc	.L100
+ 865              	.LVL70:
+ 866              	.L88:
+ 340:.././crypto/mbedtls//library/md.c ****     {
+ 341:.././crypto/mbedtls//library/md.c ****         ctx->md_info->starts_func( ctx->md_ctx );
+ 342:.././crypto/mbedtls//library/md.c ****         ctx->md_info->update_func( ctx->md_ctx, key, keylen );
+ 343:.././crypto/mbedtls//library/md.c ****         ctx->md_info->finish_func( ctx->md_ctx, sum );
+ 344:.././crypto/mbedtls//library/md.c **** 
+ 345:.././crypto/mbedtls//library/md.c ****         keylen = ctx->md_info->size;
+ 346:.././crypto/mbedtls//library/md.c ****         key = sum;
+ 347:.././crypto/mbedtls//library/md.c ****     }
+ 348:.././crypto/mbedtls//library/md.c **** 
+ 349:.././crypto/mbedtls//library/md.c ****     ipad = (unsigned char *) ctx->hmac_ctx;
+ 867              		.loc 1 349 5 is_stmt 1 view .LVU198
+ 350:.././crypto/mbedtls//library/md.c ****     opad = (unsigned char *) ctx->hmac_ctx + ctx->md_info->block_size;
+ 868              		.loc 1 350 5 view .LVU199
+ 351:.././crypto/mbedtls//library/md.c **** 
+ 352:.././crypto/mbedtls//library/md.c ****     memset( ipad, 0x36, ctx->md_info->block_size );
+ 869              		.loc 1 352 5 is_stmt 0 view .LVU200
+ 870 0026 3621     		movs	r1, #54
+ 871 0028 2800     		movs	r0, r5
+ 350:.././crypto/mbedtls//library/md.c ****     opad = (unsigned char *) ctx->hmac_ctx + ctx->md_info->block_size;
+ 872              		.loc 1 350 10 view .LVU201
+ 873 002a AF18     		adds	r7, r5, r2
+ 874              	.LVL71:
+ 875              		.loc 1 352 5 is_stmt 1 view .LVU202
+ 876 002c FFF7FEFF 		bl	memset
+ 877              	.LVL72:
+ 353:.././crypto/mbedtls//library/md.c ****     memset( opad, 0x5C, ctx->md_info->block_size );
+ 878              		.loc 1 353 5 view .LVU203
+ 879              		.loc 1 353 37 is_stmt 0 view .LVU204
+ 880 0030 4346     		mov	r3, r8
+ 881 0032 1B68     		ldr	r3, [r3]
+ 882              		.loc 1 353 5 view .LVU205
+ 883 0034 5C21     		movs	r1, #92
+ 884 0036 DA68     		ldr	r2, [r3, #12]
+ 885 0038 3800     		movs	r0, r7
+ 886 003a FFF7FEFF 		bl	memset
+ 887              	.LVL73:
+ 354:.././crypto/mbedtls//library/md.c **** 
+ 355:.././crypto/mbedtls//library/md.c ****     for( i = 0; i < keylen; i++ )
+ 888              		.loc 1 355 5 is_stmt 1 view .LVU206
+ 889              		.loc 1 355 17 view .LVU207
+ 890              		.loc 1 355 5 is_stmt 0 view .LVU208
+ 891 003e 4A46     		mov	r2, r9
+ 892              		.loc 1 355 12 view .LVU209
+ 893 0040 0023     		movs	r3, #0
+ 894              		.loc 1 355 5 view .LVU210
+ 895 0042 002A     		cmp	r2, #0
+ 896 0044 0AD0     		beq	.L91
+ 897              	.LVL74:
+ 898              	.L89:
+ 356:.././crypto/mbedtls//library/md.c ****     {
+ 357:.././crypto/mbedtls//library/md.c ****         ipad[i] = (unsigned char)( ipad[i] ^ key[i] );
+ 899              		.loc 1 357 9 is_stmt 1 discriminator 3 view .LVU211
+ 900              		.loc 1 357 19 is_stmt 0 discriminator 3 view .LVU212
+ 901 0046 EA5C     		ldrb	r2, [r5, r3]
+ 902 0048 F15C     		ldrb	r1, [r6, r3]
+ 903 004a 4A40     		eors	r2, r1
+ 904              		.loc 1 357 17 discriminator 3 view .LVU213
+ 905 004c EA54     		strb	r2, [r5, r3]
+ 358:.././crypto/mbedtls//library/md.c ****         opad[i] = (unsigned char)( opad[i] ^ key[i] );
+ 906              		.loc 1 358 9 is_stmt 1 discriminator 3 view .LVU214
+ 907              		.loc 1 358 19 is_stmt 0 discriminator 3 view .LVU215
+ 908 004e FC5C     		ldrb	r4, [r7, r3]
+ 909 0050 F25C     		ldrb	r2, [r6, r3]
+ 910 0052 5440     		eors	r4, r2
+ 911              		.loc 1 358 17 discriminator 3 view .LVU216
+ 912 0054 FC54     		strb	r4, [r7, r3]
+ 355:.././crypto/mbedtls//library/md.c ****     {
+ 913              		.loc 1 355 29 is_stmt 1 discriminator 3 view .LVU217
+ 355:.././crypto/mbedtls//library/md.c ****     {
+ 914              		.loc 1 355 30 is_stmt 0 discriminator 3 view .LVU218
+ 915 0056 0133     		adds	r3, r3, #1
+ 916              	.LVL75:
+ 355:.././crypto/mbedtls//library/md.c ****     {
+ 917              		.loc 1 355 17 is_stmt 1 discriminator 3 view .LVU219
+ 355:.././crypto/mbedtls//library/md.c ****     {
+ 918              		.loc 1 355 5 is_stmt 0 discriminator 3 view .LVU220
+ 919 0058 9945     		cmp	r9, r3
+ 920 005a F4D1     		bne	.L89
+ 921              	.LVL76:
+ 922              	.L91:
+ 923              	.LBB32:
+ 924              	.LBB33:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 925              		.loc 1 53 41 is_stmt 1 view .LVU221
+  53:.././crypto/mbedtls//library/md.c **** }
+ 926              		.loc 1 53 29 is_stmt 0 view .LVU222
+ 927 005c 6B46     		mov	r3, sp
+  53:.././crypto/mbedtls//library/md.c **** }
+ 928              		.loc 1 53 54 view .LVU223
+ 929 005e 0021     		movs	r1, #0
+ 930              	.LVL77:
+ 931              	.L90:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 932              		.loc 1 53 49 is_stmt 1 view .LVU224
+ 933 0060 1A00     		movs	r2, r3
+  53:.././crypto/mbedtls//library/md.c **** }
+ 934              		.loc 1 53 51 is_stmt 0 view .LVU225
+ 935 0062 0133     		adds	r3, r3, #1
+ 936              	.LVL78:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 937              		.loc 1 53 54 view .LVU226
+ 938 0064 1170     		strb	r1, [r2]
+  53:.././crypto/mbedtls//library/md.c **** }
+ 939              		.loc 1 53 41 is_stmt 1 view .LVU227
+ 940              	.LVL79:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 941              		.loc 1 53 41 is_stmt 0 view .LVU228
+ 942 0066 08AA     		add	r2, sp, #32
+ 943 0068 9342     		cmp	r3, r2
+ 944 006a F9D1     		bne	.L90
+ 945              	.LVL80:
+  53:.././crypto/mbedtls//library/md.c **** }
+ 946              		.loc 1 53 41 view .LVU229
+ 947              	.LBE33:
+ 948              	.LBE32:
+ 359:.././crypto/mbedtls//library/md.c ****     }
+ 360:.././crypto/mbedtls//library/md.c **** 
+ 361:.././crypto/mbedtls//library/md.c ****     mbedtls_zeroize( sum, sizeof( sum ) );
+ 362:.././crypto/mbedtls//library/md.c **** 
+ 363:.././crypto/mbedtls//library/md.c ****     ctx->md_info->starts_func( ctx->md_ctx );
+ 949              		.loc 1 363 5 is_stmt 1 view .LVU230
+ 950              		.loc 1 363 17 is_stmt 0 view .LVU231
+ 951 006c 4346     		mov	r3, r8
+ 952              		.loc 1 363 5 view .LVU232
+ 953 006e 4246     		mov	r2, r8
+ 954              		.loc 1 363 17 view .LVU233
+ 955 0070 1B68     		ldr	r3, [r3]
+ 956              		.loc 1 363 5 view .LVU234
+ 957 0072 5068     		ldr	r0, [r2, #4]
+ 958 0074 1B69     		ldr	r3, [r3, #16]
+ 959 0076 9847     		blx	r3
+ 960              	.LVL81:
+ 364:.././crypto/mbedtls//library/md.c ****     ctx->md_info->update_func( ctx->md_ctx, ipad, ctx->md_info->block_size );
+ 961              		.loc 1 364 5 is_stmt 1 view .LVU235
+ 962              		.loc 1 364 8 is_stmt 0 view .LVU236
+ 963 0078 4346     		mov	r3, r8
+ 964              		.loc 1 364 5 view .LVU237
+ 965 007a 4146     		mov	r1, r8
+ 966              		.loc 1 364 8 view .LVU238
+ 967 007c 1B68     		ldr	r3, [r3]
+ 968              		.loc 1 364 5 view .LVU239
+ 969 007e 4868     		ldr	r0, [r1, #4]
+ 970 0080 DA68     		ldr	r2, [r3, #12]
+ 971 0082 2900     		movs	r1, r5
+ 972 0084 5B69     		ldr	r3, [r3, #20]
+ 973 0086 9847     		blx	r3
+ 974              	.LVL82:
+ 365:.././crypto/mbedtls//library/md.c **** 
+ 366:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 975              		.loc 1 366 5 is_stmt 1 view .LVU240
+ 976              		.loc 1 366 11 is_stmt 0 view .LVU241
+ 977 0088 0020     		movs	r0, #0
+ 978              	.LVL83:
+ 979              	.L86:
+ 367:.././crypto/mbedtls//library/md.c **** }
+ 980              		.loc 1 367 1 view .LVU242
+ 981 008a 09B0     		add	sp, sp, #36
+ 982              		@ sp needed
+ 983              	.LVL84:
+ 984              	.LVL85:
+ 985              	.LVL86:
+ 986              		.loc 1 367 1 view .LVU243
+ 987 008c 0CBC     		pop	{r2, r3}
+ 988 008e 9046     		mov	r8, r2
+ 989 0090 9946     		mov	r9, r3
+ 990 0092 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 991              	.LVL87:
+ 992              	.L100:
+ 341:.././crypto/mbedtls//library/md.c ****         ctx->md_info->update_func( ctx->md_ctx, key, keylen );
+ 993              		.loc 1 341 9 is_stmt 1 view .LVU244
+ 994 0094 1B69     		ldr	r3, [r3, #16]
+ 995 0096 4068     		ldr	r0, [r0, #4]
+ 996              	.LVL88:
+ 341:.././crypto/mbedtls//library/md.c ****         ctx->md_info->update_func( ctx->md_ctx, key, keylen );
+ 997              		.loc 1 341 9 is_stmt 0 view .LVU245
+ 998 0098 9847     		blx	r3
+ 999              	.LVL89:
+ 342:.././crypto/mbedtls//library/md.c ****         ctx->md_info->finish_func( ctx->md_ctx, sum );
+ 1000              		.loc 1 342 9 is_stmt 1 view .LVU246
+ 342:.././crypto/mbedtls//library/md.c ****         ctx->md_info->finish_func( ctx->md_ctx, sum );
+ 1001              		.loc 1 342 21 is_stmt 0 view .LVU247
+ 1002 009a 4346     		mov	r3, r8
+ 342:.././crypto/mbedtls//library/md.c ****         ctx->md_info->finish_func( ctx->md_ctx, sum );
+ 1003              		.loc 1 342 9 view .LVU248
+ 1004 009c 4046     		mov	r0, r8
+ 342:.././crypto/mbedtls//library/md.c ****         ctx->md_info->finish_func( ctx->md_ctx, sum );
+ 1005              		.loc 1 342 21 view .LVU249
+ 1006 009e 1B68     		ldr	r3, [r3]
+ 342:.././crypto/mbedtls//library/md.c ****         ctx->md_info->finish_func( ctx->md_ctx, sum );
+ 1007              		.loc 1 342 9 view .LVU250
+ 1008 00a0 4A46     		mov	r2, r9
+ 1009 00a2 3100     		movs	r1, r6
+ 1010 00a4 5B69     		ldr	r3, [r3, #20]
+ 1011 00a6 4068     		ldr	r0, [r0, #4]
+ 1012 00a8 9847     		blx	r3
+ 1013              	.LVL90:
+ 343:.././crypto/mbedtls//library/md.c **** 
+ 1014              		.loc 1 343 9 is_stmt 1 view .LVU251
+ 343:.././crypto/mbedtls//library/md.c **** 
+ 1015              		.loc 1 343 21 is_stmt 0 view .LVU252
+ 1016 00aa 4346     		mov	r3, r8
+ 343:.././crypto/mbedtls//library/md.c **** 
+ 1017              		.loc 1 343 9 view .LVU253
+ 1018 00ac 4246     		mov	r2, r8
+ 343:.././crypto/mbedtls//library/md.c **** 
+ 1019              		.loc 1 343 21 view .LVU254
+ 1020 00ae 1B68     		ldr	r3, [r3]
+ 343:.././crypto/mbedtls//library/md.c **** 
+ 1021              		.loc 1 343 9 view .LVU255
+ 1022 00b0 5068     		ldr	r0, [r2, #4]
+ 1023 00b2 9B69     		ldr	r3, [r3, #24]
+ 1024 00b4 6946     		mov	r1, sp
+ 1025 00b6 9847     		blx	r3
+ 1026              	.LVL91:
+ 345:.././crypto/mbedtls//library/md.c ****         key = sum;
+ 1027              		.loc 1 345 9 is_stmt 1 view .LVU256
+ 345:.././crypto/mbedtls//library/md.c ****         key = sum;
+ 1028              		.loc 1 345 21 is_stmt 0 view .LVU257
+ 1029 00b8 4346     		mov	r3, r8
+ 1030 00ba 1B68     		ldr	r3, [r3]
+ 346:.././crypto/mbedtls//library/md.c ****     }
+ 1031              		.loc 1 346 13 view .LVU258
+ 1032 00bc 6E46     		mov	r6, sp
+ 1033              	.LVL92:
+ 345:.././crypto/mbedtls//library/md.c ****         key = sum;
+ 1034              		.loc 1 345 16 view .LVU259
+ 1035 00be 9A68     		ldr	r2, [r3, #8]
+ 1036 00c0 9146     		mov	r9, r2
+ 1037              	.LVL93:
+ 346:.././crypto/mbedtls//library/md.c ****     }
+ 1038              		.loc 1 346 9 is_stmt 1 view .LVU260
+ 346:.././crypto/mbedtls//library/md.c ****     }
+ 1039              		.loc 1 346 9 is_stmt 0 view .LVU261
+ 1040 00c2 DA68     		ldr	r2, [r3, #12]
+ 1041              	.LVL94:
+ 346:.././crypto/mbedtls//library/md.c ****     }
+ 1042              		.loc 1 346 9 view .LVU262
+ 1043 00c4 4346     		mov	r3, r8
+ 1044 00c6 9D68     		ldr	r5, [r3, #8]
+ 1045 00c8 ADE7     		b	.L88
+ 1046              	.LVL95:
+ 1047              	.L94:
+ 337:.././crypto/mbedtls//library/md.c **** 
+ 1048              		.loc 1 337 15 view .LVU263
+ 1049 00ca 0148     		ldr	r0, .L101
+ 1050              	.LVL96:
+ 337:.././crypto/mbedtls//library/md.c **** 
+ 1051              		.loc 1 337 15 view .LVU264
+ 1052 00cc DDE7     		b	.L86
+ 1053              	.L102:
+ 1054 00ce C046     		.align	2
+ 1055              	.L101:
+ 1056 00d0 00AFFFFF 		.word	-20736
+ 1057              		.cfi_endproc
+ 1058              	.LFE16:
+ 1060              		.section	.text.mbedtls_md_hmac_update,"ax",%progbits
+ 1061              		.align	1
+ 1062              		.p2align 2,,3
+ 1063              		.global	mbedtls_md_hmac_update
+ 1064              		.syntax unified
+ 1065              		.code	16
+ 1066              		.thumb_func
+ 1067              		.fpu softvfp
+ 1069              	mbedtls_md_hmac_update:
+ 1070              	.LVL97:
+ 1071              	.LFB17:
+ 368:.././crypto/mbedtls//library/md.c **** 
+ 369:.././crypto/mbedtls//library/md.c **** int mbedtls_md_hmac_update( mbedtls_md_context_t *ctx, const unsigned char *input, size_t ilen )
+ 370:.././crypto/mbedtls//library/md.c **** {
+ 1072              		.loc 1 370 1 is_stmt 1 view -0
+ 1073              		.cfi_startproc
+ 1074              		@ args = 0, pretend = 0, frame = 0
+ 1075              		@ frame_needed = 0, uses_anonymous_args = 0
+ 371:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL || ctx->hmac_ctx == NULL )
+ 1076              		.loc 1 371 5 view .LVU266
+ 370:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL || ctx->hmac_ctx == NULL )
+ 1077              		.loc 1 370 1 is_stmt 0 view .LVU267
+ 1078 0000 10B5     		push	{r4, lr}
+ 1079              	.LCFI13:
+ 1080              		.cfi_def_cfa_offset 8
+ 1081              		.cfi_offset 4, -8
+ 1082              		.cfi_offset 14, -4
+ 1083              		.loc 1 371 7 view .LVU268
+ 1084 0002 0028     		cmp	r0, #0
+ 1085 0004 0AD0     		beq	.L107
+ 1086              		.loc 1 371 27 discriminator 1 view .LVU269
+ 1087 0006 0368     		ldr	r3, [r0]
+ 1088              		.loc 1 371 21 discriminator 1 view .LVU270
+ 1089 0008 002B     		cmp	r3, #0
+ 1090 000a 07D0     		beq	.L107
+ 1091              		.loc 1 371 45 discriminator 2 view .LVU271
+ 1092 000c 8468     		ldr	r4, [r0, #8]
+ 1093 000e 002C     		cmp	r4, #0
+ 1094 0010 04D0     		beq	.L107
+ 372:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 373:.././crypto/mbedtls//library/md.c **** 
+ 374:.././crypto/mbedtls//library/md.c ****     ctx->md_info->update_func( ctx->md_ctx, input, ilen );
+ 1095              		.loc 1 374 5 is_stmt 1 view .LVU272
+ 1096 0012 4068     		ldr	r0, [r0, #4]
+ 1097              	.LVL98:
+ 1098              		.loc 1 374 5 is_stmt 0 view .LVU273
+ 1099 0014 5B69     		ldr	r3, [r3, #20]
+ 1100 0016 9847     		blx	r3
+ 1101              	.LVL99:
+ 375:.././crypto/mbedtls//library/md.c **** 
+ 376:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 1102              		.loc 1 376 5 is_stmt 1 view .LVU274
+ 1103              		.loc 1 376 11 is_stmt 0 view .LVU275
+ 1104 0018 0020     		movs	r0, #0
+ 1105              	.L103:
+ 377:.././crypto/mbedtls//library/md.c **** }
+ 1106              		.loc 1 377 1 view .LVU276
+ 1107              		@ sp needed
+ 1108 001a 10BD     		pop	{r4, pc}
+ 1109              	.LVL100:
+ 1110              	.L107:
+ 372:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1111              		.loc 1 372 15 view .LVU277
+ 1112 001c 0048     		ldr	r0, .L108
+ 1113              	.LVL101:
+ 372:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1114              		.loc 1 372 15 view .LVU278
+ 1115 001e FCE7     		b	.L103
+ 1116              	.L109:
+ 1117              		.align	2
+ 1118              	.L108:
+ 1119 0020 00AFFFFF 		.word	-20736
+ 1120              		.cfi_endproc
+ 1121              	.LFE17:
+ 1123              		.section	.text.mbedtls_md_hmac_finish,"ax",%progbits
+ 1124              		.align	1
+ 1125              		.p2align 2,,3
+ 1126              		.global	mbedtls_md_hmac_finish
+ 1127              		.syntax unified
+ 1128              		.code	16
+ 1129              		.thumb_func
+ 1130              		.fpu softvfp
+ 1132              	mbedtls_md_hmac_finish:
+ 1133              	.LVL102:
+ 1134              	.LFB18:
+ 378:.././crypto/mbedtls//library/md.c **** 
+ 379:.././crypto/mbedtls//library/md.c **** int mbedtls_md_hmac_finish( mbedtls_md_context_t *ctx, unsigned char *output )
+ 380:.././crypto/mbedtls//library/md.c **** {
+ 1135              		.loc 1 380 1 is_stmt 1 view -0
+ 1136              		.cfi_startproc
+ 1137              		@ args = 0, pretend = 0, frame = 32
+ 1138              		@ frame_needed = 0, uses_anonymous_args = 0
+ 381:.././crypto/mbedtls//library/md.c ****     unsigned char tmp[MBEDTLS_MD_MAX_SIZE];
+ 1139              		.loc 1 381 5 view .LVU280
+ 382:.././crypto/mbedtls//library/md.c ****     unsigned char *opad;
+ 1140              		.loc 1 382 5 view .LVU281
+ 383:.././crypto/mbedtls//library/md.c **** 
+ 384:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL || ctx->hmac_ctx == NULL )
+ 1141              		.loc 1 384 5 view .LVU282
+ 380:.././crypto/mbedtls//library/md.c ****     unsigned char tmp[MBEDTLS_MD_MAX_SIZE];
+ 1142              		.loc 1 380 1 is_stmt 0 view .LVU283
+ 1143 0000 70B5     		push	{r4, r5, r6, lr}
+ 1144              	.LCFI14:
+ 1145              		.cfi_def_cfa_offset 16
+ 1146              		.cfi_offset 4, -16
+ 1147              		.cfi_offset 5, -12
+ 1148              		.cfi_offset 6, -8
+ 1149              		.cfi_offset 14, -4
+ 1150 0002 0400     		movs	r4, r0
+ 1151 0004 0E00     		movs	r6, r1
+ 1152 0006 88B0     		sub	sp, sp, #32
+ 1153              	.LCFI15:
+ 1154              		.cfi_def_cfa_offset 48
+ 1155              		.loc 1 384 7 view .LVU284
+ 1156 0008 0028     		cmp	r0, #0
+ 1157 000a 24D0     		beq	.L114
+ 1158              		.loc 1 384 27 discriminator 1 view .LVU285
+ 1159 000c 0368     		ldr	r3, [r0]
+ 1160              		.loc 1 384 21 discriminator 1 view .LVU286
+ 1161 000e 002B     		cmp	r3, #0
+ 1162 0010 21D0     		beq	.L114
+ 1163              		.loc 1 384 51 discriminator 2 view .LVU287
+ 1164 0012 8568     		ldr	r5, [r0, #8]
+ 1165              		.loc 1 384 45 discriminator 2 view .LVU288
+ 1166 0014 002D     		cmp	r5, #0
+ 1167 0016 1ED0     		beq	.L114
+ 385:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 386:.././crypto/mbedtls//library/md.c **** 
+ 387:.././crypto/mbedtls//library/md.c ****     opad = (unsigned char *) ctx->hmac_ctx + ctx->md_info->block_size;
+ 1168              		.loc 1 387 5 is_stmt 1 view .LVU289
+ 1169              		.loc 1 387 10 is_stmt 0 view .LVU290
+ 1170 0018 DA68     		ldr	r2, [r3, #12]
+ 388:.././crypto/mbedtls//library/md.c **** 
+ 389:.././crypto/mbedtls//library/md.c ****     ctx->md_info->finish_func( ctx->md_ctx, tmp );
+ 1171              		.loc 1 389 5 view .LVU291
+ 1172 001a 6946     		mov	r1, sp
+ 1173              	.LVL103:
+ 387:.././crypto/mbedtls//library/md.c **** 
+ 1174              		.loc 1 387 10 view .LVU292
+ 1175 001c 9446     		mov	ip, r2
+ 1176              		.loc 1 389 5 view .LVU293
+ 1177 001e 9B69     		ldr	r3, [r3, #24]
+ 1178 0020 4068     		ldr	r0, [r0, #4]
+ 1179              	.LVL104:
+ 387:.././crypto/mbedtls//library/md.c **** 
+ 1180              		.loc 1 387 10 view .LVU294
+ 1181 0022 6544     		add	r5, r5, ip
+ 1182              	.LVL105:
+ 1183              		.loc 1 389 5 is_stmt 1 view .LVU295
+ 1184 0024 9847     		blx	r3
+ 1185              	.LVL106:
+ 390:.././crypto/mbedtls//library/md.c ****     ctx->md_info->starts_func( ctx->md_ctx );
+ 1186              		.loc 1 390 5 view .LVU296
+ 1187              		.loc 1 390 17 is_stmt 0 view .LVU297
+ 1188 0026 2368     		ldr	r3, [r4]
+ 1189              		.loc 1 390 5 view .LVU298
+ 1190 0028 6068     		ldr	r0, [r4, #4]
+ 1191 002a 1B69     		ldr	r3, [r3, #16]
+ 1192 002c 9847     		blx	r3
+ 1193              	.LVL107:
+ 391:.././crypto/mbedtls//library/md.c ****     ctx->md_info->update_func( ctx->md_ctx, opad, ctx->md_info->block_size );
+ 1194              		.loc 1 391 5 is_stmt 1 view .LVU299
+ 1195              		.loc 1 391 8 is_stmt 0 view .LVU300
+ 1196 002e 2368     		ldr	r3, [r4]
+ 1197              		.loc 1 391 5 view .LVU301
+ 1198 0030 2900     		movs	r1, r5
+ 1199 0032 DA68     		ldr	r2, [r3, #12]
+ 1200 0034 6068     		ldr	r0, [r4, #4]
+ 1201 0036 5B69     		ldr	r3, [r3, #20]
+ 1202 0038 9847     		blx	r3
+ 1203              	.LVL108:
+ 392:.././crypto/mbedtls//library/md.c ****     ctx->md_info->update_func( ctx->md_ctx, tmp, ctx->md_info->size );
+ 1204              		.loc 1 392 5 is_stmt 1 view .LVU302
+ 1205              		.loc 1 392 8 is_stmt 0 view .LVU303
+ 1206 003a 2368     		ldr	r3, [r4]
+ 1207              		.loc 1 392 5 view .LVU304
+ 1208 003c 6946     		mov	r1, sp
+ 1209 003e 9A68     		ldr	r2, [r3, #8]
+ 1210 0040 6068     		ldr	r0, [r4, #4]
+ 1211 0042 5B69     		ldr	r3, [r3, #20]
+ 1212 0044 9847     		blx	r3
+ 1213              	.LVL109:
+ 393:.././crypto/mbedtls//library/md.c ****     ctx->md_info->finish_func( ctx->md_ctx, output );
+ 1214              		.loc 1 393 5 is_stmt 1 view .LVU305
+ 1215              		.loc 1 393 17 is_stmt 0 view .LVU306
+ 1216 0046 2368     		ldr	r3, [r4]
+ 1217              		.loc 1 393 5 view .LVU307
+ 1218 0048 6068     		ldr	r0, [r4, #4]
+ 1219 004a 3100     		movs	r1, r6
+ 1220 004c 9B69     		ldr	r3, [r3, #24]
+ 1221 004e 9847     		blx	r3
+ 1222              	.LVL110:
+ 394:.././crypto/mbedtls//library/md.c **** 
+ 395:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 1223              		.loc 1 395 5 is_stmt 1 view .LVU308
+ 1224              		.loc 1 395 11 is_stmt 0 view .LVU309
+ 1225 0050 0020     		movs	r0, #0
+ 1226              	.LVL111:
+ 1227              	.L110:
+ 396:.././crypto/mbedtls//library/md.c **** }
+ 1228              		.loc 1 396 1 view .LVU310
+ 1229 0052 08B0     		add	sp, sp, #32
+ 1230              		@ sp needed
+ 1231              	.LVL112:
+ 1232              	.LVL113:
+ 1233              		.loc 1 396 1 view .LVU311
+ 1234 0054 70BD     		pop	{r4, r5, r6, pc}
+ 1235              	.LVL114:
+ 1236              	.L114:
+ 385:.././crypto/mbedtls//library/md.c **** 
+ 1237              		.loc 1 385 15 view .LVU312
+ 1238 0056 0148     		ldr	r0, .L115
+ 1239              	.LVL115:
+ 385:.././crypto/mbedtls//library/md.c **** 
+ 1240              		.loc 1 385 15 view .LVU313
+ 1241 0058 FBE7     		b	.L110
+ 1242              	.L116:
+ 1243 005a C046     		.align	2
+ 1244              	.L115:
+ 1245 005c 00AFFFFF 		.word	-20736
+ 1246              		.cfi_endproc
+ 1247              	.LFE18:
+ 1249              		.section	.text.mbedtls_md_hmac_reset,"ax",%progbits
+ 1250              		.align	1
+ 1251              		.p2align 2,,3
+ 1252              		.global	mbedtls_md_hmac_reset
+ 1253              		.syntax unified
+ 1254              		.code	16
+ 1255              		.thumb_func
+ 1256              		.fpu softvfp
+ 1258              	mbedtls_md_hmac_reset:
+ 1259              	.LVL116:
+ 1260              	.LFB19:
+ 397:.././crypto/mbedtls//library/md.c **** 
+ 398:.././crypto/mbedtls//library/md.c **** int mbedtls_md_hmac_reset( mbedtls_md_context_t *ctx )
+ 399:.././crypto/mbedtls//library/md.c **** {
+ 1261              		.loc 1 399 1 is_stmt 1 view -0
+ 1262              		.cfi_startproc
+ 1263              		@ args = 0, pretend = 0, frame = 0
+ 1264              		@ frame_needed = 0, uses_anonymous_args = 0
+ 400:.././crypto/mbedtls//library/md.c ****     unsigned char *ipad;
+ 1265              		.loc 1 400 5 view .LVU315
+ 401:.././crypto/mbedtls//library/md.c **** 
+ 402:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL || ctx->hmac_ctx == NULL )
+ 1266              		.loc 1 402 5 view .LVU316
+ 399:.././crypto/mbedtls//library/md.c ****     unsigned char *ipad;
+ 1267              		.loc 1 399 1 is_stmt 0 view .LVU317
+ 1268 0000 70B5     		push	{r4, r5, r6, lr}
+ 1269              	.LCFI16:
+ 1270              		.cfi_def_cfa_offset 16
+ 1271              		.cfi_offset 4, -16
+ 1272              		.cfi_offset 5, -12
+ 1273              		.cfi_offset 6, -8
+ 1274              		.cfi_offset 14, -4
+ 399:.././crypto/mbedtls//library/md.c ****     unsigned char *ipad;
+ 1275              		.loc 1 399 1 view .LVU318
+ 1276 0002 041E     		subs	r4, r0, #0
+ 1277              		.loc 1 402 7 view .LVU319
+ 1278 0004 10D0     		beq	.L121
+ 1279              		.loc 1 402 27 discriminator 1 view .LVU320
+ 1280 0006 0368     		ldr	r3, [r0]
+ 1281              		.loc 1 402 21 discriminator 1 view .LVU321
+ 1282 0008 002B     		cmp	r3, #0
+ 1283 000a 0DD0     		beq	.L121
+ 1284              		.loc 1 402 51 discriminator 2 view .LVU322
+ 1285 000c 8568     		ldr	r5, [r0, #8]
+ 1286              		.loc 1 402 45 discriminator 2 view .LVU323
+ 1287 000e 002D     		cmp	r5, #0
+ 1288 0010 0AD0     		beq	.L121
+ 403:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 404:.././crypto/mbedtls//library/md.c **** 
+ 405:.././crypto/mbedtls//library/md.c ****     ipad = (unsigned char *) ctx->hmac_ctx;
+ 1289              		.loc 1 405 5 is_stmt 1 view .LVU324
+ 1290              	.LVL117:
+ 406:.././crypto/mbedtls//library/md.c **** 
+ 407:.././crypto/mbedtls//library/md.c ****     ctx->md_info->starts_func( ctx->md_ctx );
+ 1291              		.loc 1 407 5 view .LVU325
+ 1292 0012 1B69     		ldr	r3, [r3, #16]
+ 1293 0014 4068     		ldr	r0, [r0, #4]
+ 1294              	.LVL118:
+ 1295              		.loc 1 407 5 is_stmt 0 view .LVU326
+ 1296 0016 9847     		blx	r3
+ 1297              	.LVL119:
+ 408:.././crypto/mbedtls//library/md.c ****     ctx->md_info->update_func( ctx->md_ctx, ipad, ctx->md_info->block_size );
+ 1298              		.loc 1 408 5 is_stmt 1 view .LVU327
+ 1299              		.loc 1 408 8 is_stmt 0 view .LVU328
+ 1300 0018 2368     		ldr	r3, [r4]
+ 1301              		.loc 1 408 5 view .LVU329
+ 1302 001a 6068     		ldr	r0, [r4, #4]
+ 1303 001c DA68     		ldr	r2, [r3, #12]
+ 1304 001e 2900     		movs	r1, r5
+ 1305 0020 5B69     		ldr	r3, [r3, #20]
+ 1306 0022 9847     		blx	r3
+ 1307              	.LVL120:
+ 409:.././crypto/mbedtls//library/md.c **** 
+ 410:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 1308              		.loc 1 410 5 is_stmt 1 view .LVU330
+ 1309              		.loc 1 410 11 is_stmt 0 view .LVU331
+ 1310 0024 0020     		movs	r0, #0
+ 1311              	.LVL121:
+ 1312              	.L117:
+ 411:.././crypto/mbedtls//library/md.c **** }
+ 1313              		.loc 1 411 1 view .LVU332
+ 1314              		@ sp needed
+ 1315              	.LVL122:
+ 1316              		.loc 1 411 1 view .LVU333
+ 1317 0026 70BD     		pop	{r4, r5, r6, pc}
+ 1318              	.LVL123:
+ 1319              	.L121:
+ 403:.././crypto/mbedtls//library/md.c **** 
+ 1320              		.loc 1 403 15 view .LVU334
+ 1321 0028 0048     		ldr	r0, .L122
+ 1322              	.LVL124:
+ 403:.././crypto/mbedtls//library/md.c **** 
+ 1323              		.loc 1 403 15 view .LVU335
+ 1324 002a FCE7     		b	.L117
+ 1325              	.L123:
+ 1326              		.align	2
+ 1327              	.L122:
+ 1328 002c 00AFFFFF 		.word	-20736
+ 1329              		.cfi_endproc
+ 1330              	.LFE19:
+ 1332              		.section	.text.mbedtls_md_hmac,"ax",%progbits
+ 1333              		.align	1
+ 1334              		.p2align 2,,3
+ 1335              		.global	mbedtls_md_hmac
+ 1336              		.syntax unified
+ 1337              		.code	16
+ 1338              		.thumb_func
+ 1339              		.fpu softvfp
+ 1341              	mbedtls_md_hmac:
+ 1342              	.LVL125:
+ 1343              	.LFB20:
+ 412:.././crypto/mbedtls//library/md.c **** 
+ 413:.././crypto/mbedtls//library/md.c **** int mbedtls_md_hmac( const mbedtls_md_info_t *md_info, const unsigned char *key, size_t keylen,
+ 414:.././crypto/mbedtls//library/md.c ****                 const unsigned char *input, size_t ilen,
+ 415:.././crypto/mbedtls//library/md.c ****                 unsigned char *output )
+ 416:.././crypto/mbedtls//library/md.c **** {
+ 1344              		.loc 1 416 1 is_stmt 1 view -0
+ 1345              		.cfi_startproc
+ 1346              		@ args = 8, pretend = 0, frame = 24
+ 1347              		@ frame_needed = 0, uses_anonymous_args = 0
+ 417:.././crypto/mbedtls//library/md.c ****     mbedtls_md_context_t ctx;
+ 1348              		.loc 1 417 5 view .LVU337
+ 418:.././crypto/mbedtls//library/md.c ****     int ret;
+ 1349              		.loc 1 418 5 view .LVU338
+ 419:.././crypto/mbedtls//library/md.c **** 
+ 420:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 1350              		.loc 1 420 5 view .LVU339
+ 416:.././crypto/mbedtls//library/md.c ****     mbedtls_md_context_t ctx;
+ 1351              		.loc 1 416 1 is_stmt 0 view .LVU340
+ 1352 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1353              	.LCFI17:
+ 1354              		.cfi_def_cfa_offset 20
+ 1355              		.cfi_offset 4, -20
+ 1356              		.cfi_offset 5, -16
+ 1357              		.cfi_offset 6, -12
+ 1358              		.cfi_offset 7, -8
+ 1359              		.cfi_offset 14, -4
+ 1360 0002 0400     		movs	r4, r0
+ 1361 0004 0D00     		movs	r5, r1
+ 1362 0006 1600     		movs	r6, r2
+ 1363 0008 1F00     		movs	r7, r3
+ 1364 000a 87B0     		sub	sp, sp, #28
+ 1365              	.LCFI18:
+ 1366              		.cfi_def_cfa_offset 48
+ 1367              		.loc 1 420 7 view .LVU341
+ 1368 000c 0028     		cmp	r0, #0
+ 1369 000e 29D0     		beq	.L127
+ 421:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 422:.././crypto/mbedtls//library/md.c **** 
+ 423:.././crypto/mbedtls//library/md.c ****     mbedtls_md_init( &ctx );
+ 1370              		.loc 1 423 5 is_stmt 1 view .LVU342
+ 1371              	.LVL126:
+ 1372              	.LBB34:
+ 1373              	.LBI34:
+ 181:.././crypto/mbedtls//library/md.c **** {
+ 1374              		.loc 1 181 6 view .LVU343
+ 1375              	.LBB35:
+ 183:.././crypto/mbedtls//library/md.c **** }
+ 1376              		.loc 1 183 5 view .LVU344
+ 1377 0010 0C22     		movs	r2, #12
+ 1378              	.LVL127:
+ 183:.././crypto/mbedtls//library/md.c **** }
+ 1379              		.loc 1 183 5 is_stmt 0 view .LVU345
+ 1380 0012 0021     		movs	r1, #0
+ 1381              	.LVL128:
+ 183:.././crypto/mbedtls//library/md.c **** }
+ 1382              		.loc 1 183 5 view .LVU346
+ 1383 0014 03A8     		add	r0, sp, #12
+ 1384              	.LVL129:
+ 183:.././crypto/mbedtls//library/md.c **** }
+ 1385              		.loc 1 183 5 view .LVU347
+ 1386 0016 FFF7FEFF 		bl	memset
+ 1387              	.LVL130:
+ 183:.././crypto/mbedtls//library/md.c **** }
+ 1388              		.loc 1 183 5 view .LVU348
+ 1389              	.LBE35:
+ 1390              	.LBE34:
+ 424:.././crypto/mbedtls//library/md.c **** 
+ 425:.././crypto/mbedtls//library/md.c ****     if( ( ret = mbedtls_md_setup( &ctx, md_info, 1 ) ) != 0 )
+ 1391              		.loc 1 425 5 is_stmt 1 view .LVU349
+ 1392              		.loc 1 425 17 is_stmt 0 view .LVU350
+ 1393 001a 2100     		movs	r1, r4
+ 1394 001c 0122     		movs	r2, #1
+ 1395 001e 03A8     		add	r0, sp, #12
+ 1396 0020 FFF7FEFF 		bl	mbedtls_md_setup
+ 1397              	.LVL131:
+ 1398 0024 041E     		subs	r4, r0, #0
+ 1399              	.LVL132:
+ 1400              		.loc 1 425 7 view .LVU351
+ 1401 0026 02D0     		beq	.L134
+ 1402              	.LVL133:
+ 1403              	.L124:
+ 426:.././crypto/mbedtls//library/md.c ****         return( ret );
+ 427:.././crypto/mbedtls//library/md.c **** 
+ 428:.././crypto/mbedtls//library/md.c ****     mbedtls_md_hmac_starts( &ctx, key, keylen );
+ 429:.././crypto/mbedtls//library/md.c ****     mbedtls_md_hmac_update( &ctx, input, ilen );
+ 430:.././crypto/mbedtls//library/md.c ****     mbedtls_md_hmac_finish( &ctx, output );
+ 431:.././crypto/mbedtls//library/md.c **** 
+ 432:.././crypto/mbedtls//library/md.c ****     mbedtls_md_free( &ctx );
+ 433:.././crypto/mbedtls//library/md.c **** 
+ 434:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 435:.././crypto/mbedtls//library/md.c **** }
+ 1404              		.loc 1 435 1 view .LVU352
+ 1405 0028 2000     		movs	r0, r4
+ 1406 002a 07B0     		add	sp, sp, #28
+ 1407              		@ sp needed
+ 1408              	.LVL134:
+ 1409              	.LVL135:
+ 1410              	.LVL136:
+ 1411              		.loc 1 435 1 view .LVU353
+ 1412 002c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1413              	.LVL137:
+ 1414              	.L134:
+ 428:.././crypto/mbedtls//library/md.c ****     mbedtls_md_hmac_update( &ctx, input, ilen );
+ 1415              		.loc 1 428 5 is_stmt 1 view .LVU354
+ 1416 002e 3200     		movs	r2, r6
+ 1417 0030 2900     		movs	r1, r5
+ 1418 0032 03A8     		add	r0, sp, #12
+ 1419              	.LVL138:
+ 428:.././crypto/mbedtls//library/md.c ****     mbedtls_md_hmac_update( &ctx, input, ilen );
+ 1420              		.loc 1 428 5 is_stmt 0 view .LVU355
+ 1421 0034 FFF7FEFF 		bl	mbedtls_md_hmac_starts
+ 1422              	.LVL139:
+ 429:.././crypto/mbedtls//library/md.c ****     mbedtls_md_hmac_finish( &ctx, output );
+ 1423              		.loc 1 429 5 is_stmt 1 view .LVU356
+ 1424              	.LBB36:
+ 1425              	.LBI36:
+ 369:.././crypto/mbedtls//library/md.c **** {
+ 1426              		.loc 1 369 5 view .LVU357
+ 1427              	.LBB37:
+ 371:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1428              		.loc 1 371 5 view .LVU358
+ 371:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1429              		.loc 1 371 27 is_stmt 0 view .LVU359
+ 1430 0038 039B     		ldr	r3, [sp, #12]
+ 371:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1431              		.loc 1 371 21 view .LVU360
+ 1432 003a 002B     		cmp	r3, #0
+ 1433 003c 0AD0     		beq	.L126
+ 371:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1434              		.loc 1 371 45 view .LVU361
+ 1435 003e 059A     		ldr	r2, [sp, #20]
+ 1436 0040 0192     		str	r2, [sp, #4]
+ 1437 0042 002A     		cmp	r2, #0
+ 1438 0044 06D0     		beq	.L126
+ 374:.././crypto/mbedtls//library/md.c **** 
+ 1439              		.loc 1 374 5 is_stmt 1 view .LVU362
+ 1440 0046 049A     		ldr	r2, [sp, #16]
+ 1441 0048 3900     		movs	r1, r7
+ 1442 004a 0192     		str	r2, [sp, #4]
+ 1443 004c 5B69     		ldr	r3, [r3, #20]
+ 1444 004e 0C9A     		ldr	r2, [sp, #48]
+ 1445 0050 0198     		ldr	r0, [sp, #4]
+ 1446 0052 9847     		blx	r3
+ 1447              	.LVL140:
+ 376:.././crypto/mbedtls//library/md.c **** }
+ 1448              		.loc 1 376 5 view .LVU363
+ 1449              	.L126:
+ 376:.././crypto/mbedtls//library/md.c **** }
+ 1450              		.loc 1 376 5 is_stmt 0 view .LVU364
+ 1451              	.LBE37:
+ 1452              	.LBE36:
+ 430:.././crypto/mbedtls//library/md.c **** 
+ 1453              		.loc 1 430 5 is_stmt 1 view .LVU365
+ 1454 0054 0D99     		ldr	r1, [sp, #52]
+ 1455 0056 03A8     		add	r0, sp, #12
+ 1456 0058 FFF7FEFF 		bl	mbedtls_md_hmac_finish
+ 1457              	.LVL141:
+ 432:.././crypto/mbedtls//library/md.c **** 
+ 1458              		.loc 1 432 5 view .LVU366
+ 1459 005c 03A8     		add	r0, sp, #12
+ 1460 005e FFF7FEFF 		bl	mbedtls_md_free
+ 1461              	.LVL142:
+ 434:.././crypto/mbedtls//library/md.c **** }
+ 1462              		.loc 1 434 5 view .LVU367
+ 434:.././crypto/mbedtls//library/md.c **** }
+ 1463              		.loc 1 434 11 is_stmt 0 view .LVU368
+ 1464 0062 E1E7     		b	.L124
+ 1465              	.LVL143:
+ 1466              	.L127:
+ 421:.././crypto/mbedtls//library/md.c **** 
+ 1467              		.loc 1 421 15 view .LVU369
+ 1468 0064 004C     		ldr	r4, .L135
+ 1469 0066 DFE7     		b	.L124
+ 1470              	.L136:
+ 1471              		.align	2
+ 1472              	.L135:
+ 1473 0068 00AFFFFF 		.word	-20736
+ 1474              		.cfi_endproc
+ 1475              	.LFE20:
+ 1477              		.section	.text.mbedtls_md_process,"ax",%progbits
+ 1478              		.align	1
+ 1479              		.p2align 2,,3
+ 1480              		.global	mbedtls_md_process
+ 1481              		.syntax unified
+ 1482              		.code	16
+ 1483              		.thumb_func
+ 1484              		.fpu softvfp
+ 1486              	mbedtls_md_process:
+ 1487              	.LVL144:
+ 1488              	.LFB21:
+ 436:.././crypto/mbedtls//library/md.c **** 
+ 437:.././crypto/mbedtls//library/md.c **** int mbedtls_md_process( mbedtls_md_context_t *ctx, const unsigned char *data )
+ 438:.././crypto/mbedtls//library/md.c **** {
+ 1489              		.loc 1 438 1 is_stmt 1 view -0
+ 1490              		.cfi_startproc
+ 1491              		@ args = 0, pretend = 0, frame = 0
+ 1492              		@ frame_needed = 0, uses_anonymous_args = 0
+ 439:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 1493              		.loc 1 439 5 view .LVU371
+ 438:.././crypto/mbedtls//library/md.c ****     if( ctx == NULL || ctx->md_info == NULL )
+ 1494              		.loc 1 438 1 is_stmt 0 view .LVU372
+ 1495 0000 10B5     		push	{r4, lr}
+ 1496              	.LCFI19:
+ 1497              		.cfi_def_cfa_offset 8
+ 1498              		.cfi_offset 4, -8
+ 1499              		.cfi_offset 14, -4
+ 1500              		.loc 1 439 7 view .LVU373
+ 1501 0002 0028     		cmp	r0, #0
+ 1502 0004 07D0     		beq	.L140
+ 1503              		.loc 1 439 27 discriminator 1 view .LVU374
+ 1504 0006 0368     		ldr	r3, [r0]
+ 1505              		.loc 1 439 21 discriminator 1 view .LVU375
+ 1506 0008 002B     		cmp	r3, #0
+ 1507 000a 04D0     		beq	.L140
+ 440:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 441:.././crypto/mbedtls//library/md.c **** 
+ 442:.././crypto/mbedtls//library/md.c ****     ctx->md_info->process_func( ctx->md_ctx, data );
+ 1508              		.loc 1 442 5 is_stmt 1 view .LVU376
+ 1509 000c 4068     		ldr	r0, [r0, #4]
+ 1510              	.LVL145:
+ 1511              		.loc 1 442 5 is_stmt 0 view .LVU377
+ 1512 000e DB6A     		ldr	r3, [r3, #44]
+ 1513 0010 9847     		blx	r3
+ 1514              	.LVL146:
+ 443:.././crypto/mbedtls//library/md.c **** 
+ 444:.././crypto/mbedtls//library/md.c ****     return( 0 );
+ 1515              		.loc 1 444 5 is_stmt 1 view .LVU378
+ 1516              		.loc 1 444 11 is_stmt 0 view .LVU379
+ 1517 0012 0020     		movs	r0, #0
+ 1518              	.L137:
+ 445:.././crypto/mbedtls//library/md.c **** }
+ 1519              		.loc 1 445 1 view .LVU380
+ 1520              		@ sp needed
+ 1521 0014 10BD     		pop	{r4, pc}
+ 1522              	.LVL147:
+ 1523              	.L140:
+ 440:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1524              		.loc 1 440 15 view .LVU381
+ 1525 0016 0148     		ldr	r0, .L141
+ 1526              	.LVL148:
+ 440:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_ERR_MD_BAD_INPUT_DATA );
+ 1527              		.loc 1 440 15 view .LVU382
+ 1528 0018 FCE7     		b	.L137
+ 1529              	.L142:
+ 1530 001a C046     		.align	2
+ 1531              	.L141:
+ 1532 001c 00AFFFFF 		.word	-20736
+ 1533              		.cfi_endproc
+ 1534              	.LFE21:
+ 1536              		.section	.text.mbedtls_md_get_size,"ax",%progbits
+ 1537              		.align	1
+ 1538              		.p2align 2,,3
+ 1539              		.global	mbedtls_md_get_size
+ 1540              		.syntax unified
+ 1541              		.code	16
+ 1542              		.thumb_func
+ 1543              		.fpu softvfp
+ 1545              	mbedtls_md_get_size:
+ 1546              	.LVL149:
+ 1547              	.LFB22:
+ 446:.././crypto/mbedtls//library/md.c **** 
+ 447:.././crypto/mbedtls//library/md.c **** unsigned char mbedtls_md_get_size( const mbedtls_md_info_t *md_info )
+ 448:.././crypto/mbedtls//library/md.c **** {
+ 1548              		.loc 1 448 1 is_stmt 1 view -0
+ 1549              		.cfi_startproc
+ 1550              		@ args = 0, pretend = 0, frame = 0
+ 1551              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1552              		@ link register save eliminated.
+ 449:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 1553              		.loc 1 449 5 view .LVU384
+ 1554              		.loc 1 449 7 is_stmt 0 view .LVU385
+ 1555 0000 0028     		cmp	r0, #0
+ 1556 0002 01D0     		beq	.L145
+ 450:.././crypto/mbedtls//library/md.c ****         return( 0 );
+ 451:.././crypto/mbedtls//library/md.c **** 
+ 452:.././crypto/mbedtls//library/md.c ****     return md_info->size;
+ 1557              		.loc 1 452 5 is_stmt 1 view .LVU386
+ 1558              		.loc 1 452 19 is_stmt 0 view .LVU387
+ 1559 0004 007A     		ldrb	r0, [r0, #8]
+ 1560              	.LVL150:
+ 1561              	.L144:
+ 453:.././crypto/mbedtls//library/md.c **** }
+ 1562              		.loc 1 453 1 view .LVU388
+ 1563              		@ sp needed
+ 1564 0006 7047     		bx	lr
+ 1565              	.LVL151:
+ 1566              	.L145:
+ 450:.././crypto/mbedtls//library/md.c ****         return( 0 );
+ 1567              		.loc 1 450 15 view .LVU389
+ 1568 0008 0020     		movs	r0, #0
+ 1569              	.LVL152:
+ 450:.././crypto/mbedtls//library/md.c ****         return( 0 );
+ 1570              		.loc 1 450 15 view .LVU390
+ 1571 000a FCE7     		b	.L144
+ 1572              		.cfi_endproc
+ 1573              	.LFE22:
+ 1575              		.section	.text.mbedtls_md_get_type,"ax",%progbits
+ 1576              		.align	1
+ 1577              		.p2align 2,,3
+ 1578              		.global	mbedtls_md_get_type
+ 1579              		.syntax unified
+ 1580              		.code	16
+ 1581              		.thumb_func
+ 1582              		.fpu softvfp
+ 1584              	mbedtls_md_get_type:
+ 1585              	.LVL153:
+ 1586              	.LFB23:
+ 454:.././crypto/mbedtls//library/md.c **** 
+ 455:.././crypto/mbedtls//library/md.c **** mbedtls_md_type_t mbedtls_md_get_type( const mbedtls_md_info_t *md_info )
+ 456:.././crypto/mbedtls//library/md.c **** {
+ 1587              		.loc 1 456 1 is_stmt 1 view -0
+ 1588              		.cfi_startproc
+ 1589              		@ args = 0, pretend = 0, frame = 0
+ 1590              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1591              		@ link register save eliminated.
+ 457:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 1592              		.loc 1 457 5 view .LVU392
+ 1593              		.loc 1 457 7 is_stmt 0 view .LVU393
+ 1594 0000 0028     		cmp	r0, #0
+ 1595 0002 01D0     		beq	.L148
+ 458:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_MD_NONE );
+ 459:.././crypto/mbedtls//library/md.c **** 
+ 460:.././crypto/mbedtls//library/md.c ****     return md_info->type;
+ 1596              		.loc 1 460 5 is_stmt 1 view .LVU394
+ 1597              		.loc 1 460 19 is_stmt 0 view .LVU395
+ 1598 0004 0078     		ldrb	r0, [r0]
+ 1599              	.LVL154:
+ 1600              	.L147:
+ 461:.././crypto/mbedtls//library/md.c **** }
+ 1601              		.loc 1 461 1 view .LVU396
+ 1602              		@ sp needed
+ 1603 0006 7047     		bx	lr
+ 1604              	.LVL155:
+ 1605              	.L148:
+ 458:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_MD_NONE );
+ 1606              		.loc 1 458 15 view .LVU397
+ 1607 0008 0020     		movs	r0, #0
+ 1608              	.LVL156:
+ 458:.././crypto/mbedtls//library/md.c ****         return( MBEDTLS_MD_NONE );
+ 1609              		.loc 1 458 15 view .LVU398
+ 1610 000a FCE7     		b	.L147
+ 1611              		.cfi_endproc
+ 1612              	.LFE23:
+ 1614              		.section	.text.mbedtls_md_get_name,"ax",%progbits
+ 1615              		.align	1
+ 1616              		.p2align 2,,3
+ 1617              		.global	mbedtls_md_get_name
+ 1618              		.syntax unified
+ 1619              		.code	16
+ 1620              		.thumb_func
+ 1621              		.fpu softvfp
+ 1623              	mbedtls_md_get_name:
+ 1624              	.LVL157:
+ 1625              	.LFB24:
+ 462:.././crypto/mbedtls//library/md.c **** 
+ 463:.././crypto/mbedtls//library/md.c **** const char *mbedtls_md_get_name( const mbedtls_md_info_t *md_info )
+ 464:.././crypto/mbedtls//library/md.c **** {
+ 1626              		.loc 1 464 1 is_stmt 1 view -0
+ 1627              		.cfi_startproc
+ 1628              		@ args = 0, pretend = 0, frame = 0
+ 1629              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1630              		@ link register save eliminated.
+ 465:.././crypto/mbedtls//library/md.c ****     if( md_info == NULL )
+ 1631              		.loc 1 465 5 view .LVU400
+ 1632              		.loc 1 465 7 is_stmt 0 view .LVU401
+ 1633 0000 0028     		cmp	r0, #0
+ 1634 0002 01D0     		beq	.L151
+ 466:.././crypto/mbedtls//library/md.c ****         return( NULL );
+ 467:.././crypto/mbedtls//library/md.c **** 
+ 468:.././crypto/mbedtls//library/md.c ****     return md_info->name;
+ 1635              		.loc 1 468 5 is_stmt 1 view .LVU402
+ 1636              		.loc 1 468 19 is_stmt 0 view .LVU403
+ 1637 0004 4068     		ldr	r0, [r0, #4]
+ 1638              	.LVL158:
+ 1639              	.L149:
+ 469:.././crypto/mbedtls//library/md.c **** }
+ 1640              		.loc 1 469 1 view .LVU404
+ 1641              		@ sp needed
+ 1642 0006 7047     		bx	lr
+ 1643              	.LVL159:
+ 1644              	.L151:
+ 466:.././crypto/mbedtls//library/md.c ****         return( NULL );
+ 1645              		.loc 1 466 15 view .LVU405
+ 1646 0008 0020     		movs	r0, #0
+ 1647              	.LVL160:
+ 466:.././crypto/mbedtls//library/md.c ****         return( NULL );
+ 1648              		.loc 1 466 15 view .LVU406
+ 1649 000a FCE7     		b	.L149
+ 1650              		.cfi_endproc
+ 1651              	.LFE24:
+ 1653              		.section	.rodata
+ 1654              		.align	2
+ 1655              		.set	.LANCHOR0,. + 0
+ 1658              	supported_digests:
+ 1659 0000 06000000 		.word	6
+ 1660 0004 05000000 		.word	5
+ 1661 0008 00000000 		.word	0
+ 1662              		.text
+ 1663              	.Letext0:
+ 1664              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 1665              		.file 3 ".././crypto/mbedtls//include/mbedtls/md.h"
+ 1666              		.file 4 ".././crypto/mbedtls//include/mbedtls/md_internal.h"
+ 1667              		.file 5 "/usr/include/newlib/sys/_types.h"
+ 1668              		.file 6 "/usr/include/newlib/sys/reent.h"
+ 1669              		.file 7 "/usr/include/newlib/sys/lock.h"
+ 1670              		.file 8 "/usr/include/newlib/time.h"
+ 1671              		.file 9 "/usr/include/newlib/stdlib.h"
+ 1672              		.file 10 "/usr/include/newlib/string.h"
+ 1673              		.file 11 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 md.c
+     /tmp/ccaKuN9B.s:16     .text.mbedtls_md_list:0000000000000000 $t
+     /tmp/ccaKuN9B.s:25     .text.mbedtls_md_list:0000000000000000 mbedtls_md_list
+     /tmp/ccaKuN9B.s:41     .text.mbedtls_md_list:0000000000000004 $d
+     /tmp/ccaKuN9B.s:46     .rodata.str1.4:0000000000000000 $d
+     /tmp/ccaKuN9B.s:53     .text.mbedtls_md_info_from_string:0000000000000000 $t
+     /tmp/ccaKuN9B.s:61     .text.mbedtls_md_info_from_string:0000000000000000 mbedtls_md_info_from_string
+     /tmp/ccaKuN9B.s:125    .text.mbedtls_md_info_from_string:0000000000000030 $d
+     /tmp/ccaKuN9B.s:133    .text.mbedtls_md_info_from_type:0000000000000000 $t
+     /tmp/ccaKuN9B.s:141    .text.mbedtls_md_info_from_type:0000000000000000 mbedtls_md_info_from_type
+     /tmp/ccaKuN9B.s:176    .text.mbedtls_md_info_from_type:0000000000000014 $d
+     /tmp/ccaKuN9B.s:182    .text.mbedtls_md_init:0000000000000000 $t
+     /tmp/ccaKuN9B.s:190    .text.mbedtls_md_init:0000000000000000 mbedtls_md_init
+     /tmp/ccaKuN9B.s:216    .text.mbedtls_md_free:0000000000000000 $t
+     /tmp/ccaKuN9B.s:224    .text.mbedtls_md_free:0000000000000000 mbedtls_md_free
+     /tmp/ccaKuN9B.s:346    .text.mbedtls_md_clone:0000000000000000 $t
+     /tmp/ccaKuN9B.s:354    .text.mbedtls_md_clone:0000000000000000 mbedtls_md_clone
+     /tmp/ccaKuN9B.s:414    .text.mbedtls_md_clone:000000000000002c $d
+     /tmp/ccaKuN9B.s:419    .text.mbedtls_md_setup:0000000000000000 $t
+     /tmp/ccaKuN9B.s:427    .text.mbedtls_md_setup:0000000000000000 mbedtls_md_setup
+     /tmp/ccaKuN9B.s:523    .text.mbedtls_md_setup:0000000000000044 $d
+     /tmp/ccaKuN9B.s:529    .text.mbedtls_md_init_ctx:0000000000000000 $t
+     /tmp/ccaKuN9B.s:537    .text.mbedtls_md_init_ctx:0000000000000000 mbedtls_md_init_ctx
+     /tmp/ccaKuN9B.s:562    .text.mbedtls_md_starts:0000000000000000 $t
+     /tmp/ccaKuN9B.s:570    .text.mbedtls_md_starts:0000000000000000 mbedtls_md_starts
+     /tmp/ccaKuN9B.s:616    .text.mbedtls_md_starts:000000000000001c $d
+     /tmp/ccaKuN9B.s:621    .text.mbedtls_md_update:0000000000000000 $t
+     /tmp/ccaKuN9B.s:629    .text.mbedtls_md_update:0000000000000000 mbedtls_md_update
+     /tmp/ccaKuN9B.s:675    .text.mbedtls_md_update:000000000000001c $d
+     /tmp/ccaKuN9B.s:680    .text.mbedtls_md_finish:0000000000000000 $t
+     /tmp/ccaKuN9B.s:688    .text.mbedtls_md_finish:0000000000000000 mbedtls_md_finish
+     /tmp/ccaKuN9B.s:734    .text.mbedtls_md_finish:000000000000001c $d
+     /tmp/ccaKuN9B.s:739    .text.mbedtls_md:0000000000000000 $t
+     /tmp/ccaKuN9B.s:747    .text.mbedtls_md:0000000000000000 mbedtls_md
+     /tmp/ccaKuN9B.s:799    .text.mbedtls_md:000000000000001c $d
+     /tmp/ccaKuN9B.s:804    .text.mbedtls_md_hmac_starts:0000000000000000 $t
+     /tmp/ccaKuN9B.s:812    .text.mbedtls_md_hmac_starts:0000000000000000 mbedtls_md_hmac_starts
+     /tmp/ccaKuN9B.s:1056   .text.mbedtls_md_hmac_starts:00000000000000d0 $d
+     /tmp/ccaKuN9B.s:1061   .text.mbedtls_md_hmac_update:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1069   .text.mbedtls_md_hmac_update:0000000000000000 mbedtls_md_hmac_update
+     /tmp/ccaKuN9B.s:1119   .text.mbedtls_md_hmac_update:0000000000000020 $d
+     /tmp/ccaKuN9B.s:1124   .text.mbedtls_md_hmac_finish:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1132   .text.mbedtls_md_hmac_finish:0000000000000000 mbedtls_md_hmac_finish
+     /tmp/ccaKuN9B.s:1245   .text.mbedtls_md_hmac_finish:000000000000005c $d
+     /tmp/ccaKuN9B.s:1250   .text.mbedtls_md_hmac_reset:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1258   .text.mbedtls_md_hmac_reset:0000000000000000 mbedtls_md_hmac_reset
+     /tmp/ccaKuN9B.s:1328   .text.mbedtls_md_hmac_reset:000000000000002c $d
+     /tmp/ccaKuN9B.s:1333   .text.mbedtls_md_hmac:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1341   .text.mbedtls_md_hmac:0000000000000000 mbedtls_md_hmac
+     /tmp/ccaKuN9B.s:1473   .text.mbedtls_md_hmac:0000000000000068 $d
+     /tmp/ccaKuN9B.s:1478   .text.mbedtls_md_process:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1486   .text.mbedtls_md_process:0000000000000000 mbedtls_md_process
+     /tmp/ccaKuN9B.s:1532   .text.mbedtls_md_process:000000000000001c $d
+     /tmp/ccaKuN9B.s:1537   .text.mbedtls_md_get_size:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1545   .text.mbedtls_md_get_size:0000000000000000 mbedtls_md_get_size
+     /tmp/ccaKuN9B.s:1576   .text.mbedtls_md_get_type:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1584   .text.mbedtls_md_get_type:0000000000000000 mbedtls_md_get_type
+     /tmp/ccaKuN9B.s:1615   .text.mbedtls_md_get_name:0000000000000000 $t
+     /tmp/ccaKuN9B.s:1623   .text.mbedtls_md_get_name:0000000000000000 mbedtls_md_get_name
+     /tmp/ccaKuN9B.s:1654   .rodata:0000000000000000 $d
+     /tmp/ccaKuN9B.s:1658   .rodata:0000000000000000 supported_digests
+
+UNDEFINED SYMBOLS
+strcmp
+mbedtls_sha256_info
+mbedtls_sha224_info
+memset
+free
+calloc

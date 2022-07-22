@@ -1,0 +1,1993 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"sha256.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.mbedtls_sha256_init,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.global	mbedtls_sha256_init
+  19              		.arch armv6s-m
+  20              		.syntax unified
+  21              		.code	16
+  22              		.thumb_func
+  23              		.fpu softvfp
+  25              	mbedtls_sha256_init:
+  26              	.LVL0:
+  27              	.LFB1:
+  28              		.file 1 ".././crypto/mbedtls//library/sha256.c"
+   1:.././crypto/mbedtls//library/sha256.c **** /*
+   2:.././crypto/mbedtls//library/sha256.c ****  *  FIPS-180-2 compliant SHA-256 implementation
+   3:.././crypto/mbedtls//library/sha256.c ****  *
+   4:.././crypto/mbedtls//library/sha256.c ****  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+   5:.././crypto/mbedtls//library/sha256.c ****  *  SPDX-License-Identifier: Apache-2.0
+   6:.././crypto/mbedtls//library/sha256.c ****  *
+   7:.././crypto/mbedtls//library/sha256.c ****  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
+   8:.././crypto/mbedtls//library/sha256.c ****  *  not use this file except in compliance with the License.
+   9:.././crypto/mbedtls//library/sha256.c ****  *  You may obtain a copy of the License at
+  10:.././crypto/mbedtls//library/sha256.c ****  *
+  11:.././crypto/mbedtls//library/sha256.c ****  *  http://www.apache.org/licenses/LICENSE-2.0
+  12:.././crypto/mbedtls//library/sha256.c ****  *
+  13:.././crypto/mbedtls//library/sha256.c ****  *  Unless required by applicable law or agreed to in writing, software
+  14:.././crypto/mbedtls//library/sha256.c ****  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  15:.././crypto/mbedtls//library/sha256.c ****  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  16:.././crypto/mbedtls//library/sha256.c ****  *  See the License for the specific language governing permissions and
+  17:.././crypto/mbedtls//library/sha256.c ****  *  limitations under the License.
+  18:.././crypto/mbedtls//library/sha256.c ****  *
+  19:.././crypto/mbedtls//library/sha256.c ****  *  This file is part of mbed TLS (https://tls.mbed.org)
+  20:.././crypto/mbedtls//library/sha256.c ****  */
+  21:.././crypto/mbedtls//library/sha256.c **** /*
+  22:.././crypto/mbedtls//library/sha256.c ****  *  The SHA-256 Secure Hash Standard was published by NIST in 2002.
+  23:.././crypto/mbedtls//library/sha256.c ****  *
+  24:.././crypto/mbedtls//library/sha256.c ****  *  http://csrc.nist.gov/publications/fips/fips180-2/fips180-2.pdf
+  25:.././crypto/mbedtls//library/sha256.c ****  */
+  26:.././crypto/mbedtls//library/sha256.c **** 
+  27:.././crypto/mbedtls//library/sha256.c **** #if !defined(MBEDTLS_CONFIG_FILE)
+  28:.././crypto/mbedtls//library/sha256.c **** #include "mbedtls/config.h"
+  29:.././crypto/mbedtls//library/sha256.c **** #else
+  30:.././crypto/mbedtls//library/sha256.c **** #include MBEDTLS_CONFIG_FILE
+  31:.././crypto/mbedtls//library/sha256.c **** #endif
+  32:.././crypto/mbedtls//library/sha256.c **** 
+  33:.././crypto/mbedtls//library/sha256.c **** #if defined(MBEDTLS_SHA256_C)
+  34:.././crypto/mbedtls//library/sha256.c **** 
+  35:.././crypto/mbedtls//library/sha256.c **** #include "mbedtls/sha256.h"
+  36:.././crypto/mbedtls//library/sha256.c **** 
+  37:.././crypto/mbedtls//library/sha256.c **** #include <string.h>
+  38:.././crypto/mbedtls//library/sha256.c **** 
+  39:.././crypto/mbedtls//library/sha256.c **** #if defined(MBEDTLS_SELF_TEST)
+  40:.././crypto/mbedtls//library/sha256.c **** #if defined(MBEDTLS_PLATFORM_C)
+  41:.././crypto/mbedtls//library/sha256.c **** #include "mbedtls/platform.h"
+  42:.././crypto/mbedtls//library/sha256.c **** #else
+  43:.././crypto/mbedtls//library/sha256.c **** #include <stdio.h>
+  44:.././crypto/mbedtls//library/sha256.c **** #include <stdlib.h>
+  45:.././crypto/mbedtls//library/sha256.c **** #define mbedtls_printf printf
+  46:.././crypto/mbedtls//library/sha256.c **** #define mbedtls_calloc    calloc
+  47:.././crypto/mbedtls//library/sha256.c **** #define mbedtls_free       free
+  48:.././crypto/mbedtls//library/sha256.c **** #endif /* MBEDTLS_PLATFORM_C */
+  49:.././crypto/mbedtls//library/sha256.c **** #endif /* MBEDTLS_SELF_TEST */
+  50:.././crypto/mbedtls//library/sha256.c **** 
+  51:.././crypto/mbedtls//library/sha256.c **** #if !defined(MBEDTLS_SHA256_ALT)
+  52:.././crypto/mbedtls//library/sha256.c **** 
+  53:.././crypto/mbedtls//library/sha256.c **** /* Implementation that should never be optimized out by the compiler */
+  54:.././crypto/mbedtls//library/sha256.c **** static void mbedtls_zeroize( void *v, size_t n ) {
+  55:.././crypto/mbedtls//library/sha256.c ****     volatile unsigned char *p = v; while( n-- ) *p++ = 0;
+  56:.././crypto/mbedtls//library/sha256.c **** }
+  57:.././crypto/mbedtls//library/sha256.c **** 
+  58:.././crypto/mbedtls//library/sha256.c **** /*
+  59:.././crypto/mbedtls//library/sha256.c ****  * 32-bit integer manipulation macros (big endian)
+  60:.././crypto/mbedtls//library/sha256.c ****  */
+  61:.././crypto/mbedtls//library/sha256.c **** #ifndef GET_UINT32_BE
+  62:.././crypto/mbedtls//library/sha256.c **** #define GET_UINT32_BE(n,b,i)                            \
+  63:.././crypto/mbedtls//library/sha256.c **** do {                                                    \
+  64:.././crypto/mbedtls//library/sha256.c ****     (n) = ( (uint32_t) (b)[(i)    ] << 24 )             \
+  65:.././crypto/mbedtls//library/sha256.c ****         | ( (uint32_t) (b)[(i) + 1] << 16 )             \
+  66:.././crypto/mbedtls//library/sha256.c ****         | ( (uint32_t) (b)[(i) + 2] <<  8 )             \
+  67:.././crypto/mbedtls//library/sha256.c ****         | ( (uint32_t) (b)[(i) + 3]       );            \
+  68:.././crypto/mbedtls//library/sha256.c **** } while( 0 )
+  69:.././crypto/mbedtls//library/sha256.c **** #endif
+  70:.././crypto/mbedtls//library/sha256.c **** 
+  71:.././crypto/mbedtls//library/sha256.c **** #ifndef PUT_UINT32_BE
+  72:.././crypto/mbedtls//library/sha256.c **** #define PUT_UINT32_BE(n,b,i)                            \
+  73:.././crypto/mbedtls//library/sha256.c **** do {                                                    \
+  74:.././crypto/mbedtls//library/sha256.c ****     (b)[(i)    ] = (unsigned char) ( (n) >> 24 );       \
+  75:.././crypto/mbedtls//library/sha256.c ****     (b)[(i) + 1] = (unsigned char) ( (n) >> 16 );       \
+  76:.././crypto/mbedtls//library/sha256.c ****     (b)[(i) + 2] = (unsigned char) ( (n) >>  8 );       \
+  77:.././crypto/mbedtls//library/sha256.c ****     (b)[(i) + 3] = (unsigned char) ( (n)       );       \
+  78:.././crypto/mbedtls//library/sha256.c **** } while( 0 )
+  79:.././crypto/mbedtls//library/sha256.c **** #endif
+  80:.././crypto/mbedtls//library/sha256.c **** 
+  81:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256_init( mbedtls_sha256_context *ctx )
+  82:.././crypto/mbedtls//library/sha256.c **** {
+  29              		.loc 1 82 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  83:.././crypto/mbedtls//library/sha256.c ****     memset( ctx, 0, sizeof( mbedtls_sha256_context ) );
+  33              		.loc 1 83 5 view .LVU1
+  82:.././crypto/mbedtls//library/sha256.c ****     memset( ctx, 0, sizeof( mbedtls_sha256_context ) );
+  34              		.loc 1 82 1 is_stmt 0 view .LVU2
+  35 0000 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40              		.loc 1 83 5 view .LVU3
+  41 0002 6C22     		movs	r2, #108
+  42 0004 0021     		movs	r1, #0
+  43 0006 FFF7FEFF 		bl	memset
+  44              	.LVL1:
+  84:.././crypto/mbedtls//library/sha256.c **** }
+  45              		.loc 1 84 1 view .LVU4
+  46              		@ sp needed
+  47 000a 10BD     		pop	{r4, pc}
+  48              		.cfi_endproc
+  49              	.LFE1:
+  51              		.section	.text.mbedtls_sha256_free,"ax",%progbits
+  52              		.align	1
+  53              		.p2align 2,,3
+  54              		.global	mbedtls_sha256_free
+  55              		.syntax unified
+  56              		.code	16
+  57              		.thumb_func
+  58              		.fpu softvfp
+  60              	mbedtls_sha256_free:
+  61              	.LVL2:
+  62              	.LFB2:
+  85:.././crypto/mbedtls//library/sha256.c **** 
+  86:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256_free( mbedtls_sha256_context *ctx )
+  87:.././crypto/mbedtls//library/sha256.c **** {
+  63              		.loc 1 87 1 is_stmt 1 view -0
+  64              		.cfi_startproc
+  65              		@ args = 0, pretend = 0, frame = 0
+  66              		@ frame_needed = 0, uses_anonymous_args = 0
+  67              		@ link register save eliminated.
+  88:.././crypto/mbedtls//library/sha256.c ****     if( ctx == NULL )
+  68              		.loc 1 88 5 view .LVU6
+  69              		.loc 1 88 7 is_stmt 0 view .LVU7
+  70 0000 0028     		cmp	r0, #0
+  71 0002 07D0     		beq	.L3
+  72 0004 0100     		movs	r1, r0
+  73              	.LBB26:
+  74              	.LBB27:
+  75              	.LBB28:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+  76              		.loc 1 55 54 view .LVU8
+  77 0006 0022     		movs	r2, #0
+  78 0008 6C31     		adds	r1, r1, #108
+  79              	.LVL3:
+  80              	.L5:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+  81              		.loc 1 55 49 is_stmt 1 view .LVU9
+  82 000a 0300     		movs	r3, r0
+  55:.././crypto/mbedtls//library/sha256.c **** }
+  83              		.loc 1 55 51 is_stmt 0 view .LVU10
+  84 000c 0130     		adds	r0, r0, #1
+  85              	.LVL4:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+  86              		.loc 1 55 54 view .LVU11
+  87 000e 1A70     		strb	r2, [r3]
+  55:.././crypto/mbedtls//library/sha256.c **** }
+  88              		.loc 1 55 41 is_stmt 1 view .LVU12
+  55:.././crypto/mbedtls//library/sha256.c **** }
+  89              		.loc 1 55 41 is_stmt 0 view .LVU13
+  90 0010 8142     		cmp	r1, r0
+  91 0012 FAD1     		bne	.L5
+  92              	.LVL5:
+  93              	.L3:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+  94              		.loc 1 55 41 view .LVU14
+  95              	.LBE28:
+  96              	.LBE27:
+  97              	.LBE26:
+  89:.././crypto/mbedtls//library/sha256.c ****         return;
+  90:.././crypto/mbedtls//library/sha256.c **** 
+  91:.././crypto/mbedtls//library/sha256.c ****     mbedtls_zeroize( ctx, sizeof( mbedtls_sha256_context ) );
+  92:.././crypto/mbedtls//library/sha256.c **** }
+  98              		.loc 1 92 1 view .LVU15
+  99              		@ sp needed
+ 100 0014 7047     		bx	lr
+ 101              		.cfi_endproc
+ 102              	.LFE2:
+ 104 0016 C046     		.section	.text.mbedtls_sha256_clone,"ax",%progbits
+ 105              		.align	1
+ 106              		.p2align 2,,3
+ 107              		.global	mbedtls_sha256_clone
+ 108              		.syntax unified
+ 109              		.code	16
+ 110              		.thumb_func
+ 111              		.fpu softvfp
+ 113              	mbedtls_sha256_clone:
+ 114              	.LVL6:
+ 115              	.LFB3:
+  93:.././crypto/mbedtls//library/sha256.c **** 
+  94:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256_clone( mbedtls_sha256_context *dst,
+  95:.././crypto/mbedtls//library/sha256.c ****                            const mbedtls_sha256_context *src )
+  96:.././crypto/mbedtls//library/sha256.c **** {
+ 116              		.loc 1 96 1 is_stmt 1 view -0
+ 117              		.cfi_startproc
+ 118              		@ args = 0, pretend = 0, frame = 0
+ 119              		@ frame_needed = 0, uses_anonymous_args = 0
+  97:.././crypto/mbedtls//library/sha256.c ****     *dst = *src;
+ 120              		.loc 1 97 5 view .LVU17
+  96:.././crypto/mbedtls//library/sha256.c ****     *dst = *src;
+ 121              		.loc 1 96 1 is_stmt 0 view .LVU18
+ 122 0000 10B5     		push	{r4, lr}
+ 123              	.LCFI1:
+ 124              		.cfi_def_cfa_offset 8
+ 125              		.cfi_offset 4, -8
+ 126              		.cfi_offset 14, -4
+ 127              		.loc 1 97 10 view .LVU19
+ 128 0002 6C22     		movs	r2, #108
+ 129 0004 FFF7FEFF 		bl	memcpy
+ 130              	.LVL7:
+  98:.././crypto/mbedtls//library/sha256.c **** }
+ 131              		.loc 1 98 1 view .LVU20
+ 132              		@ sp needed
+ 133 0008 10BD     		pop	{r4, pc}
+ 134              		.cfi_endproc
+ 135              	.LFE3:
+ 137 000a C046     		.section	.text.mbedtls_sha256_starts,"ax",%progbits
+ 138              		.align	1
+ 139              		.p2align 2,,3
+ 140              		.global	mbedtls_sha256_starts
+ 141              		.syntax unified
+ 142              		.code	16
+ 143              		.thumb_func
+ 144              		.fpu softvfp
+ 146              	mbedtls_sha256_starts:
+ 147              	.LVL8:
+ 148              	.LFB4:
+  99:.././crypto/mbedtls//library/sha256.c **** 
+ 100:.././crypto/mbedtls//library/sha256.c **** /*
+ 101:.././crypto/mbedtls//library/sha256.c ****  * SHA-256 context setup
+ 102:.././crypto/mbedtls//library/sha256.c ****  */
+ 103:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256_starts( mbedtls_sha256_context *ctx, int is224 )
+ 104:.././crypto/mbedtls//library/sha256.c **** {
+ 149              		.loc 1 104 1 is_stmt 1 view -0
+ 150              		.cfi_startproc
+ 151              		@ args = 0, pretend = 0, frame = 0
+ 152              		@ frame_needed = 0, uses_anonymous_args = 0
+ 153              		@ link register save eliminated.
+ 105:.././crypto/mbedtls//library/sha256.c ****     ctx->total[0] = 0;
+ 154              		.loc 1 105 5 view .LVU22
+ 155              		.loc 1 105 19 is_stmt 0 view .LVU23
+ 156 0000 0023     		movs	r3, #0
+ 157 0002 0360     		str	r3, [r0]
+ 106:.././crypto/mbedtls//library/sha256.c ****     ctx->total[1] = 0;
+ 158              		.loc 1 106 5 is_stmt 1 view .LVU24
+ 159              		.loc 1 106 19 is_stmt 0 view .LVU25
+ 160 0004 4360     		str	r3, [r0, #4]
+ 107:.././crypto/mbedtls//library/sha256.c **** 
+ 108:.././crypto/mbedtls//library/sha256.c ****     if( is224 == 0 )
+ 161              		.loc 1 108 5 is_stmt 1 view .LVU26
+ 162              		.loc 1 108 7 is_stmt 0 view .LVU27
+ 163 0006 0029     		cmp	r1, #0
+ 164 0008 11D1     		bne	.L12
+ 109:.././crypto/mbedtls//library/sha256.c ****     {
+ 110:.././crypto/mbedtls//library/sha256.c ****         /* SHA-256 */
+ 111:.././crypto/mbedtls//library/sha256.c ****         ctx->state[0] = 0x6A09E667;
+ 165              		.loc 1 111 9 is_stmt 1 view .LVU28
+ 166              		.loc 1 111 23 is_stmt 0 view .LVU29
+ 167 000a 114B     		ldr	r3, .L14
+ 168 000c 8360     		str	r3, [r0, #8]
+ 112:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0xBB67AE85;
+ 169              		.loc 1 112 9 is_stmt 1 view .LVU30
+ 170              		.loc 1 112 23 is_stmt 0 view .LVU31
+ 171 000e 114B     		ldr	r3, .L14+4
+ 172 0010 C360     		str	r3, [r0, #12]
+ 113:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3C6EF372;
+ 173              		.loc 1 113 9 is_stmt 1 view .LVU32
+ 174              		.loc 1 113 23 is_stmt 0 view .LVU33
+ 175 0012 114B     		ldr	r3, .L14+8
+ 176 0014 0361     		str	r3, [r0, #16]
+ 114:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xA54FF53A;
+ 177              		.loc 1 114 9 is_stmt 1 view .LVU34
+ 178              		.loc 1 114 23 is_stmt 0 view .LVU35
+ 179 0016 114B     		ldr	r3, .L14+12
+ 180 0018 4361     		str	r3, [r0, #20]
+ 115:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0x510E527F;
+ 181              		.loc 1 115 9 is_stmt 1 view .LVU36
+ 182              		.loc 1 115 23 is_stmt 0 view .LVU37
+ 183 001a 114B     		ldr	r3, .L14+16
+ 184 001c 8361     		str	r3, [r0, #24]
+ 116:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x9B05688C;
+ 185              		.loc 1 116 9 is_stmt 1 view .LVU38
+ 186              		.loc 1 116 23 is_stmt 0 view .LVU39
+ 187 001e 114B     		ldr	r3, .L14+20
+ 188 0020 C361     		str	r3, [r0, #28]
+ 117:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x1F83D9AB;
+ 189              		.loc 1 117 9 is_stmt 1 view .LVU40
+ 190              		.loc 1 117 23 is_stmt 0 view .LVU41
+ 191 0022 114B     		ldr	r3, .L14+24
+ 192 0024 0362     		str	r3, [r0, #32]
+ 118:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0x5BE0CD19;
+ 193              		.loc 1 118 9 is_stmt 1 view .LVU42
+ 194              		.loc 1 118 23 is_stmt 0 view .LVU43
+ 195 0026 114B     		ldr	r3, .L14+28
+ 196 0028 4362     		str	r3, [r0, #36]
+ 197              	.L13:
+ 119:.././crypto/mbedtls//library/sha256.c ****     }
+ 120:.././crypto/mbedtls//library/sha256.c ****     else
+ 121:.././crypto/mbedtls//library/sha256.c ****     {
+ 122:.././crypto/mbedtls//library/sha256.c ****         /* SHA-224 */
+ 123:.././crypto/mbedtls//library/sha256.c ****         ctx->state[0] = 0xC1059ED8;
+ 124:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0x367CD507;
+ 125:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3070DD17;
+ 126:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xF70E5939;
+ 127:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0xFFC00B31;
+ 128:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x68581511;
+ 129:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x64F98FA7;
+ 130:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0xBEFA4FA4;
+ 131:.././crypto/mbedtls//library/sha256.c ****     }
+ 132:.././crypto/mbedtls//library/sha256.c **** 
+ 133:.././crypto/mbedtls//library/sha256.c ****     ctx->is224 = is224;
+ 198              		.loc 1 133 5 is_stmt 1 view .LVU44
+ 134:.././crypto/mbedtls//library/sha256.c **** }
+ 199              		.loc 1 134 1 is_stmt 0 view .LVU45
+ 200              		@ sp needed
+ 133:.././crypto/mbedtls//library/sha256.c **** }
+ 201              		.loc 1 133 16 view .LVU46
+ 202 002a 8166     		str	r1, [r0, #104]
+ 203              		.loc 1 134 1 view .LVU47
+ 204 002c 7047     		bx	lr
+ 205              	.L12:
+ 123:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0x367CD507;
+ 206              		.loc 1 123 9 is_stmt 1 view .LVU48
+ 123:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0x367CD507;
+ 207              		.loc 1 123 23 is_stmt 0 view .LVU49
+ 208 002e 104B     		ldr	r3, .L14+32
+ 209 0030 8360     		str	r3, [r0, #8]
+ 124:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3070DD17;
+ 210              		.loc 1 124 9 is_stmt 1 view .LVU50
+ 124:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3070DD17;
+ 211              		.loc 1 124 23 is_stmt 0 view .LVU51
+ 212 0032 104B     		ldr	r3, .L14+36
+ 213 0034 C360     		str	r3, [r0, #12]
+ 125:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xF70E5939;
+ 214              		.loc 1 125 9 is_stmt 1 view .LVU52
+ 125:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xF70E5939;
+ 215              		.loc 1 125 23 is_stmt 0 view .LVU53
+ 216 0036 104B     		ldr	r3, .L14+40
+ 217 0038 0361     		str	r3, [r0, #16]
+ 126:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0xFFC00B31;
+ 218              		.loc 1 126 9 is_stmt 1 view .LVU54
+ 126:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0xFFC00B31;
+ 219              		.loc 1 126 23 is_stmt 0 view .LVU55
+ 220 003a 104B     		ldr	r3, .L14+44
+ 221 003c 4361     		str	r3, [r0, #20]
+ 127:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x68581511;
+ 222              		.loc 1 127 9 is_stmt 1 view .LVU56
+ 127:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x68581511;
+ 223              		.loc 1 127 23 is_stmt 0 view .LVU57
+ 224 003e 104B     		ldr	r3, .L14+48
+ 225 0040 8361     		str	r3, [r0, #24]
+ 128:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x64F98FA7;
+ 226              		.loc 1 128 9 is_stmt 1 view .LVU58
+ 128:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x64F98FA7;
+ 227              		.loc 1 128 23 is_stmt 0 view .LVU59
+ 228 0042 104B     		ldr	r3, .L14+52
+ 229 0044 C361     		str	r3, [r0, #28]
+ 129:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0xBEFA4FA4;
+ 230              		.loc 1 129 9 is_stmt 1 view .LVU60
+ 129:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0xBEFA4FA4;
+ 231              		.loc 1 129 23 is_stmt 0 view .LVU61
+ 232 0046 104B     		ldr	r3, .L14+56
+ 233 0048 0362     		str	r3, [r0, #32]
+ 130:.././crypto/mbedtls//library/sha256.c ****     }
+ 234              		.loc 1 130 9 is_stmt 1 view .LVU62
+ 130:.././crypto/mbedtls//library/sha256.c ****     }
+ 235              		.loc 1 130 23 is_stmt 0 view .LVU63
+ 236 004a 104B     		ldr	r3, .L14+60
+ 237 004c 4362     		str	r3, [r0, #36]
+ 238 004e ECE7     		b	.L13
+ 239              	.L15:
+ 240              		.align	2
+ 241              	.L14:
+ 242 0050 67E6096A 		.word	1779033703
+ 243 0054 85AE67BB 		.word	-1150833019
+ 244 0058 72F36E3C 		.word	1013904242
+ 245 005c 3AF54FA5 		.word	-1521486534
+ 246 0060 7F520E51 		.word	1359893119
+ 247 0064 8C68059B 		.word	-1694144372
+ 248 0068 ABD9831F 		.word	528734635
+ 249 006c 19CDE05B 		.word	1541459225
+ 250 0070 D89E05C1 		.word	-1056596264
+ 251 0074 07D57C36 		.word	914150663
+ 252 0078 17DD7030 		.word	812702999
+ 253 007c 39590EF7 		.word	-150054599
+ 254 0080 310BC0FF 		.word	-4191439
+ 255 0084 11155868 		.word	1750603025
+ 256 0088 A78FF964 		.word	1694076839
+ 257 008c A44FFABE 		.word	-1090891868
+ 258              		.cfi_endproc
+ 259              	.LFE4:
+ 261              		.section	.text.mbedtls_sha256_process,"ax",%progbits
+ 262              		.align	1
+ 263              		.p2align 2,,3
+ 264              		.global	mbedtls_sha256_process
+ 265              		.syntax unified
+ 266              		.code	16
+ 267              		.thumb_func
+ 268              		.fpu softvfp
+ 270              	mbedtls_sha256_process:
+ 271              	.LVL9:
+ 272              	.LFB5:
+ 135:.././crypto/mbedtls//library/sha256.c **** 
+ 136:.././crypto/mbedtls//library/sha256.c **** #if !defined(MBEDTLS_SHA256_PROCESS_ALT)
+ 137:.././crypto/mbedtls//library/sha256.c **** static const uint32_t K[] =
+ 138:.././crypto/mbedtls//library/sha256.c **** {
+ 139:.././crypto/mbedtls//library/sha256.c ****     0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
+ 140:.././crypto/mbedtls//library/sha256.c ****     0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5,
+ 141:.././crypto/mbedtls//library/sha256.c ****     0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3,
+ 142:.././crypto/mbedtls//library/sha256.c ****     0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+ 143:.././crypto/mbedtls//library/sha256.c ****     0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC,
+ 144:.././crypto/mbedtls//library/sha256.c ****     0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA,
+ 145:.././crypto/mbedtls//library/sha256.c ****     0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7,
+ 146:.././crypto/mbedtls//library/sha256.c ****     0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967,
+ 147:.././crypto/mbedtls//library/sha256.c ****     0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13,
+ 148:.././crypto/mbedtls//library/sha256.c ****     0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+ 149:.././crypto/mbedtls//library/sha256.c ****     0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3,
+ 150:.././crypto/mbedtls//library/sha256.c ****     0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070,
+ 151:.././crypto/mbedtls//library/sha256.c ****     0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
+ 152:.././crypto/mbedtls//library/sha256.c ****     0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,
+ 153:.././crypto/mbedtls//library/sha256.c ****     0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208,
+ 154:.././crypto/mbedtls//library/sha256.c ****     0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2,
+ 155:.././crypto/mbedtls//library/sha256.c **** };
+ 156:.././crypto/mbedtls//library/sha256.c **** 
+ 157:.././crypto/mbedtls//library/sha256.c **** #define  SHR(x,n) ((x & 0xFFFFFFFF) >> n)
+ 158:.././crypto/mbedtls//library/sha256.c **** #define ROTR(x,n) (SHR(x,n) | (x << (32 - n)))
+ 159:.././crypto/mbedtls//library/sha256.c **** 
+ 160:.././crypto/mbedtls//library/sha256.c **** #define S0(x) (ROTR(x, 7) ^ ROTR(x,18) ^  SHR(x, 3))
+ 161:.././crypto/mbedtls//library/sha256.c **** #define S1(x) (ROTR(x,17) ^ ROTR(x,19) ^  SHR(x,10))
+ 162:.././crypto/mbedtls//library/sha256.c **** 
+ 163:.././crypto/mbedtls//library/sha256.c **** #define S2(x) (ROTR(x, 2) ^ ROTR(x,13) ^ ROTR(x,22))
+ 164:.././crypto/mbedtls//library/sha256.c **** #define S3(x) (ROTR(x, 6) ^ ROTR(x,11) ^ ROTR(x,25))
+ 165:.././crypto/mbedtls//library/sha256.c **** 
+ 166:.././crypto/mbedtls//library/sha256.c **** #define F0(x,y,z) ((x & y) | (z & (x | y)))
+ 167:.././crypto/mbedtls//library/sha256.c **** #define F1(x,y,z) (z ^ (x & (y ^ z)))
+ 168:.././crypto/mbedtls//library/sha256.c **** 
+ 169:.././crypto/mbedtls//library/sha256.c **** #define R(t)                                    \
+ 170:.././crypto/mbedtls//library/sha256.c **** (                                               \
+ 171:.././crypto/mbedtls//library/sha256.c ****     W[t] = S1(W[t -  2]) + W[t -  7] +          \
+ 172:.././crypto/mbedtls//library/sha256.c ****            S0(W[t - 15]) + W[t - 16]            \
+ 173:.././crypto/mbedtls//library/sha256.c **** )
+ 174:.././crypto/mbedtls//library/sha256.c **** 
+ 175:.././crypto/mbedtls//library/sha256.c **** #define P(a,b,c,d,e,f,g,h,x,K)                  \
+ 176:.././crypto/mbedtls//library/sha256.c **** {                                               \
+ 177:.././crypto/mbedtls//library/sha256.c ****     temp1 = h + S3(e) + F1(e,f,g) + K + x;      \
+ 178:.././crypto/mbedtls//library/sha256.c ****     temp2 = S2(a) + F0(a,b,c);                  \
+ 179:.././crypto/mbedtls//library/sha256.c ****     d += temp1; h = temp1 + temp2;              \
+ 180:.././crypto/mbedtls//library/sha256.c **** }
+ 181:.././crypto/mbedtls//library/sha256.c **** 
+ 182:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256_process( mbedtls_sha256_context *ctx, const unsigned char data[64] )
+ 183:.././crypto/mbedtls//library/sha256.c **** {
+ 273              		.loc 1 183 1 is_stmt 1 view -0
+ 274              		.cfi_startproc
+ 275              		@ args = 0, pretend = 0, frame = 320
+ 276              		@ frame_needed = 0, uses_anonymous_args = 0
+ 184:.././crypto/mbedtls//library/sha256.c ****     uint32_t temp1, temp2, W[64];
+ 277              		.loc 1 184 5 view .LVU65
+ 185:.././crypto/mbedtls//library/sha256.c ****     uint32_t A[8];
+ 278              		.loc 1 185 5 view .LVU66
+ 186:.././crypto/mbedtls//library/sha256.c ****     unsigned int i;
+ 279              		.loc 1 186 5 view .LVU67
+ 187:.././crypto/mbedtls//library/sha256.c **** 
+ 188:.././crypto/mbedtls//library/sha256.c ****     for( i = 0; i < 8; i++ )
+ 280              		.loc 1 188 5 view .LVU68
+ 281              		.loc 1 188 17 view .LVU69
+ 282 0000 0823     		movs	r3, #8
+ 283 0002 9C46     		mov	ip, r3
+ 183:.././crypto/mbedtls//library/sha256.c ****     uint32_t temp1, temp2, W[64];
+ 284              		.loc 1 183 1 is_stmt 0 view .LVU70
+ 285 0004 F0B5     		push	{r4, r5, r6, r7, lr}
+ 286              	.LCFI2:
+ 287              		.cfi_def_cfa_offset 20
+ 288              		.cfi_offset 4, -20
+ 289              		.cfi_offset 5, -16
+ 290              		.cfi_offset 6, -12
+ 291              		.cfi_offset 7, -8
+ 292              		.cfi_offset 14, -4
+ 293 0006 DE46     		mov	lr, fp
+ 294 0008 5746     		mov	r7, r10
+ 295 000a 4E46     		mov	r6, r9
+ 296 000c 4546     		mov	r5, r8
+ 297 000e 8444     		add	ip, ip, r0
+ 298 0010 6346     		mov	r3, ip
+ 299 0012 2830     		adds	r0, r0, #40
+ 300              	.LVL10:
+ 183:.././crypto/mbedtls//library/sha256.c ****     uint32_t temp1, temp2, W[64];
+ 301              		.loc 1 183 1 view .LVU71
+ 302 0014 0400     		movs	r4, r0
+ 303 0016 E0B5     		push	{r5, r6, r7, lr}
+ 304              	.LCFI3:
+ 305              		.cfi_def_cfa_offset 36
+ 306              		.cfi_offset 8, -36
+ 307              		.cfi_offset 9, -32
+ 308              		.cfi_offset 10, -28
+ 309              		.cfi_offset 11, -24
+ 310 0018 D1B0     		sub	sp, sp, #324
+ 311              	.LCFI4:
+ 312              		.cfi_def_cfa_offset 360
+ 313 001a 08AA     		add	r2, sp, #32
+ 314 001c 0793     		str	r3, [sp, #28]
+ 315 001e 0692     		str	r2, [sp, #24]
+ 316 0020 0590     		str	r0, [sp, #20]
+ 317              	.LVL11:
+ 318              	.L17:
+ 189:.././crypto/mbedtls//library/sha256.c ****         A[i] = ctx->state[i];
+ 319              		.loc 1 189 9 is_stmt 1 discriminator 3 view .LVU72
+ 320              		.loc 1 189 14 is_stmt 0 discriminator 3 view .LVU73
+ 321 0022 01CB     		ldmia	r3!, {r0}
+ 322 0024 01C2     		stmia	r2!, {r0}
+ 188:.././crypto/mbedtls//library/sha256.c ****         A[i] = ctx->state[i];
+ 323              		.loc 1 188 24 is_stmt 1 discriminator 3 view .LVU74
+ 188:.././crypto/mbedtls//library/sha256.c ****         A[i] = ctx->state[i];
+ 324              		.loc 1 188 17 discriminator 3 view .LVU75
+ 188:.././crypto/mbedtls//library/sha256.c ****         A[i] = ctx->state[i];
+ 325              		.loc 1 188 5 is_stmt 0 discriminator 3 view .LVU76
+ 326 0026 9C42     		cmp	r4, r3
+ 327 0028 FBD1     		bne	.L17
+ 328 002a 0F9B     		ldr	r3, [sp, #60]
+ 329 002c 8846     		mov	r8, r1
+ 330 002e 9B46     		mov	fp, r3
+ 331 0030 0E9B     		ldr	r3, [sp, #56]
+ 332 0032 2021     		movs	r1, #32
+ 333              	.LVL12:
+ 188:.././crypto/mbedtls//library/sha256.c ****         A[i] = ctx->state[i];
+ 334              		.loc 1 188 5 discriminator 3 view .LVU77
+ 335 0034 9C46     		mov	ip, r3
+ 336 0036 0D9B     		ldr	r3, [sp, #52]
+ 190:.././crypto/mbedtls//library/sha256.c **** 
+ 191:.././crypto/mbedtls//library/sha256.c **** #if defined(MBEDTLS_SHA256_SMALLER)
+ 192:.././crypto/mbedtls//library/sha256.c ****     for( i = 0; i < 64; i++ )
+ 337              		.loc 1 192 12 view .LVU78
+ 338 0038 0026     		movs	r6, #0
+ 339 003a 0193     		str	r3, [sp, #4]
+ 340 003c 0A9B     		ldr	r3, [sp, #40]
+ 341 003e 099F     		ldr	r7, [sp, #36]
+ 342 0040 0293     		str	r3, [sp, #8]
+ 343 0042 0B9B     		ldr	r3, [sp, #44]
+ 344 0044 4942     		rsbs	r1, r1, #0
+ 345 0046 0393     		str	r3, [sp, #12]
+ 346 0048 4F4B     		ldr	r3, .L26
+ 347 004a 0C9C     		ldr	r4, [sp, #48]
+ 348              	.LVL13:
+ 349              		.loc 1 192 12 view .LVU79
+ 350 004c 9946     		mov	r9, r3
+ 351 004e 08AB     		add	r3, sp, #32
+ 352 0050 9A46     		mov	r10, r3
+ 188:.././crypto/mbedtls//library/sha256.c ****         A[i] = ctx->state[i];
+ 353              		.loc 1 188 5 view .LVU80
+ 354 0052 4E4B     		ldr	r3, .L26+4
+ 355 0054 5144     		add	r1, r1, r10
+ 356 0056 0493     		str	r3, [sp, #16]
+ 193:.././crypto/mbedtls//library/sha256.c ****     {
+ 194:.././crypto/mbedtls//library/sha256.c ****         if( i < 16 )
+ 195:.././crypto/mbedtls//library/sha256.c ****             GET_UINT32_BE( W[i], data, 4 * i );
+ 196:.././crypto/mbedtls//library/sha256.c ****         else
+ 197:.././crypto/mbedtls//library/sha256.c ****             R( i );
+ 198:.././crypto/mbedtls//library/sha256.c **** 
+ 199:.././crypto/mbedtls//library/sha256.c ****         P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i], K[i] );
+ 357              		.loc 1 199 9 view .LVU81
+ 358 0058 CA46     		mov	r10, r9
+ 359 005a 5B46     		mov	r3, fp
+ 360 005c C146     		mov	r9, r8
+ 361 005e 0898     		ldr	r0, [sp, #32]
+ 362 0060 B846     		mov	r8, r7
+ 363              	.LVL14:
+ 364              		.loc 1 199 9 view .LVU82
+ 365 0062 0096     		str	r6, [sp]
+ 366 0064 63E0     		b	.L21
+ 367              	.LVL15:
+ 368              	.L18:
+ 197:.././crypto/mbedtls//library/sha256.c **** 
+ 369              		.loc 1 197 13 is_stmt 1 view .LVU83
+ 370 0066 8D6B     		ldr	r5, [r1, #56]
+ 371 0068 1127     		movs	r7, #17
+ 372 006a 2A00     		movs	r2, r5
+ 373              	.LVL16:
+ 197:.././crypto/mbedtls//library/sha256.c **** 
+ 374              		.loc 1 197 13 is_stmt 0 view .LVU84
+ 375 006c FA41     		rors	r2, r2, r7
+ 376 006e 9346     		mov	fp, r2
+ 377 0070 2A00     		movs	r2, r5
+ 378 0072 0237     		adds	r7, r7, #2
+ 379 0074 FA41     		rors	r2, r2, r7
+ 380 0076 5F46     		mov	r7, fp
+ 381 0078 7A40     		eors	r2, r7
+ 382 007a 0F68     		ldr	r7, [r1]
+ 383 007c AD0A     		lsrs	r5, r5, #10
+ 384 007e BB46     		mov	fp, r7
+ 385 0080 5540     		eors	r5, r2
+ 386 0082 4A6A     		ldr	r2, [r1, #36]
+ 387 0084 4E68     		ldr	r6, [r1, #4]
+ 388 0086 5A44     		add	r2, r2, fp
+ 389 0088 0727     		movs	r7, #7
+ 390 008a AD18     		adds	r5, r5, r2
+ 391 008c 3200     		movs	r2, r6
+ 392 008e FA41     		rors	r2, r2, r7
+ 393 0090 9346     		mov	fp, r2
+ 394 0092 3200     		movs	r2, r6
+ 395 0094 0B37     		adds	r7, r7, #11
+ 396 0096 FA41     		rors	r2, r2, r7
+ 397 0098 5F46     		mov	r7, fp
+ 398 009a F608     		lsrs	r6, r6, #3
+ 399 009c 7A40     		eors	r2, r7
+ 400 009e 7240     		eors	r2, r6
+ 401 00a0 AD18     		adds	r5, r5, r2
+ 402              	.L19:
+ 403              		.loc 1 199 9 discriminator 2 view .LVU85
+ 404 00a2 0B26     		movs	r6, #11
+ 405 00a4 2200     		movs	r2, r4
+ 406 00a6 0627     		movs	r7, #6
+ 407 00a8 F241     		rors	r2, r2, r6
+ 408 00aa 2600     		movs	r6, r4
+ 409 00ac FE41     		rors	r6, r6, r7
+ 410 00ae 5640     		eors	r6, r2
+ 411 00b0 2200     		movs	r2, r4
+ 412 00b2 1337     		adds	r7, r7, #19
+ 413 00b4 FA41     		rors	r2, r2, r7
+ 414 00b6 5640     		eors	r6, r2
+ 415 00b8 6246     		mov	r2, ip
+ 416 00ba 019F     		ldr	r7, [sp, #4]
+ 417 00bc 0D64     		str	r5, [r1, #64]
+ 418              		.loc 1 199 9 is_stmt 1 discriminator 2 view .LVU86
+ 419 00be 7A40     		eors	r2, r7
+ 420 00c0 6746     		mov	r7, ip
+ 421 00c2 2240     		ands	r2, r4
+ 422 00c4 7A40     		eors	r2, r7
+ 423 00c6 B618     		adds	r6, r6, r2
+ 424 00c8 049A     		ldr	r2, [sp, #16]
+ 425 00ca 7519     		adds	r5, r6, r5
+ 426 00cc 9346     		mov	fp, r2
+ 427 00ce EB18     		adds	r3, r5, r3
+ 428 00d0 039A     		ldr	r2, [sp, #12]
+ 429 00d2 5B44     		add	r3, r3, fp
+ 430              	.LVL17:
+ 431              		.loc 1 199 9 discriminator 2 view .LVU87
+ 432              		.loc 1 199 9 discriminator 2 view .LVU88
+ 433 00d4 D618     		adds	r6, r2, r3
+ 434              		.loc 1 199 9 discriminator 2 view .LVU89
+ 435 00d6 0500     		movs	r5, r0
+ 436 00d8 0D22     		movs	r2, #13
+ 437 00da 0227     		movs	r7, #2
+ 438 00dc D541     		rors	r5, r5, r2
+ 439 00de 0200     		movs	r2, r0
+ 440 00e0 FA41     		rors	r2, r2, r7
+ 441 00e2 0700     		movs	r7, r0
+ 442 00e4 6A40     		eors	r2, r5
+ 443 00e6 1625     		movs	r5, #22
+ 444 00e8 EF41     		rors	r7, r7, r5
+ 445 00ea 4546     		mov	r5, r8
+ 446 00ec 7A40     		eors	r2, r7
+ 447 00ee 029F     		ldr	r7, [sp, #8]
+ 448 00f0 0543     		orrs	r5, r0
+ 449 00f2 3D40     		ands	r5, r7
+ 450 00f4 4746     		mov	r7, r8
+ 451 00f6 0740     		ands	r7, r0
+ 452 00f8 3D43     		orrs	r5, r7
+ 453 00fa 5519     		adds	r5, r2, r5
+ 454              	.LVL18:
+ 455              		.loc 1 199 9 is_stmt 0 discriminator 2 view .LVU90
+ 456 00fc 0422     		movs	r2, #4
+ 457 00fe 9346     		mov	fp, r2
+ 458 0100 EB18     		adds	r3, r5, r3
+ 459              	.LVL19:
+ 460              		.loc 1 199 72 is_stmt 1 discriminator 2 view .LVU91
+ 200:.././crypto/mbedtls//library/sha256.c **** 
+ 201:.././crypto/mbedtls//library/sha256.c ****         temp1 = A[7]; A[7] = A[6]; A[6] = A[5]; A[5] = A[4]; A[4] = A[3];
+ 461              		.loc 1 201 9 discriminator 2 view .LVU92
+ 462              		.loc 1 201 23 discriminator 2 view .LVU93
+ 463              		.loc 1 201 36 discriminator 2 view .LVU94
+ 464              		.loc 1 201 49 discriminator 2 view .LVU95
+ 465              		.loc 1 201 62 discriminator 2 view .LVU96
+ 202:.././crypto/mbedtls//library/sha256.c ****         A[3] = A[2]; A[2] = A[1]; A[1] = A[0]; A[0] = temp1;
+ 466              		.loc 1 202 9 discriminator 2 view .LVU97
+ 467              		.loc 1 202 22 discriminator 2 view .LVU98
+ 468              		.loc 1 202 35 discriminator 2 view .LVU99
+ 469              		.loc 1 202 48 discriminator 2 view .LVU100
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 470              		.loc 1 192 25 discriminator 2 view .LVU101
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 471              		.loc 1 192 26 is_stmt 0 discriminator 2 view .LVU102
+ 472 0102 009D     		ldr	r5, [sp]
+ 473              	.LVL20:
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 474              		.loc 1 192 26 discriminator 2 view .LVU103
+ 475 0104 D944     		add	r9, r9, fp
+ 476 0106 0135     		adds	r5, r5, #1
+ 477 0108 0095     		str	r5, [sp]
+ 478              	.LVL21:
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 479              		.loc 1 192 17 is_stmt 1 discriminator 2 view .LVU104
+ 480 010a 0431     		adds	r1, r1, #4
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 481              		.loc 1 192 5 is_stmt 0 discriminator 2 view .LVU105
+ 482 010c 402D     		cmp	r5, #64
+ 483 010e 1DD0     		beq	.L20
+ 484 0110 5246     		mov	r2, r10
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 485              		.loc 1 192 5 view .LVU106
+ 486 0112 029F     		ldr	r7, [sp, #8]
+ 487 0114 20CA     		ldmia	r2!, {r5}
+ 488              	.LVL22:
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 489              		.loc 1 192 5 view .LVU107
+ 490 0116 0397     		str	r7, [sp, #12]
+ 491 0118 019F     		ldr	r7, [sp, #4]
+ 492 011a 9246     		mov	r10, r2
+ 493 011c 4246     		mov	r2, r8
+ 494 011e 0194     		str	r4, [sp, #4]
+ 495 0120 8046     		mov	r8, r0
+ 496              	.LVL23:
+ 199:.././crypto/mbedtls//library/sha256.c **** 
+ 497              		.loc 1 199 9 view .LVU108
+ 498 0122 3400     		movs	r4, r6
+ 499 0124 1800     		movs	r0, r3
+ 500              	.LVL24:
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 501              		.loc 1 192 5 view .LVU109
+ 502 0126 6346     		mov	r3, ip
+ 503              	.LVL25:
+ 192:.././crypto/mbedtls//library/sha256.c ****     {
+ 504              		.loc 1 192 5 view .LVU110
+ 505 0128 BC46     		mov	ip, r7
+ 506 012a 0495     		str	r5, [sp, #16]
+ 507 012c 0292     		str	r2, [sp, #8]
+ 508              	.LVL26:
+ 509              	.L21:
+ 194:.././crypto/mbedtls//library/sha256.c ****             GET_UINT32_BE( W[i], data, 4 * i );
+ 510              		.loc 1 194 9 is_stmt 1 view .LVU111
+ 194:.././crypto/mbedtls//library/sha256.c ****             GET_UINT32_BE( W[i], data, 4 * i );
+ 511              		.loc 1 194 11 is_stmt 0 view .LVU112
+ 512 012e 009A     		ldr	r2, [sp]
+ 513 0130 0F2A     		cmp	r2, #15
+ 514 0132 98D8     		bhi	.L18
+ 195:.././crypto/mbedtls//library/sha256.c ****         else
+ 515              		.loc 1 195 13 is_stmt 1 view .LVU113
+ 195:.././crypto/mbedtls//library/sha256.c ****         else
+ 516              		.loc 1 195 13 view .LVU114
+ 517 0134 4A46     		mov	r2, r9
+ 518 0136 1678     		ldrb	r6, [r2]
+ 519 0138 5578     		ldrb	r5, [r2, #1]
+ 520 013a 3606     		lsls	r6, r6, #24
+ 521 013c 2D04     		lsls	r5, r5, #16
+ 522 013e 3543     		orrs	r5, r6
+ 523 0140 D678     		ldrb	r6, [r2, #3]
+ 524 0142 3543     		orrs	r5, r6
+ 525 0144 9678     		ldrb	r6, [r2, #2]
+ 526 0146 3602     		lsls	r6, r6, #8
+ 527 0148 3543     		orrs	r5, r6
+ 195:.././crypto/mbedtls//library/sha256.c ****         else
+ 528              		.loc 1 195 13 view .LVU115
+ 529 014a AAE7     		b	.L19
+ 530              	.LVL27:
+ 531              	.L20:
+ 195:.././crypto/mbedtls//library/sha256.c ****         else
+ 532              		.loc 1 195 13 is_stmt 0 view .LVU116
+ 533 014c 6246     		mov	r2, ip
+ 534 014e 4746     		mov	r7, r8
+ 535 0150 0F92     		str	r2, [sp, #60]
+ 536 0152 019A     		ldr	r2, [sp, #4]
+ 537 0154 0990     		str	r0, [sp, #36]
+ 538 0156 0E92     		str	r2, [sp, #56]
+ 539 0158 029A     		ldr	r2, [sp, #8]
+ 540 015a 0598     		ldr	r0, [sp, #20]
+ 541              	.LVL28:
+ 195:.././crypto/mbedtls//library/sha256.c ****         else
+ 542              		.loc 1 195 13 view .LVU117
+ 543 015c 0B92     		str	r2, [sp, #44]
+ 544 015e 0699     		ldr	r1, [sp, #24]
+ 545 0160 079A     		ldr	r2, [sp, #28]
+ 546 0162 0C96     		str	r6, [sp, #48]
+ 547 0164 0D94     		str	r4, [sp, #52]
+ 548 0166 0A97     		str	r7, [sp, #40]
+ 549 0168 00E0     		b	.L23
+ 550              	.LVL29:
+ 551              	.L25:
+ 195:.././crypto/mbedtls//library/sha256.c ****         else
+ 552              		.loc 1 195 13 view .LVU118
+ 553 016a 0B68     		ldr	r3, [r1]
+ 554              	.L23:
+ 203:.././crypto/mbedtls//library/sha256.c ****     }
+ 204:.././crypto/mbedtls//library/sha256.c **** #else /* MBEDTLS_SHA256_SMALLER */
+ 205:.././crypto/mbedtls//library/sha256.c ****     for( i = 0; i < 16; i++ )
+ 206:.././crypto/mbedtls//library/sha256.c ****         GET_UINT32_BE( W[i], data, 4 * i );
+ 207:.././crypto/mbedtls//library/sha256.c **** 
+ 208:.././crypto/mbedtls//library/sha256.c ****     for( i = 0; i < 16; i += 8 )
+ 209:.././crypto/mbedtls//library/sha256.c ****     {
+ 210:.././crypto/mbedtls//library/sha256.c ****         P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], W[i+0], K[i+0] );
+ 211:.././crypto/mbedtls//library/sha256.c ****         P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], W[i+1], K[i+1] );
+ 212:.././crypto/mbedtls//library/sha256.c ****         P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], W[i+2], K[i+2] );
+ 213:.././crypto/mbedtls//library/sha256.c ****         P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], W[i+3], K[i+3] );
+ 214:.././crypto/mbedtls//library/sha256.c ****         P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], W[i+4], K[i+4] );
+ 215:.././crypto/mbedtls//library/sha256.c ****         P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], W[i+5], K[i+5] );
+ 216:.././crypto/mbedtls//library/sha256.c ****         P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], W[i+6], K[i+6] );
+ 217:.././crypto/mbedtls//library/sha256.c ****         P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], W[i+7], K[i+7] );
+ 218:.././crypto/mbedtls//library/sha256.c ****     }
+ 219:.././crypto/mbedtls//library/sha256.c **** 
+ 220:.././crypto/mbedtls//library/sha256.c ****     for( i = 16; i < 64; i += 8 )
+ 221:.././crypto/mbedtls//library/sha256.c ****     {
+ 222:.././crypto/mbedtls//library/sha256.c ****         P( A[0], A[1], A[2], A[3], A[4], A[5], A[6], A[7], R(i+0), K[i+0] );
+ 223:.././crypto/mbedtls//library/sha256.c ****         P( A[7], A[0], A[1], A[2], A[3], A[4], A[5], A[6], R(i+1), K[i+1] );
+ 224:.././crypto/mbedtls//library/sha256.c ****         P( A[6], A[7], A[0], A[1], A[2], A[3], A[4], A[5], R(i+2), K[i+2] );
+ 225:.././crypto/mbedtls//library/sha256.c ****         P( A[5], A[6], A[7], A[0], A[1], A[2], A[3], A[4], R(i+3), K[i+3] );
+ 226:.././crypto/mbedtls//library/sha256.c ****         P( A[4], A[5], A[6], A[7], A[0], A[1], A[2], A[3], R(i+4), K[i+4] );
+ 227:.././crypto/mbedtls//library/sha256.c ****         P( A[3], A[4], A[5], A[6], A[7], A[0], A[1], A[2], R(i+5), K[i+5] );
+ 228:.././crypto/mbedtls//library/sha256.c ****         P( A[2], A[3], A[4], A[5], A[6], A[7], A[0], A[1], R(i+6), K[i+6] );
+ 229:.././crypto/mbedtls//library/sha256.c ****         P( A[1], A[2], A[3], A[4], A[5], A[6], A[7], A[0], R(i+7), K[i+7] );
+ 230:.././crypto/mbedtls//library/sha256.c ****     }
+ 231:.././crypto/mbedtls//library/sha256.c **** #endif /* MBEDTLS_SHA256_SMALLER */
+ 232:.././crypto/mbedtls//library/sha256.c **** 
+ 233:.././crypto/mbedtls//library/sha256.c ****     for( i = 0; i < 8; i++ )
+ 234:.././crypto/mbedtls//library/sha256.c ****         ctx->state[i] += A[i];
+ 555              		.loc 1 234 9 is_stmt 1 discriminator 3 view .LVU119
+ 556              		.loc 1 234 23 is_stmt 0 discriminator 3 view .LVU120
+ 557 016c 1468     		ldr	r4, [r2]
+ 558 016e 0431     		adds	r1, r1, #4
+ 559 0170 A446     		mov	ip, r4
+ 560 0172 6344     		add	r3, r3, ip
+ 561 0174 08C2     		stmia	r2!, {r3}
+ 233:.././crypto/mbedtls//library/sha256.c ****         ctx->state[i] += A[i];
+ 562              		.loc 1 233 24 is_stmt 1 discriminator 3 view .LVU121
+ 233:.././crypto/mbedtls//library/sha256.c ****         ctx->state[i] += A[i];
+ 563              		.loc 1 233 17 discriminator 3 view .LVU122
+ 233:.././crypto/mbedtls//library/sha256.c ****         ctx->state[i] += A[i];
+ 564              		.loc 1 233 5 is_stmt 0 discriminator 3 view .LVU123
+ 565 0176 9042     		cmp	r0, r2
+ 566 0178 F7D1     		bne	.L25
+ 235:.././crypto/mbedtls//library/sha256.c **** }
+ 567              		.loc 1 235 1 view .LVU124
+ 568 017a 51B0     		add	sp, sp, #324
+ 569              		@ sp needed
+ 570              	.LVL30:
+ 571              	.LVL31:
+ 572              		.loc 1 235 1 view .LVU125
+ 573 017c 3CBC     		pop	{r2, r3, r4, r5}
+ 574 017e 9046     		mov	r8, r2
+ 575 0180 9946     		mov	r9, r3
+ 576 0182 A246     		mov	r10, r4
+ 577 0184 AB46     		mov	fp, r5
+ 578 0186 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 579              	.L27:
+ 580              		.align	2
+ 581              	.L26:
+ 582 0188 44000000 		.word	K+4
+ 583 018c 982F8A42 		.word	1116352408
+ 584              		.cfi_endproc
+ 585              	.LFE5:
+ 587              		.section	.text.mbedtls_sha256_update.part.0,"ax",%progbits
+ 588              		.align	1
+ 589              		.p2align 2,,3
+ 590              		.syntax unified
+ 591              		.code	16
+ 592              		.thumb_func
+ 593              		.fpu softvfp
+ 595              	mbedtls_sha256_update.part.0:
+ 596              	.LVL32:
+ 597              	.LFB10:
+ 236:.././crypto/mbedtls//library/sha256.c **** #endif /* !MBEDTLS_SHA256_PROCESS_ALT */
+ 237:.././crypto/mbedtls//library/sha256.c **** 
+ 238:.././crypto/mbedtls//library/sha256.c **** /*
+ 239:.././crypto/mbedtls//library/sha256.c ****  * SHA-256 process buffer
+ 240:.././crypto/mbedtls//library/sha256.c ****  */
+ 241:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256_update( mbedtls_sha256_context *ctx, const unsigned char *input,
+ 598              		.loc 1 241 6 is_stmt 1 view -0
+ 599              		.cfi_startproc
+ 600              		@ args = 0, pretend = 0, frame = 0
+ 601              		@ frame_needed = 0, uses_anonymous_args = 0
+ 242:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 243:.././crypto/mbedtls//library/sha256.c **** {
+ 244:.././crypto/mbedtls//library/sha256.c ****     size_t fill;
+ 245:.././crypto/mbedtls//library/sha256.c ****     uint32_t left;
+ 246:.././crypto/mbedtls//library/sha256.c **** 
+ 247:.././crypto/mbedtls//library/sha256.c ****     if( ilen == 0 )
+ 248:.././crypto/mbedtls//library/sha256.c ****         return;
+ 249:.././crypto/mbedtls//library/sha256.c **** 
+ 250:.././crypto/mbedtls//library/sha256.c ****     left = ctx->total[0] & 0x3F;
+ 602              		.loc 1 250 5 view .LVU127
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 603              		.loc 1 241 6 is_stmt 0 view .LVU128
+ 604 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 605              	.LCFI5:
+ 606              		.cfi_def_cfa_offset 24
+ 607              		.cfi_offset 3, -24
+ 608              		.cfi_offset 4, -20
+ 609              		.cfi_offset 5, -16
+ 610              		.cfi_offset 6, -12
+ 611              		.cfi_offset 7, -8
+ 612              		.cfi_offset 14, -4
+ 613              		.loc 1 250 22 view .LVU129
+ 614 0002 0368     		ldr	r3, [r0]
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 615              		.loc 1 241 6 view .LVU130
+ 616 0004 0600     		movs	r6, r0
+ 617              		.loc 1 250 10 view .LVU131
+ 618 0006 3F20     		movs	r0, #63
+ 619              	.LVL33:
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 620              		.loc 1 241 6 view .LVU132
+ 621 0008 4746     		mov	r7, r8
+ 622 000a CE46     		mov	lr, r9
+ 623              		.loc 1 250 10 view .LVU133
+ 624 000c 1840     		ands	r0, r3
+ 251:.././crypto/mbedtls//library/sha256.c ****     fill = 64 - left;
+ 252:.././crypto/mbedtls//library/sha256.c **** 
+ 253:.././crypto/mbedtls//library/sha256.c ****     ctx->total[0] += (uint32_t) ilen;
+ 625              		.loc 1 253 19 view .LVU134
+ 626 000e 9B18     		adds	r3, r3, r2
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 627              		.loc 1 241 6 view .LVU135
+ 628 0010 80B5     		push	{r7, lr}
+ 629              	.LCFI6:
+ 630              		.cfi_def_cfa_offset 32
+ 631              		.cfi_offset 8, -32
+ 632              		.cfi_offset 9, -28
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 633              		.loc 1 241 6 view .LVU136
+ 634 0012 0C00     		movs	r4, r1
+ 635 0014 1700     		movs	r7, r2
+ 250:.././crypto/mbedtls//library/sha256.c ****     fill = 64 - left;
+ 636              		.loc 1 250 10 view .LVU137
+ 637 0016 8046     		mov	r8, r0
+ 638              	.LVL34:
+ 251:.././crypto/mbedtls//library/sha256.c ****     fill = 64 - left;
+ 639              		.loc 1 251 5 is_stmt 1 view .LVU138
+ 640              		.loc 1 253 5 view .LVU139
+ 641              		.loc 1 253 19 is_stmt 0 view .LVU140
+ 642 0018 3360     		str	r3, [r6]
+ 254:.././crypto/mbedtls//library/sha256.c ****     ctx->total[0] &= 0xFFFFFFFF;
+ 643              		.loc 1 254 5 is_stmt 1 view .LVU141
+ 255:.././crypto/mbedtls//library/sha256.c **** 
+ 256:.././crypto/mbedtls//library/sha256.c ****     if( ctx->total[0] < (uint32_t) ilen )
+ 644              		.loc 1 256 5 view .LVU142
+ 645              		.loc 1 256 7 is_stmt 0 view .LVU143
+ 646 001a 9A42     		cmp	r2, r3
+ 647 001c 02D9     		bls	.L29
+ 257:.././crypto/mbedtls//library/sha256.c ****         ctx->total[1]++;
+ 648              		.loc 1 257 9 is_stmt 1 view .LVU144
+ 649              		.loc 1 257 22 is_stmt 0 view .LVU145
+ 650 001e 7368     		ldr	r3, [r6, #4]
+ 651 0020 0133     		adds	r3, r3, #1
+ 652 0022 7360     		str	r3, [r6, #4]
+ 653              	.L29:
+ 258:.././crypto/mbedtls//library/sha256.c **** 
+ 259:.././crypto/mbedtls//library/sha256.c ****     if( left && ilen >= fill )
+ 654              		.loc 1 259 5 is_stmt 1 view .LVU146
+ 655              		.loc 1 259 7 is_stmt 0 view .LVU147
+ 656 0024 4346     		mov	r3, r8
+ 657 0026 002B     		cmp	r3, #0
+ 658 0028 1ED0     		beq	.L30
+ 251:.././crypto/mbedtls//library/sha256.c **** 
+ 659              		.loc 1 251 10 view .LVU148
+ 660 002a 4025     		movs	r5, #64
+ 661 002c ED1A     		subs	r5, r5, r3
+ 662              		.loc 1 259 14 view .LVU149
+ 663 002e BD42     		cmp	r5, r7
+ 664 0030 0AD9     		bls	.L43
+ 260:.././crypto/mbedtls//library/sha256.c ****     {
+ 261:.././crypto/mbedtls//library/sha256.c ****         memcpy( (void *) (ctx->buffer + left), input, fill );
+ 262:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, ctx->buffer );
+ 263:.././crypto/mbedtls//library/sha256.c ****         input += fill;
+ 264:.././crypto/mbedtls//library/sha256.c ****         ilen  -= fill;
+ 265:.././crypto/mbedtls//library/sha256.c ****         left = 0;
+ 266:.././crypto/mbedtls//library/sha256.c ****     }
+ 267:.././crypto/mbedtls//library/sha256.c **** 
+ 268:.././crypto/mbedtls//library/sha256.c ****     while( ilen >= 64 )
+ 665              		.loc 1 268 10 view .LVU150
+ 666 0032 2500     		movs	r5, r4
+ 667              	.LVL35:
+ 668              	.L46:
+ 269:.././crypto/mbedtls//library/sha256.c ****     {
+ 270:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, input );
+ 271:.././crypto/mbedtls//library/sha256.c ****         input += 64;
+ 272:.././crypto/mbedtls//library/sha256.c ****         ilen  -= 64;
+ 273:.././crypto/mbedtls//library/sha256.c ****     }
+ 274:.././crypto/mbedtls//library/sha256.c **** 
+ 275:.././crypto/mbedtls//library/sha256.c ****     if( ilen > 0 )
+ 669              		.loc 1 275 5 is_stmt 1 view .LVU151
+ 670              		.loc 1 275 7 is_stmt 0 view .LVU152
+ 671 0034 002F     		cmp	r7, #0
+ 672 0036 2CD0     		beq	.L28
+ 673              	.LVL36:
+ 674              	.L45:
+ 276:.././crypto/mbedtls//library/sha256.c ****         memcpy( (void *) (ctx->buffer + left), input, ilen );
+ 675              		.loc 1 276 9 is_stmt 1 view .LVU153
+ 676              		.loc 1 276 27 is_stmt 0 view .LVU154
+ 677 0038 3000     		movs	r0, r6
+ 678 003a 2830     		adds	r0, r0, #40
+ 679              		.loc 1 276 9 view .LVU155
+ 680 003c 3A00     		movs	r2, r7
+ 681 003e 2900     		movs	r1, r5
+ 682 0040 4044     		add	r0, r0, r8
+ 683 0042 FFF7FEFF 		bl	memcpy
+ 684              	.LVL37:
+ 685 0046 24E0     		b	.L28
+ 686              	.LVL38:
+ 687              	.L43:
+ 261:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, ctx->buffer );
+ 688              		.loc 1 261 9 is_stmt 1 view .LVU156
+ 261:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, ctx->buffer );
+ 689              		.loc 1 261 27 is_stmt 0 view .LVU157
+ 690 0048 2823     		movs	r3, #40
+ 691 004a 9946     		mov	r9, r3
+ 692 004c B144     		add	r9, r9, r6
+ 261:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, ctx->buffer );
+ 693              		.loc 1 261 9 view .LVU158
+ 694 004e 4846     		mov	r0, r9
+ 695              	.LVL39:
+ 261:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, ctx->buffer );
+ 696              		.loc 1 261 9 view .LVU159
+ 697 0050 2100     		movs	r1, r4
+ 698              	.LVL40:
+ 261:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, ctx->buffer );
+ 699              		.loc 1 261 9 view .LVU160
+ 700 0052 2A00     		movs	r2, r5
+ 701              	.LVL41:
+ 261:.././crypto/mbedtls//library/sha256.c ****         mbedtls_sha256_process( ctx, ctx->buffer );
+ 702              		.loc 1 261 9 view .LVU161
+ 703 0054 4044     		add	r0, r0, r8
+ 704 0056 FFF7FEFF 		bl	memcpy
+ 705              	.LVL42:
+ 262:.././crypto/mbedtls//library/sha256.c ****         input += fill;
+ 706              		.loc 1 262 9 is_stmt 1 view .LVU162
+ 707 005a 4946     		mov	r1, r9
+ 708 005c 3000     		movs	r0, r6
+ 709 005e FFF7FEFF 		bl	mbedtls_sha256_process
+ 710              	.LVL43:
+ 263:.././crypto/mbedtls//library/sha256.c ****         ilen  -= fill;
+ 711              		.loc 1 263 9 view .LVU163
+ 712 0062 403F     		subs	r7, r7, #64
+ 713              	.LVL44:
+ 263:.././crypto/mbedtls//library/sha256.c ****         ilen  -= fill;
+ 714              		.loc 1 263 15 is_stmt 0 view .LVU164
+ 715 0064 6419     		adds	r4, r4, r5
+ 716              	.LVL45:
+ 264:.././crypto/mbedtls//library/sha256.c ****         left = 0;
+ 717              		.loc 1 264 9 is_stmt 1 view .LVU165
+ 264:.././crypto/mbedtls//library/sha256.c ****         left = 0;
+ 718              		.loc 1 264 15 is_stmt 0 view .LVU166
+ 719 0066 4744     		add	r7, r7, r8
+ 720              	.LVL46:
+ 265:.././crypto/mbedtls//library/sha256.c ****     }
+ 721              		.loc 1 265 9 is_stmt 1 view .LVU167
+ 722              	.L30:
+ 268:.././crypto/mbedtls//library/sha256.c ****     {
+ 723              		.loc 1 268 10 view .LVU168
+ 724 0068 3F2F     		cmp	r7, #63
+ 725 006a 16D9     		bls	.L44
+ 268:.././crypto/mbedtls//library/sha256.c ****     {
+ 726              		.loc 1 268 10 is_stmt 0 view .LVU169
+ 727 006c 3D00     		movs	r5, r7
+ 728 006e 403D     		subs	r5, r5, #64
+ 729 0070 AD09     		lsrs	r5, r5, #6
+ 730 0072 0135     		adds	r5, r5, #1
+ 731 0074 AD01     		lsls	r5, r5, #6
+ 732 0076 6519     		adds	r5, r4, r5
+ 733              	.L32:
+ 270:.././crypto/mbedtls//library/sha256.c ****         input += 64;
+ 734              		.loc 1 270 9 is_stmt 1 view .LVU170
+ 735 0078 2100     		movs	r1, r4
+ 736 007a 3000     		movs	r0, r6
+ 271:.././crypto/mbedtls//library/sha256.c ****         ilen  -= 64;
+ 737              		.loc 1 271 15 is_stmt 0 view .LVU171
+ 738 007c 4034     		adds	r4, r4, #64
+ 739              	.LVL47:
+ 270:.././crypto/mbedtls//library/sha256.c ****         input += 64;
+ 740              		.loc 1 270 9 view .LVU172
+ 741 007e FFF7FEFF 		bl	mbedtls_sha256_process
+ 742              	.LVL48:
+ 271:.././crypto/mbedtls//library/sha256.c ****         ilen  -= 64;
+ 743              		.loc 1 271 9 is_stmt 1 view .LVU173
+ 272:.././crypto/mbedtls//library/sha256.c ****     }
+ 744              		.loc 1 272 9 view .LVU174
+ 268:.././crypto/mbedtls//library/sha256.c ****     {
+ 745              		.loc 1 268 10 view .LVU175
+ 746 0082 AC42     		cmp	r4, r5
+ 747 0084 F8D1     		bne	.L32
+ 748 0086 3F23     		movs	r3, #63
+ 749 0088 1F40     		ands	r7, r3
+ 750              	.LVL49:
+ 268:.././crypto/mbedtls//library/sha256.c ****     {
+ 751              		.loc 1 268 10 is_stmt 0 view .LVU176
+ 752 008a 0023     		movs	r3, #0
+ 753 008c 9846     		mov	r8, r3
+ 754              	.LVL50:
+ 275:.././crypto/mbedtls//library/sha256.c ****         memcpy( (void *) (ctx->buffer + left), input, ilen );
+ 755              		.loc 1 275 5 is_stmt 1 view .LVU177
+ 275:.././crypto/mbedtls//library/sha256.c ****         memcpy( (void *) (ctx->buffer + left), input, ilen );
+ 756              		.loc 1 275 7 is_stmt 0 view .LVU178
+ 757 008e 002F     		cmp	r7, #0
+ 758 0090 D2D1     		bne	.L45
+ 759              	.LVL51:
+ 760              	.L28:
+ 277:.././crypto/mbedtls//library/sha256.c **** }
+ 761              		.loc 1 277 1 view .LVU179
+ 762              		@ sp needed
+ 763              	.LVL52:
+ 764              	.LVL53:
+ 765              		.loc 1 277 1 view .LVU180
+ 766 0092 0CBC     		pop	{r2, r3}
+ 767 0094 9046     		mov	r8, r2
+ 768 0096 9946     		mov	r9, r3
+ 769 0098 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 770              	.LVL54:
+ 771              	.L44:
+ 268:.././crypto/mbedtls//library/sha256.c ****     {
+ 772              		.loc 1 268 10 view .LVU181
+ 773 009a 0023     		movs	r3, #0
+ 774 009c 2500     		movs	r5, r4
+ 775 009e 9846     		mov	r8, r3
+ 776              	.LVL55:
+ 268:.././crypto/mbedtls//library/sha256.c ****     {
+ 777              		.loc 1 268 10 view .LVU182
+ 778 00a0 C8E7     		b	.L46
+ 779              		.cfi_endproc
+ 780              	.LFE10:
+ 782 00a2 C046     		.section	.text.mbedtls_sha256_update,"ax",%progbits
+ 783              		.align	1
+ 784              		.p2align 2,,3
+ 785              		.global	mbedtls_sha256_update
+ 786              		.syntax unified
+ 787              		.code	16
+ 788              		.thumb_func
+ 789              		.fpu softvfp
+ 791              	mbedtls_sha256_update:
+ 792              	.LVL56:
+ 793              	.LFB6:
+ 243:.././crypto/mbedtls//library/sha256.c ****     size_t fill;
+ 794              		.loc 1 243 1 is_stmt 1 view -0
+ 795              		.cfi_startproc
+ 796              		@ args = 0, pretend = 0, frame = 0
+ 797              		@ frame_needed = 0, uses_anonymous_args = 0
+ 244:.././crypto/mbedtls//library/sha256.c ****     uint32_t left;
+ 798              		.loc 1 244 5 view .LVU184
+ 245:.././crypto/mbedtls//library/sha256.c **** 
+ 799              		.loc 1 245 5 view .LVU185
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 800              		.loc 1 247 5 view .LVU186
+ 243:.././crypto/mbedtls//library/sha256.c ****     size_t fill;
+ 801              		.loc 1 243 1 is_stmt 0 view .LVU187
+ 802 0000 10B5     		push	{r4, lr}
+ 803              	.LCFI7:
+ 804              		.cfi_def_cfa_offset 8
+ 805              		.cfi_offset 4, -8
+ 806              		.cfi_offset 14, -4
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 807              		.loc 1 247 7 view .LVU188
+ 808 0002 002A     		cmp	r2, #0
+ 809 0004 01D0     		beq	.L47
+ 810 0006 FFF7FEFF 		bl	mbedtls_sha256_update.part.0
+ 811              	.LVL57:
+ 812              	.L47:
+ 813              		.loc 1 277 1 view .LVU189
+ 814              		@ sp needed
+ 815 000a 10BD     		pop	{r4, pc}
+ 816              		.cfi_endproc
+ 817              	.LFE6:
+ 819              		.section	.text.mbedtls_sha256_finish,"ax",%progbits
+ 820              		.align	1
+ 821              		.p2align 2,,3
+ 822              		.global	mbedtls_sha256_finish
+ 823              		.syntax unified
+ 824              		.code	16
+ 825              		.thumb_func
+ 826              		.fpu softvfp
+ 828              	mbedtls_sha256_finish:
+ 829              	.LVL58:
+ 830              	.LFB7:
+ 278:.././crypto/mbedtls//library/sha256.c **** 
+ 279:.././crypto/mbedtls//library/sha256.c **** static const unsigned char sha256_padding[64] =
+ 280:.././crypto/mbedtls//library/sha256.c **** {
+ 281:.././crypto/mbedtls//library/sha256.c ****  0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 282:.././crypto/mbedtls//library/sha256.c ****     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 283:.././crypto/mbedtls//library/sha256.c ****     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+ 284:.././crypto/mbedtls//library/sha256.c ****     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+ 285:.././crypto/mbedtls//library/sha256.c **** };
+ 286:.././crypto/mbedtls//library/sha256.c **** 
+ 287:.././crypto/mbedtls//library/sha256.c **** /*
+ 288:.././crypto/mbedtls//library/sha256.c ****  * SHA-256 final digest
+ 289:.././crypto/mbedtls//library/sha256.c ****  */
+ 290:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256_finish( mbedtls_sha256_context *ctx, unsigned char output[32] )
+ 291:.././crypto/mbedtls//library/sha256.c **** {
+ 831              		.loc 1 291 1 is_stmt 1 view -0
+ 832              		.cfi_startproc
+ 833              		@ args = 0, pretend = 0, frame = 8
+ 834              		@ frame_needed = 0, uses_anonymous_args = 0
+ 292:.././crypto/mbedtls//library/sha256.c ****     uint32_t last, padn;
+ 835              		.loc 1 292 5 view .LVU191
+ 293:.././crypto/mbedtls//library/sha256.c ****     uint32_t high, low;
+ 836              		.loc 1 293 5 view .LVU192
+ 294:.././crypto/mbedtls//library/sha256.c ****     unsigned char msglen[8];
+ 837              		.loc 1 294 5 view .LVU193
+ 295:.././crypto/mbedtls//library/sha256.c **** 
+ 296:.././crypto/mbedtls//library/sha256.c ****     high = ( ctx->total[0] >> 29 )
+ 838              		.loc 1 296 5 view .LVU194
+ 291:.././crypto/mbedtls//library/sha256.c ****     uint32_t last, padn;
+ 839              		.loc 1 291 1 is_stmt 0 view .LVU195
+ 840 0000 30B5     		push	{r4, r5, lr}
+ 841              	.LCFI8:
+ 842              		.cfi_def_cfa_offset 12
+ 843              		.cfi_offset 4, -12
+ 844              		.cfi_offset 5, -8
+ 845              		.cfi_offset 14, -4
+ 297:.././crypto/mbedtls//library/sha256.c ****          | ( ctx->total[1] <<  3 );
+ 846              		.loc 1 297 28 view .LVU196
+ 847 0002 4368     		ldr	r3, [r0, #4]
+ 291:.././crypto/mbedtls//library/sha256.c ****     uint32_t last, padn;
+ 848              		.loc 1 291 1 view .LVU197
+ 849 0004 0D00     		movs	r5, r1
+ 296:.././crypto/mbedtls//library/sha256.c ****          | ( ctx->total[1] <<  3 );
+ 850              		.loc 1 296 24 view .LVU198
+ 851 0006 0168     		ldr	r1, [r0]
+ 852              	.LVL59:
+ 298:.././crypto/mbedtls//library/sha256.c ****     low  = ( ctx->total[0] <<  3 );
+ 853              		.loc 1 298 5 is_stmt 1 view .LVU199
+ 299:.././crypto/mbedtls//library/sha256.c **** 
+ 300:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( high, msglen, 0 );
+ 854              		.loc 1 300 5 view .LVU200
+ 855              		.loc 1 300 5 view .LVU201
+ 856              		.loc 1 300 5 view .LVU202
+ 857              		.loc 1 300 5 view .LVU203
+ 858              		.loc 1 300 5 view .LVU204
+ 297:.././crypto/mbedtls//library/sha256.c ****     low  = ( ctx->total[0] <<  3 );
+ 859              		.loc 1 297 28 is_stmt 0 view .LVU205
+ 860 0008 DB00     		lsls	r3, r3, #3
+ 861              	.LVL60:
+ 296:.././crypto/mbedtls//library/sha256.c ****          | ( ctx->total[1] <<  3 );
+ 862              		.loc 1 296 28 view .LVU206
+ 863 000a 4A0F     		lsrs	r2, r1, #29
+ 296:.././crypto/mbedtls//library/sha256.c ****          | ( ctx->total[1] <<  3 );
+ 864              		.loc 1 296 10 view .LVU207
+ 865 000c 1343     		orrs	r3, r2
+ 866              	.LVL61:
+ 301:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 302:.././crypto/mbedtls//library/sha256.c **** 
+ 303:.././crypto/mbedtls//library/sha256.c ****     last = ctx->total[0] & 0x3F;
+ 867              		.loc 1 303 10 view .LVU208
+ 868 000e 3F22     		movs	r2, #63
+ 291:.././crypto/mbedtls//library/sha256.c ****     uint32_t last, padn;
+ 869              		.loc 1 291 1 view .LVU209
+ 870 0010 83B0     		sub	sp, sp, #12
+ 871              	.LCFI9:
+ 872              		.cfi_def_cfa_offset 24
+ 873 0012 1BBA     		rev	r3, r3
+ 874              	.LVL62:
+ 300:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 875              		.loc 1 300 5 view .LVU210
+ 876 0014 0093     		str	r3, [sp]
+ 300:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 877              		.loc 1 300 5 is_stmt 1 view .LVU211
+ 301:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 878              		.loc 1 301 5 view .LVU212
+ 301:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 879              		.loc 1 301 5 view .LVU213
+ 301:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 880              		.loc 1 301 5 view .LVU214
+ 301:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 881              		.loc 1 301 5 view .LVU215
+ 301:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( low,  msglen, 4 );
+ 882              		.loc 1 301 5 view .LVU216
+ 298:.././crypto/mbedtls//library/sha256.c **** 
+ 883              		.loc 1 298 10 is_stmt 0 view .LVU217
+ 884 0016 CB00     		lsls	r3, r1, #3
+ 885              	.LVL63:
+ 298:.././crypto/mbedtls//library/sha256.c **** 
+ 886              		.loc 1 298 10 view .LVU218
+ 887 0018 1BBA     		rev	r3, r3
+ 888              	.LVL64:
+ 291:.././crypto/mbedtls//library/sha256.c ****     uint32_t last, padn;
+ 889              		.loc 1 291 1 view .LVU219
+ 890 001a 0400     		movs	r4, r0
+ 301:.././crypto/mbedtls//library/sha256.c **** 
+ 891              		.loc 1 301 5 view .LVU220
+ 892 001c 0193     		str	r3, [sp, #4]
+ 301:.././crypto/mbedtls//library/sha256.c **** 
+ 893              		.loc 1 301 5 is_stmt 1 view .LVU221
+ 894              		.loc 1 303 5 view .LVU222
+ 895              		.loc 1 303 10 is_stmt 0 view .LVU223
+ 896 001e 0A40     		ands	r2, r1
+ 897              	.LVL65:
+ 304:.././crypto/mbedtls//library/sha256.c ****     padn = ( last < 56 ) ? ( 56 - last ) : ( 120 - last );
+ 898              		.loc 1 304 5 is_stmt 1 view .LVU224
+ 899              		.loc 1 304 42 is_stmt 0 view .LVU225
+ 900 0020 372A     		cmp	r2, #55
+ 901 0022 59D8     		bhi	.L53
+ 902              		.loc 1 304 42 discriminator 1 view .LVU226
+ 903 0024 3823     		movs	r3, #56
+ 904 0026 9A1A     		subs	r2, r3, r2
+ 905              	.LVL66:
+ 906              	.L54:
+ 305:.././crypto/mbedtls//library/sha256.c **** 
+ 306:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_update( ctx, sha256_padding, padn );
+ 907              		.loc 1 306 5 is_stmt 1 discriminator 4 view .LVU227
+ 908              	.LBB29:
+ 909              	.LBI29:
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 910              		.loc 1 241 6 discriminator 4 view .LVU228
+ 911              	.LBB30:
+ 244:.././crypto/mbedtls//library/sha256.c ****     uint32_t left;
+ 912              		.loc 1 244 5 discriminator 4 view .LVU229
+ 245:.././crypto/mbedtls//library/sha256.c **** 
+ 913              		.loc 1 245 5 discriminator 4 view .LVU230
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 914              		.loc 1 247 5 discriminator 4 view .LVU231
+ 915 0028 2000     		movs	r0, r4
+ 916              	.LVL67:
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 917              		.loc 1 247 5 is_stmt 0 discriminator 4 view .LVU232
+ 918 002a 2D49     		ldr	r1, .L56
+ 919              	.LVL68:
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 920              		.loc 1 247 5 discriminator 4 view .LVU233
+ 921 002c FFF7FEFF 		bl	mbedtls_sha256_update.part.0
+ 922              	.LVL69:
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 923              		.loc 1 247 5 discriminator 4 view .LVU234
+ 924              	.LBE30:
+ 925              	.LBE29:
+ 307:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_update( ctx, msglen, 8 );
+ 926              		.loc 1 307 5 is_stmt 1 discriminator 4 view .LVU235
+ 927              	.LBB31:
+ 928              	.LBI31:
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 929              		.loc 1 241 6 discriminator 4 view .LVU236
+ 930              	.LBB32:
+ 244:.././crypto/mbedtls//library/sha256.c ****     uint32_t left;
+ 931              		.loc 1 244 5 discriminator 4 view .LVU237
+ 245:.././crypto/mbedtls//library/sha256.c **** 
+ 932              		.loc 1 245 5 discriminator 4 view .LVU238
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 933              		.loc 1 247 5 discriminator 4 view .LVU239
+ 934 0030 0822     		movs	r2, #8
+ 935 0032 6946     		mov	r1, sp
+ 936 0034 2000     		movs	r0, r4
+ 937 0036 FFF7FEFF 		bl	mbedtls_sha256_update.part.0
+ 938              	.LVL70:
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 939              		.loc 1 247 5 is_stmt 0 discriminator 4 view .LVU240
+ 940              	.LBE32:
+ 941              	.LBE31:
+ 308:.././crypto/mbedtls//library/sha256.c **** 
+ 309:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( ctx->state[0], output,  0 );
+ 942              		.loc 1 309 5 is_stmt 1 discriminator 4 view .LVU241
+ 943              		.loc 1 309 5 discriminator 4 view .LVU242
+ 944 003a E37A     		ldrb	r3, [r4, #11]
+ 945 003c 2B70     		strb	r3, [r5]
+ 946              		.loc 1 309 5 discriminator 4 view .LVU243
+ 947 003e 6389     		ldrh	r3, [r4, #10]
+ 948 0040 6B70     		strb	r3, [r5, #1]
+ 949              		.loc 1 309 5 discriminator 4 view .LVU244
+ 950 0042 A368     		ldr	r3, [r4, #8]
+ 951 0044 1B0A     		lsrs	r3, r3, #8
+ 952 0046 AB70     		strb	r3, [r5, #2]
+ 953              		.loc 1 309 5 discriminator 4 view .LVU245
+ 954 0048 A368     		ldr	r3, [r4, #8]
+ 955 004a EB70     		strb	r3, [r5, #3]
+ 956              		.loc 1 309 5 discriminator 4 view .LVU246
+ 310:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( ctx->state[1], output,  4 );
+ 957              		.loc 1 310 5 discriminator 4 view .LVU247
+ 958              		.loc 1 310 5 discriminator 4 view .LVU248
+ 959 004c E37B     		ldrb	r3, [r4, #15]
+ 960 004e 2B71     		strb	r3, [r5, #4]
+ 961              		.loc 1 310 5 discriminator 4 view .LVU249
+ 962 0050 E389     		ldrh	r3, [r4, #14]
+ 963 0052 6B71     		strb	r3, [r5, #5]
+ 964              		.loc 1 310 5 discriminator 4 view .LVU250
+ 965 0054 E368     		ldr	r3, [r4, #12]
+ 966 0056 1B0A     		lsrs	r3, r3, #8
+ 967 0058 AB71     		strb	r3, [r5, #6]
+ 968              		.loc 1 310 5 discriminator 4 view .LVU251
+ 969 005a E368     		ldr	r3, [r4, #12]
+ 970 005c EB71     		strb	r3, [r5, #7]
+ 971              		.loc 1 310 5 discriminator 4 view .LVU252
+ 311:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( ctx->state[2], output,  8 );
+ 972              		.loc 1 311 5 discriminator 4 view .LVU253
+ 973              		.loc 1 311 5 discriminator 4 view .LVU254
+ 974 005e E37C     		ldrb	r3, [r4, #19]
+ 975 0060 2B72     		strb	r3, [r5, #8]
+ 976              		.loc 1 311 5 discriminator 4 view .LVU255
+ 977 0062 638A     		ldrh	r3, [r4, #18]
+ 978 0064 6B72     		strb	r3, [r5, #9]
+ 979              		.loc 1 311 5 discriminator 4 view .LVU256
+ 980 0066 2369     		ldr	r3, [r4, #16]
+ 981 0068 1B0A     		lsrs	r3, r3, #8
+ 982 006a AB72     		strb	r3, [r5, #10]
+ 983              		.loc 1 311 5 discriminator 4 view .LVU257
+ 984 006c 2369     		ldr	r3, [r4, #16]
+ 985 006e EB72     		strb	r3, [r5, #11]
+ 986              		.loc 1 311 5 discriminator 4 view .LVU258
+ 312:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( ctx->state[3], output, 12 );
+ 987              		.loc 1 312 5 discriminator 4 view .LVU259
+ 988              		.loc 1 312 5 discriminator 4 view .LVU260
+ 989 0070 E37D     		ldrb	r3, [r4, #23]
+ 990 0072 2B73     		strb	r3, [r5, #12]
+ 991              		.loc 1 312 5 discriminator 4 view .LVU261
+ 992 0074 E38A     		ldrh	r3, [r4, #22]
+ 993 0076 6B73     		strb	r3, [r5, #13]
+ 994              		.loc 1 312 5 discriminator 4 view .LVU262
+ 995 0078 6369     		ldr	r3, [r4, #20]
+ 996 007a 1B0A     		lsrs	r3, r3, #8
+ 997 007c AB73     		strb	r3, [r5, #14]
+ 998              		.loc 1 312 5 discriminator 4 view .LVU263
+ 999 007e 6369     		ldr	r3, [r4, #20]
+ 1000 0080 EB73     		strb	r3, [r5, #15]
+ 1001              		.loc 1 312 5 discriminator 4 view .LVU264
+ 313:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( ctx->state[4], output, 16 );
+ 1002              		.loc 1 313 5 discriminator 4 view .LVU265
+ 1003              		.loc 1 313 5 discriminator 4 view .LVU266
+ 1004 0082 E37E     		ldrb	r3, [r4, #27]
+ 1005 0084 2B74     		strb	r3, [r5, #16]
+ 1006              		.loc 1 313 5 discriminator 4 view .LVU267
+ 1007 0086 638B     		ldrh	r3, [r4, #26]
+ 1008 0088 6B74     		strb	r3, [r5, #17]
+ 1009              		.loc 1 313 5 discriminator 4 view .LVU268
+ 1010 008a A369     		ldr	r3, [r4, #24]
+ 1011 008c 1B0A     		lsrs	r3, r3, #8
+ 1012 008e AB74     		strb	r3, [r5, #18]
+ 1013              		.loc 1 313 5 discriminator 4 view .LVU269
+ 1014 0090 A369     		ldr	r3, [r4, #24]
+ 1015 0092 EB74     		strb	r3, [r5, #19]
+ 1016              		.loc 1 313 5 discriminator 4 view .LVU270
+ 314:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( ctx->state[5], output, 20 );
+ 1017              		.loc 1 314 5 discriminator 4 view .LVU271
+ 1018              		.loc 1 314 5 discriminator 4 view .LVU272
+ 1019 0094 E37F     		ldrb	r3, [r4, #31]
+ 1020 0096 2B75     		strb	r3, [r5, #20]
+ 1021              		.loc 1 314 5 discriminator 4 view .LVU273
+ 1022 0098 E38B     		ldrh	r3, [r4, #30]
+ 1023 009a 6B75     		strb	r3, [r5, #21]
+ 1024              		.loc 1 314 5 discriminator 4 view .LVU274
+ 1025 009c E369     		ldr	r3, [r4, #28]
+ 1026 009e 1B0A     		lsrs	r3, r3, #8
+ 1027 00a0 AB75     		strb	r3, [r5, #22]
+ 1028              		.loc 1 314 5 discriminator 4 view .LVU275
+ 1029 00a2 E369     		ldr	r3, [r4, #28]
+ 1030 00a4 EB75     		strb	r3, [r5, #23]
+ 1031              		.loc 1 314 5 discriminator 4 view .LVU276
+ 315:.././crypto/mbedtls//library/sha256.c ****     PUT_UINT32_BE( ctx->state[6], output, 24 );
+ 1032              		.loc 1 315 5 discriminator 4 view .LVU277
+ 1033              		.loc 1 315 5 discriminator 4 view .LVU278
+ 1034 00a6 236A     		ldr	r3, [r4, #32]
+ 1035 00a8 1B0E     		lsrs	r3, r3, #24
+ 1036 00aa 2B76     		strb	r3, [r5, #24]
+ 1037              		.loc 1 315 5 discriminator 4 view .LVU279
+ 1038 00ac 638C     		ldrh	r3, [r4, #34]
+ 1039 00ae 6B76     		strb	r3, [r5, #25]
+ 1040              		.loc 1 315 5 discriminator 4 view .LVU280
+ 1041 00b0 236A     		ldr	r3, [r4, #32]
+ 1042 00b2 1B0A     		lsrs	r3, r3, #8
+ 1043 00b4 AB76     		strb	r3, [r5, #26]
+ 1044              		.loc 1 315 5 discriminator 4 view .LVU281
+ 1045 00b6 236A     		ldr	r3, [r4, #32]
+ 1046 00b8 EB76     		strb	r3, [r5, #27]
+ 1047              		.loc 1 315 5 discriminator 4 view .LVU282
+ 316:.././crypto/mbedtls//library/sha256.c **** 
+ 317:.././crypto/mbedtls//library/sha256.c ****     if( ctx->is224 == 0 )
+ 1048              		.loc 1 317 5 discriminator 4 view .LVU283
+ 1049              		.loc 1 317 7 is_stmt 0 discriminator 4 view .LVU284
+ 1050 00ba A36E     		ldr	r3, [r4, #104]
+ 1051 00bc 002B     		cmp	r3, #0
+ 1052 00be 09D1     		bne	.L52
+ 318:.././crypto/mbedtls//library/sha256.c ****         PUT_UINT32_BE( ctx->state[7], output, 28 );
+ 1053              		.loc 1 318 9 is_stmt 1 view .LVU285
+ 1054              		.loc 1 318 9 view .LVU286
+ 1055 00c0 636A     		ldr	r3, [r4, #36]
+ 1056 00c2 1B0E     		lsrs	r3, r3, #24
+ 1057 00c4 2B77     		strb	r3, [r5, #28]
+ 1058              		.loc 1 318 9 view .LVU287
+ 1059 00c6 E38C     		ldrh	r3, [r4, #38]
+ 1060 00c8 6B77     		strb	r3, [r5, #29]
+ 1061              		.loc 1 318 9 view .LVU288
+ 1062 00ca 636A     		ldr	r3, [r4, #36]
+ 1063 00cc 1B0A     		lsrs	r3, r3, #8
+ 1064 00ce AB77     		strb	r3, [r5, #30]
+ 1065              		.loc 1 318 9 view .LVU289
+ 1066 00d0 636A     		ldr	r3, [r4, #36]
+ 1067 00d2 EB77     		strb	r3, [r5, #31]
+ 1068              		.loc 1 318 9 view .LVU290
+ 1069              	.L52:
+ 319:.././crypto/mbedtls//library/sha256.c **** }
+ 1070              		.loc 1 319 1 is_stmt 0 view .LVU291
+ 1071 00d4 03B0     		add	sp, sp, #12
+ 1072              		@ sp needed
+ 1073              	.LVL71:
+ 1074              	.LVL72:
+ 1075              		.loc 1 319 1 view .LVU292
+ 1076 00d6 30BD     		pop	{r4, r5, pc}
+ 1077              	.LVL73:
+ 1078              	.L53:
+ 304:.././crypto/mbedtls//library/sha256.c **** 
+ 1079              		.loc 1 304 42 discriminator 2 view .LVU293
+ 1080 00d8 7823     		movs	r3, #120
+ 1081 00da 9A1A     		subs	r2, r3, r2
+ 1082              	.LVL74:
+ 304:.././crypto/mbedtls//library/sha256.c **** 
+ 1083              		.loc 1 304 42 discriminator 2 view .LVU294
+ 1084 00dc A4E7     		b	.L54
+ 1085              	.L57:
+ 1086 00de C046     		.align	2
+ 1087              	.L56:
+ 1088 00e0 00000000 		.word	.LANCHOR0
+ 1089              		.cfi_endproc
+ 1090              	.LFE7:
+ 1092              		.section	.text.mbedtls_sha256,"ax",%progbits
+ 1093              		.align	1
+ 1094              		.p2align 2,,3
+ 1095              		.global	mbedtls_sha256
+ 1096              		.syntax unified
+ 1097              		.code	16
+ 1098              		.thumb_func
+ 1099              		.fpu softvfp
+ 1101              	mbedtls_sha256:
+ 1102              	.LVL75:
+ 1103              	.LFB8:
+ 320:.././crypto/mbedtls//library/sha256.c **** 
+ 321:.././crypto/mbedtls//library/sha256.c **** #endif /* !MBEDTLS_SHA256_ALT */
+ 322:.././crypto/mbedtls//library/sha256.c **** 
+ 323:.././crypto/mbedtls//library/sha256.c **** /*
+ 324:.././crypto/mbedtls//library/sha256.c ****  * output = SHA-256( input buffer )
+ 325:.././crypto/mbedtls//library/sha256.c ****  */
+ 326:.././crypto/mbedtls//library/sha256.c **** void mbedtls_sha256( const unsigned char *input, size_t ilen,
+ 327:.././crypto/mbedtls//library/sha256.c ****              unsigned char output[32], int is224 )
+ 328:.././crypto/mbedtls//library/sha256.c **** {
+ 1104              		.loc 1 328 1 is_stmt 1 view -0
+ 1105              		.cfi_startproc
+ 1106              		@ args = 0, pretend = 0, frame = 112
+ 1107              		@ frame_needed = 0, uses_anonymous_args = 0
+ 329:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_context ctx;
+ 1108              		.loc 1 329 5 view .LVU296
+ 330:.././crypto/mbedtls//library/sha256.c **** 
+ 331:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_init( &ctx );
+ 1109              		.loc 1 331 5 view .LVU297
+ 328:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_context ctx;
+ 1110              		.loc 1 328 1 is_stmt 0 view .LVU298
+ 1111 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 1112              	.LCFI10:
+ 1113              		.cfi_def_cfa_offset 20
+ 1114              		.cfi_offset 4, -20
+ 1115              		.cfi_offset 5, -16
+ 1116              		.cfi_offset 6, -12
+ 1117              		.cfi_offset 7, -8
+ 1118              		.cfi_offset 14, -4
+ 1119 0002 9DB0     		sub	sp, sp, #116
+ 1120              	.LCFI11:
+ 1121              		.cfi_def_cfa_offset 136
+ 1122              	.LVL76:
+ 1123              	.LBB45:
+ 1124              	.LBI45:
+  81:.././crypto/mbedtls//library/sha256.c **** {
+ 1125              		.loc 1 81 6 is_stmt 1 view .LVU299
+ 1126              	.LBB46:
+  83:.././crypto/mbedtls//library/sha256.c **** }
+ 1127              		.loc 1 83 5 view .LVU300
+ 1128              	.LBE46:
+ 1129              	.LBE45:
+ 328:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_context ctx;
+ 1130              		.loc 1 328 1 is_stmt 0 view .LVU301
+ 1131 0004 0700     		movs	r7, r0
+ 1132 0006 0D00     		movs	r5, r1
+ 1133 0008 1600     		movs	r6, r2
+ 1134              	.LBB49:
+ 1135              	.LBB47:
+  83:.././crypto/mbedtls//library/sha256.c **** }
+ 1136              		.loc 1 83 5 view .LVU302
+ 1137 000a 0021     		movs	r1, #0
+ 1138              	.LVL77:
+  83:.././crypto/mbedtls//library/sha256.c **** }
+ 1139              		.loc 1 83 5 view .LVU303
+ 1140 000c 6422     		movs	r2, #100
+ 1141              	.LVL78:
+  83:.././crypto/mbedtls//library/sha256.c **** }
+ 1142              		.loc 1 83 5 view .LVU304
+ 1143 000e 03A8     		add	r0, sp, #12
+ 1144              	.LVL79:
+  83:.././crypto/mbedtls//library/sha256.c **** }
+ 1145              		.loc 1 83 5 view .LVU305
+ 1146              	.LBE47:
+ 1147              	.LBE49:
+ 328:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_context ctx;
+ 1148              		.loc 1 328 1 view .LVU306
+ 1149 0010 1C00     		movs	r4, r3
+ 1150              	.LBB50:
+ 1151              	.LBB48:
+  83:.././crypto/mbedtls//library/sha256.c **** }
+ 1152              		.loc 1 83 5 view .LVU307
+ 1153 0012 FFF7FEFF 		bl	memset
+ 1154              	.LVL80:
+  83:.././crypto/mbedtls//library/sha256.c **** }
+ 1155              		.loc 1 83 5 view .LVU308
+ 1156              	.LBE48:
+ 1157              	.LBE50:
+ 332:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_starts( &ctx, is224 );
+ 1158              		.loc 1 332 5 is_stmt 1 view .LVU309
+ 1159              	.LBB51:
+ 1160              	.LBI51:
+ 103:.././crypto/mbedtls//library/sha256.c **** {
+ 1161              		.loc 1 103 6 view .LVU310
+ 1162              	.LBB52:
+ 105:.././crypto/mbedtls//library/sha256.c ****     ctx->total[1] = 0;
+ 1163              		.loc 1 105 5 view .LVU311
+ 105:.././crypto/mbedtls//library/sha256.c ****     ctx->total[1] = 0;
+ 1164              		.loc 1 105 19 is_stmt 0 view .LVU312
+ 1165 0016 0023     		movs	r3, #0
+ 1166 0018 0193     		str	r3, [sp, #4]
+ 106:.././crypto/mbedtls//library/sha256.c **** 
+ 1167              		.loc 1 106 5 is_stmt 1 view .LVU313
+ 106:.././crypto/mbedtls//library/sha256.c **** 
+ 1168              		.loc 1 106 19 is_stmt 0 view .LVU314
+ 1169 001a 0293     		str	r3, [sp, #8]
+ 108:.././crypto/mbedtls//library/sha256.c ****     {
+ 1170              		.loc 1 108 5 is_stmt 1 view .LVU315
+ 108:.././crypto/mbedtls//library/sha256.c ****     {
+ 1171              		.loc 1 108 7 is_stmt 0 view .LVU316
+ 1172 001c 002C     		cmp	r4, #0
+ 1173 001e 25D1     		bne	.L59
+ 111:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0xBB67AE85;
+ 1174              		.loc 1 111 9 is_stmt 1 view .LVU317
+ 111:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0xBB67AE85;
+ 1175              		.loc 1 111 23 is_stmt 0 view .LVU318
+ 1176 0020 1B4B     		ldr	r3, .L67
+ 1177 0022 0393     		str	r3, [sp, #12]
+ 112:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3C6EF372;
+ 1178              		.loc 1 112 9 is_stmt 1 view .LVU319
+ 112:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3C6EF372;
+ 1179              		.loc 1 112 23 is_stmt 0 view .LVU320
+ 1180 0024 1B4B     		ldr	r3, .L67+4
+ 1181 0026 0493     		str	r3, [sp, #16]
+ 113:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xA54FF53A;
+ 1182              		.loc 1 113 9 is_stmt 1 view .LVU321
+ 113:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xA54FF53A;
+ 1183              		.loc 1 113 23 is_stmt 0 view .LVU322
+ 1184 0028 1B4B     		ldr	r3, .L67+8
+ 1185 002a 0593     		str	r3, [sp, #20]
+ 114:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0x510E527F;
+ 1186              		.loc 1 114 9 is_stmt 1 view .LVU323
+ 114:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0x510E527F;
+ 1187              		.loc 1 114 23 is_stmt 0 view .LVU324
+ 1188 002c 1B4B     		ldr	r3, .L67+12
+ 1189 002e 0693     		str	r3, [sp, #24]
+ 115:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x9B05688C;
+ 1190              		.loc 1 115 9 is_stmt 1 view .LVU325
+ 115:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x9B05688C;
+ 1191              		.loc 1 115 23 is_stmt 0 view .LVU326
+ 1192 0030 1B4B     		ldr	r3, .L67+16
+ 1193 0032 0793     		str	r3, [sp, #28]
+ 116:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x1F83D9AB;
+ 1194              		.loc 1 116 9 is_stmt 1 view .LVU327
+ 116:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x1F83D9AB;
+ 1195              		.loc 1 116 23 is_stmt 0 view .LVU328
+ 1196 0034 1B4B     		ldr	r3, .L67+20
+ 1197 0036 0893     		str	r3, [sp, #32]
+ 117:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0x5BE0CD19;
+ 1198              		.loc 1 117 9 is_stmt 1 view .LVU329
+ 117:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0x5BE0CD19;
+ 1199              		.loc 1 117 23 is_stmt 0 view .LVU330
+ 1200 0038 1B4B     		ldr	r3, .L67+24
+ 1201 003a 0993     		str	r3, [sp, #36]
+ 118:.././crypto/mbedtls//library/sha256.c ****     }
+ 1202              		.loc 1 118 9 is_stmt 1 view .LVU331
+ 118:.././crypto/mbedtls//library/sha256.c ****     }
+ 1203              		.loc 1 118 23 is_stmt 0 view .LVU332
+ 1204 003c 1B4B     		ldr	r3, .L67+28
+ 1205 003e 0A93     		str	r3, [sp, #40]
+ 1206              	.L60:
+ 133:.././crypto/mbedtls//library/sha256.c **** }
+ 1207              		.loc 1 133 5 is_stmt 1 view .LVU333
+ 133:.././crypto/mbedtls//library/sha256.c **** }
+ 1208              		.loc 1 133 16 is_stmt 0 view .LVU334
+ 1209 0040 1B94     		str	r4, [sp, #108]
+ 1210              	.LVL81:
+ 133:.././crypto/mbedtls//library/sha256.c **** }
+ 1211              		.loc 1 133 16 view .LVU335
+ 1212              	.LBE52:
+ 1213              	.LBE51:
+ 333:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_update( &ctx, input, ilen );
+ 1214              		.loc 1 333 5 is_stmt 1 view .LVU336
+ 1215              	.LBB54:
+ 1216              	.LBI54:
+ 241:.././crypto/mbedtls//library/sha256.c ****                     size_t ilen )
+ 1217              		.loc 1 241 6 view .LVU337
+ 1218              	.LBB55:
+ 244:.././crypto/mbedtls//library/sha256.c ****     uint32_t left;
+ 1219              		.loc 1 244 5 view .LVU338
+ 245:.././crypto/mbedtls//library/sha256.c **** 
+ 1220              		.loc 1 245 5 view .LVU339
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 1221              		.loc 1 247 5 view .LVU340
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 1222              		.loc 1 247 7 is_stmt 0 view .LVU341
+ 1223 0042 002D     		cmp	r5, #0
+ 1224 0044 04D0     		beq	.L61
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 1225              		.loc 1 247 7 view .LVU342
+ 1226 0046 2A00     		movs	r2, r5
+ 1227 0048 3900     		movs	r1, r7
+ 1228 004a 01A8     		add	r0, sp, #4
+ 1229              	.LVL82:
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 1230              		.loc 1 247 7 view .LVU343
+ 1231 004c FFF7FEFF 		bl	mbedtls_sha256_update.part.0
+ 1232              	.LVL83:
+ 1233              	.L61:
+ 247:.././crypto/mbedtls//library/sha256.c ****         return;
+ 1234              		.loc 1 247 7 view .LVU344
+ 1235              	.LBE55:
+ 1236              	.LBE54:
+ 334:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_finish( &ctx, output );
+ 1237              		.loc 1 334 5 is_stmt 1 view .LVU345
+ 1238 0050 3100     		movs	r1, r6
+ 1239 0052 01A8     		add	r0, sp, #4
+ 1240 0054 FFF7FEFF 		bl	mbedtls_sha256_finish
+ 1241              	.LVL84:
+ 335:.././crypto/mbedtls//library/sha256.c ****     mbedtls_sha256_free( &ctx );
+ 1242              		.loc 1 335 5 view .LVU346
+ 1243              	.LBB56:
+ 1244              	.LBI56:
+  86:.././crypto/mbedtls//library/sha256.c **** {
+ 1245              		.loc 1 86 6 view .LVU347
+ 1246              	.LBE56:
+  88:.././crypto/mbedtls//library/sha256.c ****         return;
+ 1247              		.loc 1 88 5 view .LVU348
+ 1248              	.LBB60:
+ 1249              	.LBB57:
+ 1250              	.LBI57:
+  86:.././crypto/mbedtls//library/sha256.c **** {
+ 1251              		.loc 1 86 6 view .LVU349
+ 1252              	.LBB58:
+ 1253              	.LBB59:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1254              		.loc 1 55 41 view .LVU350
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1255              		.loc 1 55 54 is_stmt 0 view .LVU351
+ 1256 0058 0022     		movs	r2, #0
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1257              		.loc 1 55 29 view .LVU352
+ 1258 005a 01AB     		add	r3, sp, #4
+ 1259              	.LVL85:
+ 1260              	.L62:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1261              		.loc 1 55 49 is_stmt 1 view .LVU353
+ 1262 005c 1900     		movs	r1, r3
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1263              		.loc 1 55 51 is_stmt 0 view .LVU354
+ 1264 005e 0133     		adds	r3, r3, #1
+ 1265              	.LVL86:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1266              		.loc 1 55 54 view .LVU355
+ 1267 0060 0A70     		strb	r2, [r1]
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1268              		.loc 1 55 41 is_stmt 1 view .LVU356
+ 1269              	.LVL87:
+  55:.././crypto/mbedtls//library/sha256.c **** }
+ 1270              		.loc 1 55 41 is_stmt 0 view .LVU357
+ 1271 0062 1CA9     		add	r1, sp, #112
+ 1272 0064 8B42     		cmp	r3, r1
+ 1273 0066 F9D1     		bne	.L62
+ 1274              	.LBE59:
+ 1275              	.LBE58:
+ 1276              	.LBE57:
+ 1277              	.LBE60:
+ 336:.././crypto/mbedtls//library/sha256.c **** }
+ 1278              		.loc 1 336 1 view .LVU358
+ 1279 0068 1DB0     		add	sp, sp, #116
+ 1280              		@ sp needed
+ 1281              	.LVL88:
+ 1282              	.LVL89:
+ 1283              	.LVL90:
+ 1284              	.LVL91:
+ 1285              		.loc 1 336 1 view .LVU359
+ 1286 006a F0BD     		pop	{r4, r5, r6, r7, pc}
+ 1287              	.LVL92:
+ 1288              	.L59:
+ 1289              	.LBB61:
+ 1290              	.LBB53:
+ 123:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0x367CD507;
+ 1291              		.loc 1 123 9 is_stmt 1 view .LVU360
+ 123:.././crypto/mbedtls//library/sha256.c ****         ctx->state[1] = 0x367CD507;
+ 1292              		.loc 1 123 23 is_stmt 0 view .LVU361
+ 1293 006c 104B     		ldr	r3, .L67+32
+ 1294 006e 0393     		str	r3, [sp, #12]
+ 124:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3070DD17;
+ 1295              		.loc 1 124 9 is_stmt 1 view .LVU362
+ 124:.././crypto/mbedtls//library/sha256.c ****         ctx->state[2] = 0x3070DD17;
+ 1296              		.loc 1 124 23 is_stmt 0 view .LVU363
+ 1297 0070 104B     		ldr	r3, .L67+36
+ 1298 0072 0493     		str	r3, [sp, #16]
+ 125:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xF70E5939;
+ 1299              		.loc 1 125 9 is_stmt 1 view .LVU364
+ 125:.././crypto/mbedtls//library/sha256.c ****         ctx->state[3] = 0xF70E5939;
+ 1300              		.loc 1 125 23 is_stmt 0 view .LVU365
+ 1301 0074 104B     		ldr	r3, .L67+40
+ 1302 0076 0593     		str	r3, [sp, #20]
+ 126:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0xFFC00B31;
+ 1303              		.loc 1 126 9 is_stmt 1 view .LVU366
+ 126:.././crypto/mbedtls//library/sha256.c ****         ctx->state[4] = 0xFFC00B31;
+ 1304              		.loc 1 126 23 is_stmt 0 view .LVU367
+ 1305 0078 104B     		ldr	r3, .L67+44
+ 1306 007a 0693     		str	r3, [sp, #24]
+ 127:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x68581511;
+ 1307              		.loc 1 127 9 is_stmt 1 view .LVU368
+ 127:.././crypto/mbedtls//library/sha256.c ****         ctx->state[5] = 0x68581511;
+ 1308              		.loc 1 127 23 is_stmt 0 view .LVU369
+ 1309 007c 104B     		ldr	r3, .L67+48
+ 1310 007e 0793     		str	r3, [sp, #28]
+ 128:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x64F98FA7;
+ 1311              		.loc 1 128 9 is_stmt 1 view .LVU370
+ 128:.././crypto/mbedtls//library/sha256.c ****         ctx->state[6] = 0x64F98FA7;
+ 1312              		.loc 1 128 23 is_stmt 0 view .LVU371
+ 1313 0080 104B     		ldr	r3, .L67+52
+ 1314 0082 0893     		str	r3, [sp, #32]
+ 129:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0xBEFA4FA4;
+ 1315              		.loc 1 129 9 is_stmt 1 view .LVU372
+ 129:.././crypto/mbedtls//library/sha256.c ****         ctx->state[7] = 0xBEFA4FA4;
+ 1316              		.loc 1 129 23 is_stmt 0 view .LVU373
+ 1317 0084 104B     		ldr	r3, .L67+56
+ 1318 0086 0993     		str	r3, [sp, #36]
+ 130:.././crypto/mbedtls//library/sha256.c ****     }
+ 1319              		.loc 1 130 9 is_stmt 1 view .LVU374
+ 130:.././crypto/mbedtls//library/sha256.c ****     }
+ 1320              		.loc 1 130 23 is_stmt 0 view .LVU375
+ 1321 0088 104B     		ldr	r3, .L67+60
+ 1322 008a 0A93     		str	r3, [sp, #40]
+ 1323 008c D8E7     		b	.L60
+ 1324              	.L68:
+ 1325 008e C046     		.align	2
+ 1326              	.L67:
+ 1327 0090 67E6096A 		.word	1779033703
+ 1328 0094 85AE67BB 		.word	-1150833019
+ 1329 0098 72F36E3C 		.word	1013904242
+ 1330 009c 3AF54FA5 		.word	-1521486534
+ 1331 00a0 7F520E51 		.word	1359893119
+ 1332 00a4 8C68059B 		.word	-1694144372
+ 1333 00a8 ABD9831F 		.word	528734635
+ 1334 00ac 19CDE05B 		.word	1541459225
+ 1335 00b0 D89E05C1 		.word	-1056596264
+ 1336 00b4 07D57C36 		.word	914150663
+ 1337 00b8 17DD7030 		.word	812702999
+ 1338 00bc 39590EF7 		.word	-150054599
+ 1339 00c0 310BC0FF 		.word	-4191439
+ 1340 00c4 11155868 		.word	1750603025
+ 1341 00c8 A78FF964 		.word	1694076839
+ 1342 00cc A44FFABE 		.word	-1090891868
+ 1343              	.LBE53:
+ 1344              	.LBE61:
+ 1345              		.cfi_endproc
+ 1346              	.LFE8:
+ 1348              		.section	.rodata
+ 1349              		.align	2
+ 1350              		.set	.LANCHOR0,. + 0
+ 1353              	sha256_padding:
+ 1354 0000 80000000 		.ascii	"\200\000\000\000\000\000\000\000\000\000\000\000\000"
+ 1354      00000000 
+ 1354      00000000 
+ 1354      00
+ 1355 000d 00000000 		.ascii	"\000\000\000\000\000\000\000\000\000\000\000\000\000"
+ 1355      00000000 
+ 1355      00000000 
+ 1355      00
+ 1356 001a 00000000 		.ascii	"\000\000\000\000\000\000\000\000\000\000\000\000\000"
+ 1356      00000000 
+ 1356      00000000 
+ 1356      00
+ 1357 0027 00000000 		.ascii	"\000\000\000\000\000\000\000\000\000\000\000\000\000"
+ 1357      00000000 
+ 1357      00000000 
+ 1357      00
+ 1358 0034 00000000 		.ascii	"\000\000\000\000\000\000\000\000\000\000\000\000"
+ 1358      00000000 
+ 1358      00000000 
+ 1361              	K:
+ 1362 0040 982F8A42 		.word	1116352408
+ 1363 0044 91443771 		.word	1899447441
+ 1364 0048 CFFBC0B5 		.word	-1245643825
+ 1365 004c A5DBB5E9 		.word	-373957723
+ 1366 0050 5BC25639 		.word	961987163
+ 1367 0054 F111F159 		.word	1508970993
+ 1368 0058 A4823F92 		.word	-1841331548
+ 1369 005c D55E1CAB 		.word	-1424204075
+ 1370 0060 98AA07D8 		.word	-670586216
+ 1371 0064 015B8312 		.word	310598401
+ 1372 0068 BE853124 		.word	607225278
+ 1373 006c C37D0C55 		.word	1426881987
+ 1374 0070 745DBE72 		.word	1925078388
+ 1375 0074 FEB1DE80 		.word	-2132889090
+ 1376 0078 A706DC9B 		.word	-1680079193
+ 1377 007c 74F19BC1 		.word	-1046744716
+ 1378 0080 C1699BE4 		.word	-459576895
+ 1379 0084 8647BEEF 		.word	-272742522
+ 1380 0088 C69DC10F 		.word	264347078
+ 1381 008c CCA10C24 		.word	604807628
+ 1382 0090 6F2CE92D 		.word	770255983
+ 1383 0094 AA84744A 		.word	1249150122
+ 1384 0098 DCA9B05C 		.word	1555081692
+ 1385 009c DA88F976 		.word	1996064986
+ 1386 00a0 52513E98 		.word	-1740746414
+ 1387 00a4 6DC631A8 		.word	-1473132947
+ 1388 00a8 C82703B0 		.word	-1341970488
+ 1389 00ac C77F59BF 		.word	-1084653625
+ 1390 00b0 F30BE0C6 		.word	-958395405
+ 1391 00b4 4791A7D5 		.word	-710438585
+ 1392 00b8 5163CA06 		.word	113926993
+ 1393 00bc 67292914 		.word	338241895
+ 1394 00c0 850AB727 		.word	666307205
+ 1395 00c4 38211B2E 		.word	773529912
+ 1396 00c8 FC6D2C4D 		.word	1294757372
+ 1397 00cc 130D3853 		.word	1396182291
+ 1398 00d0 54730A65 		.word	1695183700
+ 1399 00d4 BB0A6A76 		.word	1986661051
+ 1400 00d8 2EC9C281 		.word	-2117940946
+ 1401 00dc 852C7292 		.word	-1838011259
+ 1402 00e0 A1E8BFA2 		.word	-1564481375
+ 1403 00e4 4B661AA8 		.word	-1474664885
+ 1404 00e8 708B4BC2 		.word	-1035236496
+ 1405 00ec A3516CC7 		.word	-949202525
+ 1406 00f0 19E892D1 		.word	-778901479
+ 1407 00f4 240699D6 		.word	-694614492
+ 1408 00f8 85350EF4 		.word	-200395387
+ 1409 00fc 70A06A10 		.word	275423344
+ 1410 0100 16C1A419 		.word	430227734
+ 1411 0104 086C371E 		.word	506948616
+ 1412 0108 4C774827 		.word	659060556
+ 1413 010c B5BCB034 		.word	883997877
+ 1414 0110 B30C1C39 		.word	958139571
+ 1415 0114 4AAAD84E 		.word	1322822218
+ 1416 0118 4FCA9C5B 		.word	1537002063
+ 1417 011c F36F2E68 		.word	1747873779
+ 1418 0120 EE828F74 		.word	1955562222
+ 1419 0124 6F63A578 		.word	2024104815
+ 1420 0128 1478C884 		.word	-2067236844
+ 1421 012c 0802C78C 		.word	-1933114872
+ 1422 0130 FAFFBE90 		.word	-1866530822
+ 1423 0134 EB6C50A4 		.word	-1538233109
+ 1424 0138 F7A3F9BE 		.word	-1090935817
+ 1425 013c F27871C6 		.word	-965641998
+ 1426              		.text
+ 1427              	.Letext0:
+ 1428              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 1429              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 1430              		.file 4 ".././crypto/mbedtls//include/mbedtls/sha256.h"
+ 1431              		.file 5 "/usr/include/newlib/sys/_types.h"
+ 1432              		.file 6 "/usr/include/newlib/sys/reent.h"
+ 1433              		.file 7 "/usr/include/newlib/sys/lock.h"
+ 1434              		.file 8 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 sha256.c
+     /tmp/ccOCB0qr.s:16     .text.mbedtls_sha256_init:0000000000000000 $t
+     /tmp/ccOCB0qr.s:25     .text.mbedtls_sha256_init:0000000000000000 mbedtls_sha256_init
+     /tmp/ccOCB0qr.s:52     .text.mbedtls_sha256_free:0000000000000000 $t
+     /tmp/ccOCB0qr.s:60     .text.mbedtls_sha256_free:0000000000000000 mbedtls_sha256_free
+     /tmp/ccOCB0qr.s:105    .text.mbedtls_sha256_clone:0000000000000000 $t
+     /tmp/ccOCB0qr.s:113    .text.mbedtls_sha256_clone:0000000000000000 mbedtls_sha256_clone
+     /tmp/ccOCB0qr.s:138    .text.mbedtls_sha256_starts:0000000000000000 $t
+     /tmp/ccOCB0qr.s:146    .text.mbedtls_sha256_starts:0000000000000000 mbedtls_sha256_starts
+     /tmp/ccOCB0qr.s:242    .text.mbedtls_sha256_starts:0000000000000050 $d
+     /tmp/ccOCB0qr.s:262    .text.mbedtls_sha256_process:0000000000000000 $t
+     /tmp/ccOCB0qr.s:270    .text.mbedtls_sha256_process:0000000000000000 mbedtls_sha256_process
+     /tmp/ccOCB0qr.s:582    .text.mbedtls_sha256_process:0000000000000188 $d
+     /tmp/ccOCB0qr.s:1361   .rodata:0000000000000040 K
+     /tmp/ccOCB0qr.s:588    .text.mbedtls_sha256_update.part.0:0000000000000000 $t
+     /tmp/ccOCB0qr.s:595    .text.mbedtls_sha256_update.part.0:0000000000000000 mbedtls_sha256_update.part.0
+     /tmp/ccOCB0qr.s:783    .text.mbedtls_sha256_update:0000000000000000 $t
+     /tmp/ccOCB0qr.s:791    .text.mbedtls_sha256_update:0000000000000000 mbedtls_sha256_update
+     /tmp/ccOCB0qr.s:820    .text.mbedtls_sha256_finish:0000000000000000 $t
+     /tmp/ccOCB0qr.s:828    .text.mbedtls_sha256_finish:0000000000000000 mbedtls_sha256_finish
+     /tmp/ccOCB0qr.s:1088   .text.mbedtls_sha256_finish:00000000000000e0 $d
+     /tmp/ccOCB0qr.s:1093   .text.mbedtls_sha256:0000000000000000 $t
+     /tmp/ccOCB0qr.s:1101   .text.mbedtls_sha256:0000000000000000 mbedtls_sha256
+     /tmp/ccOCB0qr.s:1327   .text.mbedtls_sha256:0000000000000090 $d
+     /tmp/ccOCB0qr.s:1349   .rodata:0000000000000000 $d
+     /tmp/ccOCB0qr.s:1353   .rodata:0000000000000000 sha256_padding
+
+UNDEFINED SYMBOLS
+memset
+memcpy

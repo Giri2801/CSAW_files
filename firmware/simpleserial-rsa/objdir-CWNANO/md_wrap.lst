@@ -1,0 +1,935 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"md_wrap.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sha224_process_wrap,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	sha224_process_wrap:
+  25              	.LVL0:
+  26              	.LFB10:
+  27              		.file 1 ".././crypto/mbedtls//library/md_wrap.c"
+   1:.././crypto/mbedtls//library/md_wrap.c **** /**
+   2:.././crypto/mbedtls//library/md_wrap.c ****  * \file md_wrap.c
+   3:.././crypto/mbedtls//library/md_wrap.c ****  *
+   4:.././crypto/mbedtls//library/md_wrap.c ****  * \brief Generic message digest wrapper for mbed TLS
+   5:.././crypto/mbedtls//library/md_wrap.c ****  *
+   6:.././crypto/mbedtls//library/md_wrap.c ****  * \author Adriaan de Jong <dejong@fox-it.com>
+   7:.././crypto/mbedtls//library/md_wrap.c ****  *
+   8:.././crypto/mbedtls//library/md_wrap.c ****  *  Copyright (C) 2006-2015, ARM Limited, All Rights Reserved
+   9:.././crypto/mbedtls//library/md_wrap.c ****  *  SPDX-License-Identifier: Apache-2.0
+  10:.././crypto/mbedtls//library/md_wrap.c ****  *
+  11:.././crypto/mbedtls//library/md_wrap.c ****  *  Licensed under the Apache License, Version 2.0 (the "License"); you may
+  12:.././crypto/mbedtls//library/md_wrap.c ****  *  not use this file except in compliance with the License.
+  13:.././crypto/mbedtls//library/md_wrap.c ****  *  You may obtain a copy of the License at
+  14:.././crypto/mbedtls//library/md_wrap.c ****  *
+  15:.././crypto/mbedtls//library/md_wrap.c ****  *  http://www.apache.org/licenses/LICENSE-2.0
+  16:.././crypto/mbedtls//library/md_wrap.c ****  *
+  17:.././crypto/mbedtls//library/md_wrap.c ****  *  Unless required by applicable law or agreed to in writing, software
+  18:.././crypto/mbedtls//library/md_wrap.c ****  *  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+  19:.././crypto/mbedtls//library/md_wrap.c ****  *  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  20:.././crypto/mbedtls//library/md_wrap.c ****  *  See the License for the specific language governing permissions and
+  21:.././crypto/mbedtls//library/md_wrap.c ****  *  limitations under the License.
+  22:.././crypto/mbedtls//library/md_wrap.c ****  *
+  23:.././crypto/mbedtls//library/md_wrap.c ****  *  This file is part of mbed TLS (https://tls.mbed.org)
+  24:.././crypto/mbedtls//library/md_wrap.c ****  */
+  25:.././crypto/mbedtls//library/md_wrap.c **** 
+  26:.././crypto/mbedtls//library/md_wrap.c **** #if !defined(MBEDTLS_CONFIG_FILE)
+  27:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/config.h"
+  28:.././crypto/mbedtls//library/md_wrap.c **** #else
+  29:.././crypto/mbedtls//library/md_wrap.c **** #include MBEDTLS_CONFIG_FILE
+  30:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  31:.././crypto/mbedtls//library/md_wrap.c **** 
+  32:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_MD_C)
+  33:.././crypto/mbedtls//library/md_wrap.c **** 
+  34:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/md_internal.h"
+  35:.././crypto/mbedtls//library/md_wrap.c **** 
+  36:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_MD2_C)
+  37:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/md2.h"
+  38:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  39:.././crypto/mbedtls//library/md_wrap.c **** 
+  40:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_MD4_C)
+  41:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/md4.h"
+  42:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  43:.././crypto/mbedtls//library/md_wrap.c **** 
+  44:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_MD5_C)
+  45:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/md5.h"
+  46:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  47:.././crypto/mbedtls//library/md_wrap.c **** 
+  48:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_RIPEMD160_C)
+  49:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/ripemd160.h"
+  50:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  51:.././crypto/mbedtls//library/md_wrap.c **** 
+  52:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_SHA1_C)
+  53:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/sha1.h"
+  54:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  55:.././crypto/mbedtls//library/md_wrap.c **** 
+  56:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_SHA256_C)
+  57:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/sha256.h"
+  58:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  59:.././crypto/mbedtls//library/md_wrap.c **** 
+  60:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_SHA512_C)
+  61:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/sha512.h"
+  62:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  63:.././crypto/mbedtls//library/md_wrap.c **** 
+  64:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_PLATFORM_C)
+  65:.././crypto/mbedtls//library/md_wrap.c **** #include "mbedtls/platform.h"
+  66:.././crypto/mbedtls//library/md_wrap.c **** #else
+  67:.././crypto/mbedtls//library/md_wrap.c **** #include <stdlib.h>
+  68:.././crypto/mbedtls//library/md_wrap.c **** #define mbedtls_calloc    calloc
+  69:.././crypto/mbedtls//library/md_wrap.c **** #define mbedtls_free       free
+  70:.././crypto/mbedtls//library/md_wrap.c **** #endif
+  71:.././crypto/mbedtls//library/md_wrap.c **** 
+  72:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_MD2_C)
+  73:.././crypto/mbedtls//library/md_wrap.c **** 
+  74:.././crypto/mbedtls//library/md_wrap.c **** static void md2_starts_wrap( void *ctx )
+  75:.././crypto/mbedtls//library/md_wrap.c **** {
+  76:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md2_starts( (mbedtls_md2_context *) ctx );
+  77:.././crypto/mbedtls//library/md_wrap.c **** }
+  78:.././crypto/mbedtls//library/md_wrap.c **** 
+  79:.././crypto/mbedtls//library/md_wrap.c **** static void md2_update_wrap( void *ctx, const unsigned char *input,
+  80:.././crypto/mbedtls//library/md_wrap.c ****                              size_t ilen )
+  81:.././crypto/mbedtls//library/md_wrap.c **** {
+  82:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md2_update( (mbedtls_md2_context *) ctx, input, ilen );
+  83:.././crypto/mbedtls//library/md_wrap.c **** }
+  84:.././crypto/mbedtls//library/md_wrap.c **** 
+  85:.././crypto/mbedtls//library/md_wrap.c **** static void md2_finish_wrap( void *ctx, unsigned char *output )
+  86:.././crypto/mbedtls//library/md_wrap.c **** {
+  87:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md2_finish( (mbedtls_md2_context *) ctx, output );
+  88:.././crypto/mbedtls//library/md_wrap.c **** }
+  89:.././crypto/mbedtls//library/md_wrap.c **** 
+  90:.././crypto/mbedtls//library/md_wrap.c **** static void *md2_ctx_alloc( void )
+  91:.././crypto/mbedtls//library/md_wrap.c **** {
+  92:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_md2_context ) );
+  93:.././crypto/mbedtls//library/md_wrap.c **** 
+  94:.././crypto/mbedtls//library/md_wrap.c ****     if( ctx != NULL )
+  95:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_md2_init( (mbedtls_md2_context *) ctx );
+  96:.././crypto/mbedtls//library/md_wrap.c **** 
+  97:.././crypto/mbedtls//library/md_wrap.c ****     return( ctx );
+  98:.././crypto/mbedtls//library/md_wrap.c **** }
+  99:.././crypto/mbedtls//library/md_wrap.c **** 
+ 100:.././crypto/mbedtls//library/md_wrap.c **** static void md2_ctx_free( void *ctx )
+ 101:.././crypto/mbedtls//library/md_wrap.c **** {
+ 102:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md2_free( (mbedtls_md2_context *) ctx );
+ 103:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+ 104:.././crypto/mbedtls//library/md_wrap.c **** }
+ 105:.././crypto/mbedtls//library/md_wrap.c **** 
+ 106:.././crypto/mbedtls//library/md_wrap.c **** static void md2_clone_wrap( void *dst, const void *src )
+ 107:.././crypto/mbedtls//library/md_wrap.c **** {
+ 108:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md2_clone( (mbedtls_md2_context *) dst,
+ 109:.././crypto/mbedtls//library/md_wrap.c ****                  (const mbedtls_md2_context *) src );
+ 110:.././crypto/mbedtls//library/md_wrap.c **** }
+ 111:.././crypto/mbedtls//library/md_wrap.c **** 
+ 112:.././crypto/mbedtls//library/md_wrap.c **** static void md2_process_wrap( void *ctx, const unsigned char *data )
+ 113:.././crypto/mbedtls//library/md_wrap.c **** {
+ 114:.././crypto/mbedtls//library/md_wrap.c ****     ((void) data);
+ 115:.././crypto/mbedtls//library/md_wrap.c **** 
+ 116:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md2_process( (mbedtls_md2_context *) ctx );
+ 117:.././crypto/mbedtls//library/md_wrap.c **** }
+ 118:.././crypto/mbedtls//library/md_wrap.c **** 
+ 119:.././crypto/mbedtls//library/md_wrap.c **** const mbedtls_md_info_t mbedtls_md2_info = {
+ 120:.././crypto/mbedtls//library/md_wrap.c ****     MBEDTLS_MD_MD2,
+ 121:.././crypto/mbedtls//library/md_wrap.c ****     "MD2",
+ 122:.././crypto/mbedtls//library/md_wrap.c ****     16,
+ 123:.././crypto/mbedtls//library/md_wrap.c ****     16,
+ 124:.././crypto/mbedtls//library/md_wrap.c ****     md2_starts_wrap,
+ 125:.././crypto/mbedtls//library/md_wrap.c ****     md2_update_wrap,
+ 126:.././crypto/mbedtls//library/md_wrap.c ****     md2_finish_wrap,
+ 127:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md2,
+ 128:.././crypto/mbedtls//library/md_wrap.c ****     md2_ctx_alloc,
+ 129:.././crypto/mbedtls//library/md_wrap.c ****     md2_ctx_free,
+ 130:.././crypto/mbedtls//library/md_wrap.c ****     md2_clone_wrap,
+ 131:.././crypto/mbedtls//library/md_wrap.c ****     md2_process_wrap,
+ 132:.././crypto/mbedtls//library/md_wrap.c **** };
+ 133:.././crypto/mbedtls//library/md_wrap.c **** 
+ 134:.././crypto/mbedtls//library/md_wrap.c **** #endif /* MBEDTLS_MD2_C */
+ 135:.././crypto/mbedtls//library/md_wrap.c **** 
+ 136:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_MD4_C)
+ 137:.././crypto/mbedtls//library/md_wrap.c **** 
+ 138:.././crypto/mbedtls//library/md_wrap.c **** static void md4_starts_wrap( void *ctx )
+ 139:.././crypto/mbedtls//library/md_wrap.c **** {
+ 140:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md4_starts( (mbedtls_md4_context *) ctx );
+ 141:.././crypto/mbedtls//library/md_wrap.c **** }
+ 142:.././crypto/mbedtls//library/md_wrap.c **** 
+ 143:.././crypto/mbedtls//library/md_wrap.c **** static void md4_update_wrap( void *ctx, const unsigned char *input,
+ 144:.././crypto/mbedtls//library/md_wrap.c ****                              size_t ilen )
+ 145:.././crypto/mbedtls//library/md_wrap.c **** {
+ 146:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md4_update( (mbedtls_md4_context *) ctx, input, ilen );
+ 147:.././crypto/mbedtls//library/md_wrap.c **** }
+ 148:.././crypto/mbedtls//library/md_wrap.c **** 
+ 149:.././crypto/mbedtls//library/md_wrap.c **** static void md4_finish_wrap( void *ctx, unsigned char *output )
+ 150:.././crypto/mbedtls//library/md_wrap.c **** {
+ 151:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md4_finish( (mbedtls_md4_context *) ctx, output );
+ 152:.././crypto/mbedtls//library/md_wrap.c **** }
+ 153:.././crypto/mbedtls//library/md_wrap.c **** 
+ 154:.././crypto/mbedtls//library/md_wrap.c **** static void *md4_ctx_alloc( void )
+ 155:.././crypto/mbedtls//library/md_wrap.c **** {
+ 156:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_md4_context ) );
+ 157:.././crypto/mbedtls//library/md_wrap.c **** 
+ 158:.././crypto/mbedtls//library/md_wrap.c ****     if( ctx != NULL )
+ 159:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_md4_init( (mbedtls_md4_context *) ctx );
+ 160:.././crypto/mbedtls//library/md_wrap.c **** 
+ 161:.././crypto/mbedtls//library/md_wrap.c ****     return( ctx );
+ 162:.././crypto/mbedtls//library/md_wrap.c **** }
+ 163:.././crypto/mbedtls//library/md_wrap.c **** 
+ 164:.././crypto/mbedtls//library/md_wrap.c **** static void md4_ctx_free( void *ctx )
+ 165:.././crypto/mbedtls//library/md_wrap.c **** {
+ 166:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md4_free( (mbedtls_md4_context *) ctx );
+ 167:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+ 168:.././crypto/mbedtls//library/md_wrap.c **** }
+ 169:.././crypto/mbedtls//library/md_wrap.c **** 
+ 170:.././crypto/mbedtls//library/md_wrap.c **** static void md4_clone_wrap( void *dst, const void *src )
+ 171:.././crypto/mbedtls//library/md_wrap.c **** {
+ 172:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md4_clone( (mbedtls_md4_context *) dst,
+ 173:.././crypto/mbedtls//library/md_wrap.c ****                  (const mbedtls_md4_context *) src );
+ 174:.././crypto/mbedtls//library/md_wrap.c **** }
+ 175:.././crypto/mbedtls//library/md_wrap.c **** 
+ 176:.././crypto/mbedtls//library/md_wrap.c **** static void md4_process_wrap( void *ctx, const unsigned char *data )
+ 177:.././crypto/mbedtls//library/md_wrap.c **** {
+ 178:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md4_process( (mbedtls_md4_context *) ctx, data );
+ 179:.././crypto/mbedtls//library/md_wrap.c **** }
+ 180:.././crypto/mbedtls//library/md_wrap.c **** 
+ 181:.././crypto/mbedtls//library/md_wrap.c **** const mbedtls_md_info_t mbedtls_md4_info = {
+ 182:.././crypto/mbedtls//library/md_wrap.c ****     MBEDTLS_MD_MD4,
+ 183:.././crypto/mbedtls//library/md_wrap.c ****     "MD4",
+ 184:.././crypto/mbedtls//library/md_wrap.c ****     16,
+ 185:.././crypto/mbedtls//library/md_wrap.c ****     64,
+ 186:.././crypto/mbedtls//library/md_wrap.c ****     md4_starts_wrap,
+ 187:.././crypto/mbedtls//library/md_wrap.c ****     md4_update_wrap,
+ 188:.././crypto/mbedtls//library/md_wrap.c ****     md4_finish_wrap,
+ 189:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md4,
+ 190:.././crypto/mbedtls//library/md_wrap.c ****     md4_ctx_alloc,
+ 191:.././crypto/mbedtls//library/md_wrap.c ****     md4_ctx_free,
+ 192:.././crypto/mbedtls//library/md_wrap.c ****     md4_clone_wrap,
+ 193:.././crypto/mbedtls//library/md_wrap.c ****     md4_process_wrap,
+ 194:.././crypto/mbedtls//library/md_wrap.c **** };
+ 195:.././crypto/mbedtls//library/md_wrap.c **** 
+ 196:.././crypto/mbedtls//library/md_wrap.c **** #endif /* MBEDTLS_MD4_C */
+ 197:.././crypto/mbedtls//library/md_wrap.c **** 
+ 198:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_MD5_C)
+ 199:.././crypto/mbedtls//library/md_wrap.c **** 
+ 200:.././crypto/mbedtls//library/md_wrap.c **** static void md5_starts_wrap( void *ctx )
+ 201:.././crypto/mbedtls//library/md_wrap.c **** {
+ 202:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md5_starts( (mbedtls_md5_context *) ctx );
+ 203:.././crypto/mbedtls//library/md_wrap.c **** }
+ 204:.././crypto/mbedtls//library/md_wrap.c **** 
+ 205:.././crypto/mbedtls//library/md_wrap.c **** static void md5_update_wrap( void *ctx, const unsigned char *input,
+ 206:.././crypto/mbedtls//library/md_wrap.c ****                              size_t ilen )
+ 207:.././crypto/mbedtls//library/md_wrap.c **** {
+ 208:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md5_update( (mbedtls_md5_context *) ctx, input, ilen );
+ 209:.././crypto/mbedtls//library/md_wrap.c **** }
+ 210:.././crypto/mbedtls//library/md_wrap.c **** 
+ 211:.././crypto/mbedtls//library/md_wrap.c **** static void md5_finish_wrap( void *ctx, unsigned char *output )
+ 212:.././crypto/mbedtls//library/md_wrap.c **** {
+ 213:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md5_finish( (mbedtls_md5_context *) ctx, output );
+ 214:.././crypto/mbedtls//library/md_wrap.c **** }
+ 215:.././crypto/mbedtls//library/md_wrap.c **** 
+ 216:.././crypto/mbedtls//library/md_wrap.c **** static void *md5_ctx_alloc( void )
+ 217:.././crypto/mbedtls//library/md_wrap.c **** {
+ 218:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_md5_context ) );
+ 219:.././crypto/mbedtls//library/md_wrap.c **** 
+ 220:.././crypto/mbedtls//library/md_wrap.c ****     if( ctx != NULL )
+ 221:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_md5_init( (mbedtls_md5_context *) ctx );
+ 222:.././crypto/mbedtls//library/md_wrap.c **** 
+ 223:.././crypto/mbedtls//library/md_wrap.c ****     return( ctx );
+ 224:.././crypto/mbedtls//library/md_wrap.c **** }
+ 225:.././crypto/mbedtls//library/md_wrap.c **** 
+ 226:.././crypto/mbedtls//library/md_wrap.c **** static void md5_ctx_free( void *ctx )
+ 227:.././crypto/mbedtls//library/md_wrap.c **** {
+ 228:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md5_free( (mbedtls_md5_context *) ctx );
+ 229:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+ 230:.././crypto/mbedtls//library/md_wrap.c **** }
+ 231:.././crypto/mbedtls//library/md_wrap.c **** 
+ 232:.././crypto/mbedtls//library/md_wrap.c **** static void md5_clone_wrap( void *dst, const void *src )
+ 233:.././crypto/mbedtls//library/md_wrap.c **** {
+ 234:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md5_clone( (mbedtls_md5_context *) dst,
+ 235:.././crypto/mbedtls//library/md_wrap.c ****                  (const mbedtls_md5_context *) src );
+ 236:.././crypto/mbedtls//library/md_wrap.c **** }
+ 237:.././crypto/mbedtls//library/md_wrap.c **** 
+ 238:.././crypto/mbedtls//library/md_wrap.c **** static void md5_process_wrap( void *ctx, const unsigned char *data )
+ 239:.././crypto/mbedtls//library/md_wrap.c **** {
+ 240:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md5_process( (mbedtls_md5_context *) ctx, data );
+ 241:.././crypto/mbedtls//library/md_wrap.c **** }
+ 242:.././crypto/mbedtls//library/md_wrap.c **** 
+ 243:.././crypto/mbedtls//library/md_wrap.c **** const mbedtls_md_info_t mbedtls_md5_info = {
+ 244:.././crypto/mbedtls//library/md_wrap.c ****     MBEDTLS_MD_MD5,
+ 245:.././crypto/mbedtls//library/md_wrap.c ****     "MD5",
+ 246:.././crypto/mbedtls//library/md_wrap.c ****     16,
+ 247:.././crypto/mbedtls//library/md_wrap.c ****     64,
+ 248:.././crypto/mbedtls//library/md_wrap.c ****     md5_starts_wrap,
+ 249:.././crypto/mbedtls//library/md_wrap.c ****     md5_update_wrap,
+ 250:.././crypto/mbedtls//library/md_wrap.c ****     md5_finish_wrap,
+ 251:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_md5,
+ 252:.././crypto/mbedtls//library/md_wrap.c ****     md5_ctx_alloc,
+ 253:.././crypto/mbedtls//library/md_wrap.c ****     md5_ctx_free,
+ 254:.././crypto/mbedtls//library/md_wrap.c ****     md5_clone_wrap,
+ 255:.././crypto/mbedtls//library/md_wrap.c ****     md5_process_wrap,
+ 256:.././crypto/mbedtls//library/md_wrap.c **** };
+ 257:.././crypto/mbedtls//library/md_wrap.c **** 
+ 258:.././crypto/mbedtls//library/md_wrap.c **** #endif /* MBEDTLS_MD5_C */
+ 259:.././crypto/mbedtls//library/md_wrap.c **** 
+ 260:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_RIPEMD160_C)
+ 261:.././crypto/mbedtls//library/md_wrap.c **** 
+ 262:.././crypto/mbedtls//library/md_wrap.c **** static void ripemd160_starts_wrap( void *ctx )
+ 263:.././crypto/mbedtls//library/md_wrap.c **** {
+ 264:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_ripemd160_starts( (mbedtls_ripemd160_context *) ctx );
+ 265:.././crypto/mbedtls//library/md_wrap.c **** }
+ 266:.././crypto/mbedtls//library/md_wrap.c **** 
+ 267:.././crypto/mbedtls//library/md_wrap.c **** static void ripemd160_update_wrap( void *ctx, const unsigned char *input,
+ 268:.././crypto/mbedtls//library/md_wrap.c ****                                    size_t ilen )
+ 269:.././crypto/mbedtls//library/md_wrap.c **** {
+ 270:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_ripemd160_update( (mbedtls_ripemd160_context *) ctx, input, ilen );
+ 271:.././crypto/mbedtls//library/md_wrap.c **** }
+ 272:.././crypto/mbedtls//library/md_wrap.c **** 
+ 273:.././crypto/mbedtls//library/md_wrap.c **** static void ripemd160_finish_wrap( void *ctx, unsigned char *output )
+ 274:.././crypto/mbedtls//library/md_wrap.c **** {
+ 275:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_ripemd160_finish( (mbedtls_ripemd160_context *) ctx, output );
+ 276:.././crypto/mbedtls//library/md_wrap.c **** }
+ 277:.././crypto/mbedtls//library/md_wrap.c **** 
+ 278:.././crypto/mbedtls//library/md_wrap.c **** static void *ripemd160_ctx_alloc( void )
+ 279:.././crypto/mbedtls//library/md_wrap.c **** {
+ 280:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_ripemd160_context ) );
+ 281:.././crypto/mbedtls//library/md_wrap.c **** 
+ 282:.././crypto/mbedtls//library/md_wrap.c ****     if( ctx != NULL )
+ 283:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_ripemd160_init( (mbedtls_ripemd160_context *) ctx );
+ 284:.././crypto/mbedtls//library/md_wrap.c **** 
+ 285:.././crypto/mbedtls//library/md_wrap.c ****     return( ctx );
+ 286:.././crypto/mbedtls//library/md_wrap.c **** }
+ 287:.././crypto/mbedtls//library/md_wrap.c **** 
+ 288:.././crypto/mbedtls//library/md_wrap.c **** static void ripemd160_ctx_free( void *ctx )
+ 289:.././crypto/mbedtls//library/md_wrap.c **** {
+ 290:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_ripemd160_free( (mbedtls_ripemd160_context *) ctx );
+ 291:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+ 292:.././crypto/mbedtls//library/md_wrap.c **** }
+ 293:.././crypto/mbedtls//library/md_wrap.c **** 
+ 294:.././crypto/mbedtls//library/md_wrap.c **** static void ripemd160_clone_wrap( void *dst, const void *src )
+ 295:.././crypto/mbedtls//library/md_wrap.c **** {
+ 296:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_ripemd160_clone( (mbedtls_ripemd160_context *) dst,
+ 297:.././crypto/mbedtls//library/md_wrap.c ****                        (const mbedtls_ripemd160_context *) src );
+ 298:.././crypto/mbedtls//library/md_wrap.c **** }
+ 299:.././crypto/mbedtls//library/md_wrap.c **** 
+ 300:.././crypto/mbedtls//library/md_wrap.c **** static void ripemd160_process_wrap( void *ctx, const unsigned char *data )
+ 301:.././crypto/mbedtls//library/md_wrap.c **** {
+ 302:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_ripemd160_process( (mbedtls_ripemd160_context *) ctx, data );
+ 303:.././crypto/mbedtls//library/md_wrap.c **** }
+ 304:.././crypto/mbedtls//library/md_wrap.c **** 
+ 305:.././crypto/mbedtls//library/md_wrap.c **** const mbedtls_md_info_t mbedtls_ripemd160_info = {
+ 306:.././crypto/mbedtls//library/md_wrap.c ****     MBEDTLS_MD_RIPEMD160,
+ 307:.././crypto/mbedtls//library/md_wrap.c ****     "RIPEMD160",
+ 308:.././crypto/mbedtls//library/md_wrap.c ****     20,
+ 309:.././crypto/mbedtls//library/md_wrap.c ****     64,
+ 310:.././crypto/mbedtls//library/md_wrap.c ****     ripemd160_starts_wrap,
+ 311:.././crypto/mbedtls//library/md_wrap.c ****     ripemd160_update_wrap,
+ 312:.././crypto/mbedtls//library/md_wrap.c ****     ripemd160_finish_wrap,
+ 313:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_ripemd160,
+ 314:.././crypto/mbedtls//library/md_wrap.c ****     ripemd160_ctx_alloc,
+ 315:.././crypto/mbedtls//library/md_wrap.c ****     ripemd160_ctx_free,
+ 316:.././crypto/mbedtls//library/md_wrap.c ****     ripemd160_clone_wrap,
+ 317:.././crypto/mbedtls//library/md_wrap.c ****     ripemd160_process_wrap,
+ 318:.././crypto/mbedtls//library/md_wrap.c **** };
+ 319:.././crypto/mbedtls//library/md_wrap.c **** 
+ 320:.././crypto/mbedtls//library/md_wrap.c **** #endif /* MBEDTLS_RIPEMD160_C */
+ 321:.././crypto/mbedtls//library/md_wrap.c **** 
+ 322:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_SHA1_C)
+ 323:.././crypto/mbedtls//library/md_wrap.c **** 
+ 324:.././crypto/mbedtls//library/md_wrap.c **** static void sha1_starts_wrap( void *ctx )
+ 325:.././crypto/mbedtls//library/md_wrap.c **** {
+ 326:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha1_starts( (mbedtls_sha1_context *) ctx );
+ 327:.././crypto/mbedtls//library/md_wrap.c **** }
+ 328:.././crypto/mbedtls//library/md_wrap.c **** 
+ 329:.././crypto/mbedtls//library/md_wrap.c **** static void sha1_update_wrap( void *ctx, const unsigned char *input,
+ 330:.././crypto/mbedtls//library/md_wrap.c ****                               size_t ilen )
+ 331:.././crypto/mbedtls//library/md_wrap.c **** {
+ 332:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha1_update( (mbedtls_sha1_context *) ctx, input, ilen );
+ 333:.././crypto/mbedtls//library/md_wrap.c **** }
+ 334:.././crypto/mbedtls//library/md_wrap.c **** 
+ 335:.././crypto/mbedtls//library/md_wrap.c **** static void sha1_finish_wrap( void *ctx, unsigned char *output )
+ 336:.././crypto/mbedtls//library/md_wrap.c **** {
+ 337:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha1_finish( (mbedtls_sha1_context *) ctx, output );
+ 338:.././crypto/mbedtls//library/md_wrap.c **** }
+ 339:.././crypto/mbedtls//library/md_wrap.c **** 
+ 340:.././crypto/mbedtls//library/md_wrap.c **** static void *sha1_ctx_alloc( void )
+ 341:.././crypto/mbedtls//library/md_wrap.c **** {
+ 342:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_sha1_context ) );
+ 343:.././crypto/mbedtls//library/md_wrap.c **** 
+ 344:.././crypto/mbedtls//library/md_wrap.c ****     if( ctx != NULL )
+ 345:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_sha1_init( (mbedtls_sha1_context *) ctx );
+ 346:.././crypto/mbedtls//library/md_wrap.c **** 
+ 347:.././crypto/mbedtls//library/md_wrap.c ****     return( ctx );
+ 348:.././crypto/mbedtls//library/md_wrap.c **** }
+ 349:.././crypto/mbedtls//library/md_wrap.c **** 
+ 350:.././crypto/mbedtls//library/md_wrap.c **** static void sha1_clone_wrap( void *dst, const void *src )
+ 351:.././crypto/mbedtls//library/md_wrap.c **** {
+ 352:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha1_clone( (mbedtls_sha1_context *) dst,
+ 353:.././crypto/mbedtls//library/md_wrap.c ****                   (const mbedtls_sha1_context *) src );
+ 354:.././crypto/mbedtls//library/md_wrap.c **** }
+ 355:.././crypto/mbedtls//library/md_wrap.c **** 
+ 356:.././crypto/mbedtls//library/md_wrap.c **** static void sha1_ctx_free( void *ctx )
+ 357:.././crypto/mbedtls//library/md_wrap.c **** {
+ 358:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha1_free( (mbedtls_sha1_context *) ctx );
+ 359:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+ 360:.././crypto/mbedtls//library/md_wrap.c **** }
+ 361:.././crypto/mbedtls//library/md_wrap.c **** 
+ 362:.././crypto/mbedtls//library/md_wrap.c **** static void sha1_process_wrap( void *ctx, const unsigned char *data )
+ 363:.././crypto/mbedtls//library/md_wrap.c **** {
+ 364:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha1_process( (mbedtls_sha1_context *) ctx, data );
+ 365:.././crypto/mbedtls//library/md_wrap.c **** }
+ 366:.././crypto/mbedtls//library/md_wrap.c **** 
+ 367:.././crypto/mbedtls//library/md_wrap.c **** const mbedtls_md_info_t mbedtls_sha1_info = {
+ 368:.././crypto/mbedtls//library/md_wrap.c ****     MBEDTLS_MD_SHA1,
+ 369:.././crypto/mbedtls//library/md_wrap.c ****     "SHA1",
+ 370:.././crypto/mbedtls//library/md_wrap.c ****     20,
+ 371:.././crypto/mbedtls//library/md_wrap.c ****     64,
+ 372:.././crypto/mbedtls//library/md_wrap.c ****     sha1_starts_wrap,
+ 373:.././crypto/mbedtls//library/md_wrap.c ****     sha1_update_wrap,
+ 374:.././crypto/mbedtls//library/md_wrap.c ****     sha1_finish_wrap,
+ 375:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha1,
+ 376:.././crypto/mbedtls//library/md_wrap.c ****     sha1_ctx_alloc,
+ 377:.././crypto/mbedtls//library/md_wrap.c ****     sha1_ctx_free,
+ 378:.././crypto/mbedtls//library/md_wrap.c ****     sha1_clone_wrap,
+ 379:.././crypto/mbedtls//library/md_wrap.c ****     sha1_process_wrap,
+ 380:.././crypto/mbedtls//library/md_wrap.c **** };
+ 381:.././crypto/mbedtls//library/md_wrap.c **** 
+ 382:.././crypto/mbedtls//library/md_wrap.c **** #endif /* MBEDTLS_SHA1_C */
+ 383:.././crypto/mbedtls//library/md_wrap.c **** 
+ 384:.././crypto/mbedtls//library/md_wrap.c **** /*
+ 385:.././crypto/mbedtls//library/md_wrap.c ****  * Wrappers for generic message digests
+ 386:.././crypto/mbedtls//library/md_wrap.c ****  */
+ 387:.././crypto/mbedtls//library/md_wrap.c **** #if defined(MBEDTLS_SHA256_C)
+ 388:.././crypto/mbedtls//library/md_wrap.c **** 
+ 389:.././crypto/mbedtls//library/md_wrap.c **** static void sha224_starts_wrap( void *ctx )
+ 390:.././crypto/mbedtls//library/md_wrap.c **** {
+ 391:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_starts( (mbedtls_sha256_context *) ctx, 1 );
+ 392:.././crypto/mbedtls//library/md_wrap.c **** }
+ 393:.././crypto/mbedtls//library/md_wrap.c **** 
+ 394:.././crypto/mbedtls//library/md_wrap.c **** static void sha224_update_wrap( void *ctx, const unsigned char *input,
+ 395:.././crypto/mbedtls//library/md_wrap.c ****                                 size_t ilen )
+ 396:.././crypto/mbedtls//library/md_wrap.c **** {
+ 397:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_update( (mbedtls_sha256_context *) ctx, input, ilen );
+ 398:.././crypto/mbedtls//library/md_wrap.c **** }
+ 399:.././crypto/mbedtls//library/md_wrap.c **** 
+ 400:.././crypto/mbedtls//library/md_wrap.c **** static void sha224_finish_wrap( void *ctx, unsigned char *output )
+ 401:.././crypto/mbedtls//library/md_wrap.c **** {
+ 402:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_finish( (mbedtls_sha256_context *) ctx, output );
+ 403:.././crypto/mbedtls//library/md_wrap.c **** }
+ 404:.././crypto/mbedtls//library/md_wrap.c **** 
+ 405:.././crypto/mbedtls//library/md_wrap.c **** static void sha224_wrap( const unsigned char *input, size_t ilen,
+ 406:.././crypto/mbedtls//library/md_wrap.c ****                     unsigned char *output )
+ 407:.././crypto/mbedtls//library/md_wrap.c **** {
+ 408:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256( input, ilen, output, 1 );
+ 409:.././crypto/mbedtls//library/md_wrap.c **** }
+ 410:.././crypto/mbedtls//library/md_wrap.c **** 
+ 411:.././crypto/mbedtls//library/md_wrap.c **** static void *sha224_ctx_alloc( void )
+ 412:.././crypto/mbedtls//library/md_wrap.c **** {
+ 413:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_sha256_context ) );
+ 414:.././crypto/mbedtls//library/md_wrap.c **** 
+ 415:.././crypto/mbedtls//library/md_wrap.c ****     if( ctx != NULL )
+ 416:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_sha256_init( (mbedtls_sha256_context *) ctx );
+ 417:.././crypto/mbedtls//library/md_wrap.c **** 
+ 418:.././crypto/mbedtls//library/md_wrap.c ****     return( ctx );
+ 419:.././crypto/mbedtls//library/md_wrap.c **** }
+ 420:.././crypto/mbedtls//library/md_wrap.c **** 
+ 421:.././crypto/mbedtls//library/md_wrap.c **** static void sha224_ctx_free( void *ctx )
+ 422:.././crypto/mbedtls//library/md_wrap.c **** {
+ 423:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_free( (mbedtls_sha256_context *) ctx );
+ 424:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+ 425:.././crypto/mbedtls//library/md_wrap.c **** }
+ 426:.././crypto/mbedtls//library/md_wrap.c **** 
+ 427:.././crypto/mbedtls//library/md_wrap.c **** static void sha224_clone_wrap( void *dst, const void *src )
+ 428:.././crypto/mbedtls//library/md_wrap.c **** {
+ 429:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_clone( (mbedtls_sha256_context *) dst,
+ 430:.././crypto/mbedtls//library/md_wrap.c ****                     (const mbedtls_sha256_context *) src );
+ 431:.././crypto/mbedtls//library/md_wrap.c **** }
+ 432:.././crypto/mbedtls//library/md_wrap.c **** 
+ 433:.././crypto/mbedtls//library/md_wrap.c **** static void sha224_process_wrap( void *ctx, const unsigned char *data )
+ 434:.././crypto/mbedtls//library/md_wrap.c **** {
+  28              		.loc 1 434 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+ 435:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_process( (mbedtls_sha256_context *) ctx, data );
+  32              		.loc 1 435 5 view .LVU1
+ 434:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_process( (mbedtls_sha256_context *) ctx, data );
+  33              		.loc 1 434 1 is_stmt 0 view .LVU2
+  34 0000 10B5     		push	{r4, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 4, -8
+  38              		.cfi_offset 14, -4
+  39              		.loc 1 435 5 view .LVU3
+  40 0002 FFF7FEFF 		bl	mbedtls_sha256_process
+  41              	.LVL1:
+ 436:.././crypto/mbedtls//library/md_wrap.c **** }
+  42              		.loc 1 436 1 view .LVU4
+  43              		@ sp needed
+  44 0006 10BD     		pop	{r4, pc}
+  45              		.cfi_endproc
+  46              	.LFE10:
+  48              		.section	.text.sha224_clone_wrap,"ax",%progbits
+  49              		.align	1
+  50              		.p2align 2,,3
+  51              		.syntax unified
+  52              		.code	16
+  53              		.thumb_func
+  54              		.fpu softvfp
+  56              	sha224_clone_wrap:
+  57              	.LVL2:
+  58              	.LFB9:
+ 428:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_clone( (mbedtls_sha256_context *) dst,
+  59              		.loc 1 428 1 is_stmt 1 view -0
+  60              		.cfi_startproc
+  61              		@ args = 0, pretend = 0, frame = 0
+  62              		@ frame_needed = 0, uses_anonymous_args = 0
+ 429:.././crypto/mbedtls//library/md_wrap.c ****                     (const mbedtls_sha256_context *) src );
+  63              		.loc 1 429 5 view .LVU6
+ 428:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_clone( (mbedtls_sha256_context *) dst,
+  64              		.loc 1 428 1 is_stmt 0 view .LVU7
+  65 0000 10B5     		push	{r4, lr}
+  66              	.LCFI1:
+  67              		.cfi_def_cfa_offset 8
+  68              		.cfi_offset 4, -8
+  69              		.cfi_offset 14, -4
+ 429:.././crypto/mbedtls//library/md_wrap.c ****                     (const mbedtls_sha256_context *) src );
+  70              		.loc 1 429 5 view .LVU8
+  71 0002 FFF7FEFF 		bl	mbedtls_sha256_clone
+  72              	.LVL3:
+ 431:.././crypto/mbedtls//library/md_wrap.c **** 
+  73              		.loc 1 431 1 view .LVU9
+  74              		@ sp needed
+  75 0006 10BD     		pop	{r4, pc}
+  76              		.cfi_endproc
+  77              	.LFE9:
+  79              		.section	.text.sha224_ctx_free,"ax",%progbits
+  80              		.align	1
+  81              		.p2align 2,,3
+  82              		.syntax unified
+  83              		.code	16
+  84              		.thumb_func
+  85              		.fpu softvfp
+  87              	sha224_ctx_free:
+  88              	.LVL4:
+  89              	.LFB8:
+ 422:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_free( (mbedtls_sha256_context *) ctx );
+  90              		.loc 1 422 1 is_stmt 1 view -0
+  91              		.cfi_startproc
+  92              		@ args = 0, pretend = 0, frame = 0
+  93              		@ frame_needed = 0, uses_anonymous_args = 0
+ 423:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+  94              		.loc 1 423 5 view .LVU11
+ 422:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_free( (mbedtls_sha256_context *) ctx );
+  95              		.loc 1 422 1 is_stmt 0 view .LVU12
+  96 0000 10B5     		push	{r4, lr}
+  97              	.LCFI2:
+  98              		.cfi_def_cfa_offset 8
+  99              		.cfi_offset 4, -8
+ 100              		.cfi_offset 14, -4
+ 422:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_free( (mbedtls_sha256_context *) ctx );
+ 101              		.loc 1 422 1 view .LVU13
+ 102 0002 0400     		movs	r4, r0
+ 423:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_free( ctx );
+ 103              		.loc 1 423 5 view .LVU14
+ 104 0004 FFF7FEFF 		bl	mbedtls_sha256_free
+ 105              	.LVL5:
+ 424:.././crypto/mbedtls//library/md_wrap.c **** }
+ 106              		.loc 1 424 5 is_stmt 1 view .LVU15
+ 107 0008 2000     		movs	r0, r4
+ 108 000a FFF7FEFF 		bl	free
+ 109              	.LVL6:
+ 425:.././crypto/mbedtls//library/md_wrap.c **** 
+ 110              		.loc 1 425 1 is_stmt 0 view .LVU16
+ 111              		@ sp needed
+ 112              	.LVL7:
+ 425:.././crypto/mbedtls//library/md_wrap.c **** 
+ 113              		.loc 1 425 1 view .LVU17
+ 114 000e 10BD     		pop	{r4, pc}
+ 115              		.cfi_endproc
+ 116              	.LFE8:
+ 118              		.section	.text.sha224_ctx_alloc,"ax",%progbits
+ 119              		.align	1
+ 120              		.p2align 2,,3
+ 121              		.syntax unified
+ 122              		.code	16
+ 123              		.thumb_func
+ 124              		.fpu softvfp
+ 126              	sha224_ctx_alloc:
+ 127              	.LFB7:
+ 412:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_sha256_context ) );
+ 128              		.loc 1 412 1 is_stmt 1 view -0
+ 129              		.cfi_startproc
+ 130              		@ args = 0, pretend = 0, frame = 0
+ 131              		@ frame_needed = 0, uses_anonymous_args = 0
+ 413:.././crypto/mbedtls//library/md_wrap.c **** 
+ 132              		.loc 1 413 5 view .LVU19
+ 412:.././crypto/mbedtls//library/md_wrap.c ****     void *ctx = mbedtls_calloc( 1, sizeof( mbedtls_sha256_context ) );
+ 133              		.loc 1 412 1 is_stmt 0 view .LVU20
+ 134 0000 10B5     		push	{r4, lr}
+ 135              	.LCFI3:
+ 136              		.cfi_def_cfa_offset 8
+ 137              		.cfi_offset 4, -8
+ 138              		.cfi_offset 14, -4
+ 413:.././crypto/mbedtls//library/md_wrap.c **** 
+ 139              		.loc 1 413 17 view .LVU21
+ 140 0002 6C21     		movs	r1, #108
+ 141 0004 0120     		movs	r0, #1
+ 142 0006 FFF7FEFF 		bl	calloc
+ 143              	.LVL8:
+ 144 000a 041E     		subs	r4, r0, #0
+ 145              	.LVL9:
+ 415:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_sha256_init( (mbedtls_sha256_context *) ctx );
+ 146              		.loc 1 415 5 is_stmt 1 view .LVU22
+ 415:.././crypto/mbedtls//library/md_wrap.c ****         mbedtls_sha256_init( (mbedtls_sha256_context *) ctx );
+ 147              		.loc 1 415 7 is_stmt 0 view .LVU23
+ 148 000c 01D0     		beq	.L5
+ 416:.././crypto/mbedtls//library/md_wrap.c **** 
+ 149              		.loc 1 416 9 is_stmt 1 view .LVU24
+ 150 000e FFF7FEFF 		bl	mbedtls_sha256_init
+ 151              	.LVL10:
+ 418:.././crypto/mbedtls//library/md_wrap.c **** }
+ 152              		.loc 1 418 5 view .LVU25
+ 153              	.L5:
+ 419:.././crypto/mbedtls//library/md_wrap.c **** 
+ 154              		.loc 1 419 1 is_stmt 0 view .LVU26
+ 155 0012 2000     		movs	r0, r4
+ 156              		@ sp needed
+ 157              	.LVL11:
+ 419:.././crypto/mbedtls//library/md_wrap.c **** 
+ 158              		.loc 1 419 1 view .LVU27
+ 159 0014 10BD     		pop	{r4, pc}
+ 160              		.cfi_endproc
+ 161              	.LFE7:
+ 163 0016 C046     		.section	.text.sha224_wrap,"ax",%progbits
+ 164              		.align	1
+ 165              		.p2align 2,,3
+ 166              		.syntax unified
+ 167              		.code	16
+ 168              		.thumb_func
+ 169              		.fpu softvfp
+ 171              	sha224_wrap:
+ 172              	.LVL12:
+ 173              	.LFB6:
+ 407:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256( input, ilen, output, 1 );
+ 174              		.loc 1 407 1 is_stmt 1 view -0
+ 175              		.cfi_startproc
+ 176              		@ args = 0, pretend = 0, frame = 0
+ 177              		@ frame_needed = 0, uses_anonymous_args = 0
+ 408:.././crypto/mbedtls//library/md_wrap.c **** }
+ 178              		.loc 1 408 5 view .LVU29
+ 407:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256( input, ilen, output, 1 );
+ 179              		.loc 1 407 1 is_stmt 0 view .LVU30
+ 180 0000 10B5     		push	{r4, lr}
+ 181              	.LCFI4:
+ 182              		.cfi_def_cfa_offset 8
+ 183              		.cfi_offset 4, -8
+ 184              		.cfi_offset 14, -4
+ 408:.././crypto/mbedtls//library/md_wrap.c **** }
+ 185              		.loc 1 408 5 view .LVU31
+ 186 0002 0123     		movs	r3, #1
+ 187 0004 FFF7FEFF 		bl	mbedtls_sha256
+ 188              	.LVL13:
+ 409:.././crypto/mbedtls//library/md_wrap.c **** 
+ 189              		.loc 1 409 1 view .LVU32
+ 190              		@ sp needed
+ 191 0008 10BD     		pop	{r4, pc}
+ 192              		.cfi_endproc
+ 193              	.LFE6:
+ 195 000a C046     		.section	.text.sha256_wrap,"ax",%progbits
+ 196              		.align	1
+ 197              		.p2align 2,,3
+ 198              		.syntax unified
+ 199              		.code	16
+ 200              		.thumb_func
+ 201              		.fpu softvfp
+ 203              	sha256_wrap:
+ 204              	.LVL14:
+ 205              	.LFB12:
+ 437:.././crypto/mbedtls//library/md_wrap.c **** 
+ 438:.././crypto/mbedtls//library/md_wrap.c **** const mbedtls_md_info_t mbedtls_sha224_info = {
+ 439:.././crypto/mbedtls//library/md_wrap.c ****     MBEDTLS_MD_SHA224,
+ 440:.././crypto/mbedtls//library/md_wrap.c ****     "SHA224",
+ 441:.././crypto/mbedtls//library/md_wrap.c ****     28,
+ 442:.././crypto/mbedtls//library/md_wrap.c ****     64,
+ 443:.././crypto/mbedtls//library/md_wrap.c ****     sha224_starts_wrap,
+ 444:.././crypto/mbedtls//library/md_wrap.c ****     sha224_update_wrap,
+ 445:.././crypto/mbedtls//library/md_wrap.c ****     sha224_finish_wrap,
+ 446:.././crypto/mbedtls//library/md_wrap.c ****     sha224_wrap,
+ 447:.././crypto/mbedtls//library/md_wrap.c ****     sha224_ctx_alloc,
+ 448:.././crypto/mbedtls//library/md_wrap.c ****     sha224_ctx_free,
+ 449:.././crypto/mbedtls//library/md_wrap.c ****     sha224_clone_wrap,
+ 450:.././crypto/mbedtls//library/md_wrap.c ****     sha224_process_wrap,
+ 451:.././crypto/mbedtls//library/md_wrap.c **** };
+ 452:.././crypto/mbedtls//library/md_wrap.c **** 
+ 453:.././crypto/mbedtls//library/md_wrap.c **** static void sha256_starts_wrap( void *ctx )
+ 454:.././crypto/mbedtls//library/md_wrap.c **** {
+ 455:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_starts( (mbedtls_sha256_context *) ctx, 0 );
+ 456:.././crypto/mbedtls//library/md_wrap.c **** }
+ 457:.././crypto/mbedtls//library/md_wrap.c **** 
+ 458:.././crypto/mbedtls//library/md_wrap.c **** static void sha256_wrap( const unsigned char *input, size_t ilen,
+ 459:.././crypto/mbedtls//library/md_wrap.c ****                     unsigned char *output )
+ 460:.././crypto/mbedtls//library/md_wrap.c **** {
+ 206              		.loc 1 460 1 is_stmt 1 view -0
+ 207              		.cfi_startproc
+ 208              		@ args = 0, pretend = 0, frame = 0
+ 209              		@ frame_needed = 0, uses_anonymous_args = 0
+ 461:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256( input, ilen, output, 0 );
+ 210              		.loc 1 461 5 view .LVU34
+ 460:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256( input, ilen, output, 0 );
+ 211              		.loc 1 460 1 is_stmt 0 view .LVU35
+ 212 0000 10B5     		push	{r4, lr}
+ 213              	.LCFI5:
+ 214              		.cfi_def_cfa_offset 8
+ 215              		.cfi_offset 4, -8
+ 216              		.cfi_offset 14, -4
+ 217              		.loc 1 461 5 view .LVU36
+ 218 0002 0023     		movs	r3, #0
+ 219 0004 FFF7FEFF 		bl	mbedtls_sha256
+ 220              	.LVL15:
+ 462:.././crypto/mbedtls//library/md_wrap.c **** }
+ 221              		.loc 1 462 1 view .LVU37
+ 222              		@ sp needed
+ 223 0008 10BD     		pop	{r4, pc}
+ 224              		.cfi_endproc
+ 225              	.LFE12:
+ 227 000a C046     		.section	.text.sha224_finish_wrap,"ax",%progbits
+ 228              		.align	1
+ 229              		.p2align 2,,3
+ 230              		.syntax unified
+ 231              		.code	16
+ 232              		.thumb_func
+ 233              		.fpu softvfp
+ 235              	sha224_finish_wrap:
+ 236              	.LVL16:
+ 237              	.LFB5:
+ 401:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_finish( (mbedtls_sha256_context *) ctx, output );
+ 238              		.loc 1 401 1 is_stmt 1 view -0
+ 239              		.cfi_startproc
+ 240              		@ args = 0, pretend = 0, frame = 0
+ 241              		@ frame_needed = 0, uses_anonymous_args = 0
+ 402:.././crypto/mbedtls//library/md_wrap.c **** }
+ 242              		.loc 1 402 5 view .LVU39
+ 401:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_finish( (mbedtls_sha256_context *) ctx, output );
+ 243              		.loc 1 401 1 is_stmt 0 view .LVU40
+ 244 0000 10B5     		push	{r4, lr}
+ 245              	.LCFI6:
+ 246              		.cfi_def_cfa_offset 8
+ 247              		.cfi_offset 4, -8
+ 248              		.cfi_offset 14, -4
+ 402:.././crypto/mbedtls//library/md_wrap.c **** }
+ 249              		.loc 1 402 5 view .LVU41
+ 250 0002 FFF7FEFF 		bl	mbedtls_sha256_finish
+ 251              	.LVL17:
+ 403:.././crypto/mbedtls//library/md_wrap.c **** 
+ 252              		.loc 1 403 1 view .LVU42
+ 253              		@ sp needed
+ 254 0006 10BD     		pop	{r4, pc}
+ 255              		.cfi_endproc
+ 256              	.LFE5:
+ 258              		.section	.text.sha224_update_wrap,"ax",%progbits
+ 259              		.align	1
+ 260              		.p2align 2,,3
+ 261              		.syntax unified
+ 262              		.code	16
+ 263              		.thumb_func
+ 264              		.fpu softvfp
+ 266              	sha224_update_wrap:
+ 267              	.LVL18:
+ 268              	.LFB4:
+ 396:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_update( (mbedtls_sha256_context *) ctx, input, ilen );
+ 269              		.loc 1 396 1 is_stmt 1 view -0
+ 270              		.cfi_startproc
+ 271              		@ args = 0, pretend = 0, frame = 0
+ 272              		@ frame_needed = 0, uses_anonymous_args = 0
+ 397:.././crypto/mbedtls//library/md_wrap.c **** }
+ 273              		.loc 1 397 5 view .LVU44
+ 396:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_update( (mbedtls_sha256_context *) ctx, input, ilen );
+ 274              		.loc 1 396 1 is_stmt 0 view .LVU45
+ 275 0000 10B5     		push	{r4, lr}
+ 276              	.LCFI7:
+ 277              		.cfi_def_cfa_offset 8
+ 278              		.cfi_offset 4, -8
+ 279              		.cfi_offset 14, -4
+ 397:.././crypto/mbedtls//library/md_wrap.c **** }
+ 280              		.loc 1 397 5 view .LVU46
+ 281 0002 FFF7FEFF 		bl	mbedtls_sha256_update
+ 282              	.LVL19:
+ 398:.././crypto/mbedtls//library/md_wrap.c **** 
+ 283              		.loc 1 398 1 view .LVU47
+ 284              		@ sp needed
+ 285 0006 10BD     		pop	{r4, pc}
+ 286              		.cfi_endproc
+ 287              	.LFE4:
+ 289              		.section	.text.sha224_starts_wrap,"ax",%progbits
+ 290              		.align	1
+ 291              		.p2align 2,,3
+ 292              		.syntax unified
+ 293              		.code	16
+ 294              		.thumb_func
+ 295              		.fpu softvfp
+ 297              	sha224_starts_wrap:
+ 298              	.LVL20:
+ 299              	.LFB3:
+ 390:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_starts( (mbedtls_sha256_context *) ctx, 1 );
+ 300              		.loc 1 390 1 is_stmt 1 view -0
+ 301              		.cfi_startproc
+ 302              		@ args = 0, pretend = 0, frame = 0
+ 303              		@ frame_needed = 0, uses_anonymous_args = 0
+ 391:.././crypto/mbedtls//library/md_wrap.c **** }
+ 304              		.loc 1 391 5 view .LVU49
+ 390:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_starts( (mbedtls_sha256_context *) ctx, 1 );
+ 305              		.loc 1 390 1 is_stmt 0 view .LVU50
+ 306 0000 10B5     		push	{r4, lr}
+ 307              	.LCFI8:
+ 308              		.cfi_def_cfa_offset 8
+ 309              		.cfi_offset 4, -8
+ 310              		.cfi_offset 14, -4
+ 391:.././crypto/mbedtls//library/md_wrap.c **** }
+ 311              		.loc 1 391 5 view .LVU51
+ 312 0002 0121     		movs	r1, #1
+ 313 0004 FFF7FEFF 		bl	mbedtls_sha256_starts
+ 314              	.LVL21:
+ 392:.././crypto/mbedtls//library/md_wrap.c **** 
+ 315              		.loc 1 392 1 view .LVU52
+ 316              		@ sp needed
+ 317 0008 10BD     		pop	{r4, pc}
+ 318              		.cfi_endproc
+ 319              	.LFE3:
+ 321 000a C046     		.section	.text.sha256_starts_wrap,"ax",%progbits
+ 322              		.align	1
+ 323              		.p2align 2,,3
+ 324              		.syntax unified
+ 325              		.code	16
+ 326              		.thumb_func
+ 327              		.fpu softvfp
+ 329              	sha256_starts_wrap:
+ 330              	.LVL22:
+ 331              	.LFB11:
+ 454:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_starts( (mbedtls_sha256_context *) ctx, 0 );
+ 332              		.loc 1 454 1 is_stmt 1 view -0
+ 333              		.cfi_startproc
+ 334              		@ args = 0, pretend = 0, frame = 0
+ 335              		@ frame_needed = 0, uses_anonymous_args = 0
+ 455:.././crypto/mbedtls//library/md_wrap.c **** }
+ 336              		.loc 1 455 5 view .LVU54
+ 454:.././crypto/mbedtls//library/md_wrap.c ****     mbedtls_sha256_starts( (mbedtls_sha256_context *) ctx, 0 );
+ 337              		.loc 1 454 1 is_stmt 0 view .LVU55
+ 338 0000 10B5     		push	{r4, lr}
+ 339              	.LCFI9:
+ 340              		.cfi_def_cfa_offset 8
+ 341              		.cfi_offset 4, -8
+ 342              		.cfi_offset 14, -4
+ 455:.././crypto/mbedtls//library/md_wrap.c **** }
+ 343              		.loc 1 455 5 view .LVU56
+ 344 0002 0021     		movs	r1, #0
+ 345 0004 FFF7FEFF 		bl	mbedtls_sha256_starts
+ 346              	.LVL23:
+ 456:.././crypto/mbedtls//library/md_wrap.c **** 
+ 347              		.loc 1 456 1 view .LVU57
+ 348              		@ sp needed
+ 349 0008 10BD     		pop	{r4, pc}
+ 350              		.cfi_endproc
+ 351              	.LFE11:
+ 353              		.global	mbedtls_sha256_info
+ 354 000a C046     		.section	.rodata.str1.4,"aMS",%progbits,1
+ 355              		.align	2
+ 356              	.LC0:
+ 357 0000 53484132 		.ascii	"SHA256\000"
+ 357      353600
+ 358              		.global	mbedtls_sha224_info
+ 359 0007 00       		.align	2
+ 360              	.LC1:
+ 361 0008 53484132 		.ascii	"SHA224\000"
+ 361      323400
+ 362              		.section	.rodata
+ 363              		.align	2
+ 366              	mbedtls_sha256_info:
+ 367 0000 06       		.byte	6
+ 368 0001 000000   		.space	3
+ 369 0004 00000000 		.word	.LC0
+ 370 0008 20000000 		.word	32
+ 371 000c 40000000 		.word	64
+ 372 0010 00000000 		.word	sha256_starts_wrap
+ 373 0014 00000000 		.word	sha224_update_wrap
+ 374 0018 00000000 		.word	sha224_finish_wrap
+ 375 001c 00000000 		.word	sha256_wrap
+ 376 0020 00000000 		.word	sha224_ctx_alloc
+ 377 0024 00000000 		.word	sha224_ctx_free
+ 378 0028 00000000 		.word	sha224_clone_wrap
+ 379 002c 00000000 		.word	sha224_process_wrap
+ 382              	mbedtls_sha224_info:
+ 383 0030 05       		.byte	5
+ 384 0031 000000   		.space	3
+ 385 0034 08000000 		.word	.LC1
+ 386 0038 1C000000 		.word	28
+ 387 003c 40000000 		.word	64
+ 388 0040 00000000 		.word	sha224_starts_wrap
+ 389 0044 00000000 		.word	sha224_update_wrap
+ 390 0048 00000000 		.word	sha224_finish_wrap
+ 391 004c 00000000 		.word	sha224_wrap
+ 392 0050 00000000 		.word	sha224_ctx_alloc
+ 393 0054 00000000 		.word	sha224_ctx_free
+ 394 0058 00000000 		.word	sha224_clone_wrap
+ 395 005c 00000000 		.word	sha224_process_wrap
+ 396              		.text
+ 397              	.Letext0:
+ 398              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 399              		.file 3 ".././crypto/mbedtls//include/mbedtls/md.h"
+ 400              		.file 4 ".././crypto/mbedtls//include/mbedtls/md_internal.h"
+ 401              		.file 5 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 402              		.file 6 ".././crypto/mbedtls//include/mbedtls/sha256.h"
+ 403              		.file 7 "/usr/include/newlib/sys/_types.h"
+ 404              		.file 8 "/usr/include/newlib/sys/reent.h"
+ 405              		.file 9 "/usr/include/newlib/sys/lock.h"
+ 406              		.file 10 "/usr/include/newlib/time.h"
+ 407              		.file 11 "/usr/include/newlib/stdlib.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 md_wrap.c
+     /tmp/cccCLRhw.s:16     .text.sha224_process_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:24     .text.sha224_process_wrap:0000000000000000 sha224_process_wrap
+     /tmp/cccCLRhw.s:49     .text.sha224_clone_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:56     .text.sha224_clone_wrap:0000000000000000 sha224_clone_wrap
+     /tmp/cccCLRhw.s:80     .text.sha224_ctx_free:0000000000000000 $t
+     /tmp/cccCLRhw.s:87     .text.sha224_ctx_free:0000000000000000 sha224_ctx_free
+     /tmp/cccCLRhw.s:119    .text.sha224_ctx_alloc:0000000000000000 $t
+     /tmp/cccCLRhw.s:126    .text.sha224_ctx_alloc:0000000000000000 sha224_ctx_alloc
+     /tmp/cccCLRhw.s:164    .text.sha224_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:171    .text.sha224_wrap:0000000000000000 sha224_wrap
+     /tmp/cccCLRhw.s:196    .text.sha256_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:203    .text.sha256_wrap:0000000000000000 sha256_wrap
+     /tmp/cccCLRhw.s:228    .text.sha224_finish_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:235    .text.sha224_finish_wrap:0000000000000000 sha224_finish_wrap
+     /tmp/cccCLRhw.s:259    .text.sha224_update_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:266    .text.sha224_update_wrap:0000000000000000 sha224_update_wrap
+     /tmp/cccCLRhw.s:290    .text.sha224_starts_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:297    .text.sha224_starts_wrap:0000000000000000 sha224_starts_wrap
+     /tmp/cccCLRhw.s:322    .text.sha256_starts_wrap:0000000000000000 $t
+     /tmp/cccCLRhw.s:329    .text.sha256_starts_wrap:0000000000000000 sha256_starts_wrap
+     /tmp/cccCLRhw.s:366    .rodata:0000000000000000 mbedtls_sha256_info
+     /tmp/cccCLRhw.s:355    .rodata.str1.4:0000000000000000 $d
+     /tmp/cccCLRhw.s:382    .rodata:0000000000000030 mbedtls_sha224_info
+     /tmp/cccCLRhw.s:363    .rodata:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+mbedtls_sha256_process
+mbedtls_sha256_clone
+mbedtls_sha256_free
+free
+calloc
+mbedtls_sha256_init
+mbedtls_sha256
+mbedtls_sha256_finish
+mbedtls_sha256_update
+mbedtls_sha256_starts

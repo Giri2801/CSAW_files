@@ -1,0 +1,674 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"err0r.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.crc32_for_byte,"ax",%progbits
+  16              		.align	1
+  17              		.global	crc32_for_byte
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	crc32_for_byte:
+  25              	.LVL0:
+  26              	.LFB0:
+  27              		.file 1 "err0r.c"
+   1:err0r.c       **** #include "hal.h"
+   2:err0r.c       **** #include <stdint.h>
+   3:err0r.c       **** #include <stdlib.h>
+   4:err0r.c       **** #include <unistd.h>
+   5:err0r.c       **** 
+   6:err0r.c       **** #include "../simpleserial/simpleserial.h"
+   7:err0r.c       **** 
+   8:err0r.c       **** // DUMMY VAL
+   9:err0r.c       **** uint8_t win_code[] = {0,1,2,3};
+  10:err0r.c       **** 
+  11:err0r.c       **** uint32_t crc32_for_byte(uint32_t r) {
+  28              		.loc 1 11 37 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  12:err0r.c       ****   for(int j = 0; j < 8; ++j) {
+  32              		.loc 1 12 3 view .LVU1
+  33              	.LBB2:
+  34              		.loc 1 12 7 view .LVU2
+  35              		.loc 1 12 18 view .LVU3
+  36              	.LBE2:
+  11:err0r.c       ****   for(int j = 0; j < 8; ++j) {
+  37              		.loc 1 11 37 is_stmt 0 view .LVU4
+  38 0000 30B5     		push	{r4, r5, lr}
+  39              	.LCFI0:
+  40              		.cfi_def_cfa_offset 12
+  41              		.cfi_offset 4, -12
+  42              		.cfi_offset 5, -8
+  43              		.cfi_offset 14, -4
+  11:err0r.c       ****   for(int j = 0; j < 8; ++j) {
+  44              		.loc 1 11 37 view .LVU5
+  45 0002 0822     		movs	r2, #8
+  46              	.LBB3:
+  13:err0r.c       ****     r = (r & 1? 0: (uint32_t)0xEDB88320L) ^ r >> 1;
+  47              		.loc 1 13 12 view .LVU6
+  48 0004 0124     		movs	r4, #1
+  49              		.loc 1 13 18 view .LVU7
+  50 0006 0849     		ldr	r1, .L6
+  51              	.LVL1:
+  52              	.L3:
+  53              		.loc 1 13 5 is_stmt 1 view .LVU8
+  54              		.loc 1 13 18 is_stmt 0 view .LVU9
+  55 0008 0300     		movs	r3, r0
+  56 000a 2340     		ands	r3, r4
+  57 000c 074D     		ldr	r5, .L6+4
+  58 000e 5B42     		rsbs	r3, r3, #0
+  59 0010 0B40     		ands	r3, r1
+  60 0012 5B19     		adds	r3, r3, r5
+  61              		.loc 1 13 47 view .LVU10
+  62 0014 4008     		lsrs	r0, r0, #1
+  63              	.LVL2:
+  64              		.loc 1 13 47 view .LVU11
+  65 0016 013A     		subs	r2, r2, #1
+  66              	.LVL3:
+  67              		.loc 1 13 7 view .LVU12
+  68 0018 5840     		eors	r0, r3
+  69              	.LVL4:
+  12:err0r.c       ****   for(int j = 0; j < 8; ++j) {
+  70              		.loc 1 12 25 is_stmt 1 view .LVU13
+  12:err0r.c       ****   for(int j = 0; j < 8; ++j) {
+  71              		.loc 1 12 18 view .LVU14
+  12:err0r.c       ****   for(int j = 0; j < 8; ++j) {
+  72              		.loc 1 12 3 is_stmt 0 view .LVU15
+  73 001a 002A     		cmp	r2, #0
+  74 001c F4D1     		bne	.L3
+  75              	.LBE3:
+  14:err0r.c       ****   }
+  15:err0r.c       ****   return r ^ (uint32_t)0xFF000000L;
+  76              		.loc 1 15 3 is_stmt 1 view .LVU16
+  77              		.loc 1 15 12 is_stmt 0 view .LVU17
+  78 001e FF23     		movs	r3, #255
+  79 0020 1B06     		lsls	r3, r3, #24
+  80 0022 5840     		eors	r0, r3
+  81              	.LVL5:
+  16:err0r.c       **** }
+  82              		.loc 1 16 1 view .LVU18
+  83              		@ sp needed
+  84 0024 30BD     		pop	{r4, r5, pc}
+  85              	.L7:
+  86 0026 C046     		.align	2
+  87              	.L6:
+  88 0028 E07C4712 		.word	306674912
+  89 002c 2083B8ED 		.word	-306674912
+  90              		.cfi_endproc
+  91              	.LFE0:
+  93              		.section	.text.crc32,"ax",%progbits
+  94              		.align	1
+  95              		.global	crc32
+  96              		.syntax unified
+  97              		.code	16
+  98              		.thumb_func
+  99              		.fpu softvfp
+ 101              	crc32:
+ 102              	.LVL6:
+ 103              	.LFB1:
+  17:err0r.c       **** 
+  18:err0r.c       **** void crc32(const void *data, size_t n_bytes, uint32_t* crc) {
+ 104              		.loc 1 18 61 is_stmt 1 view -0
+ 105              		.cfi_startproc
+ 106              		@ args = 0, pretend = 0, frame = 8
+ 107              		@ frame_needed = 0, uses_anonymous_args = 0
+  19:err0r.c       ****   static uint32_t table[0x100];
+ 108              		.loc 1 19 3 view .LVU20
+  20:err0r.c       ****   if(!*table) {
+ 109              		.loc 1 20 3 view .LVU21
+  18:err0r.c       ****   static uint32_t table[0x100];
+ 110              		.loc 1 18 61 is_stmt 0 view .LVU22
+ 111 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 112              	.LCFI1:
+ 113              		.cfi_def_cfa_offset 32
+ 114              		.cfi_offset 0, -32
+ 115              		.cfi_offset 1, -28
+ 116              		.cfi_offset 2, -24
+ 117              		.cfi_offset 4, -20
+ 118              		.cfi_offset 5, -16
+ 119              		.cfi_offset 6, -12
+ 120              		.cfi_offset 7, -8
+ 121              		.cfi_offset 14, -4
+ 122              		.loc 1 20 7 view .LVU23
+ 123 0002 114E     		ldr	r6, .L14
+  18:err0r.c       ****   static uint32_t table[0x100];
+ 124              		.loc 1 18 61 view .LVU24
+ 125 0004 1500     		movs	r5, r2
+ 126              		.loc 1 20 7 view .LVU25
+ 127 0006 3468     		ldr	r4, [r6]
+  18:err0r.c       ****   static uint32_t table[0x100];
+ 128              		.loc 1 18 61 view .LVU26
+ 129 0008 0090     		str	r0, [sp]
+ 130 000a 0191     		str	r1, [sp, #4]
+ 131              		.loc 1 20 5 view .LVU27
+ 132 000c 002C     		cmp	r4, #0
+ 133 000e 09D1     		bne	.L9
+ 134              	.LBB4:
+  21:err0r.c       ****     for(size_t i = 0; i < 0x100; ++i) {
+ 135              		.loc 1 21 5 view .LVU28
+ 136 0010 8027     		movs	r7, #128
+ 137 0012 7F00     		lsls	r7, r7, #1
+ 138              	.LVL7:
+ 139              	.L10:
+  22:err0r.c       ****       table[i] = crc32_for_byte(i);
+ 140              		.loc 1 22 7 is_stmt 1 discriminator 3 view .LVU29
+ 141              		.loc 1 22 18 is_stmt 0 discriminator 3 view .LVU30
+ 142 0014 2000     		movs	r0, r4
+ 143 0016 FFF7FEFF 		bl	crc32_for_byte
+ 144              	.LVL8:
+ 145              		.loc 1 22 16 discriminator 3 view .LVU31
+ 146 001a A300     		lsls	r3, r4, #2
+  21:err0r.c       ****     for(size_t i = 0; i < 0x100; ++i) {
+ 147              		.loc 1 21 34 discriminator 3 view .LVU32
+ 148 001c 0134     		adds	r4, r4, #1
+ 149              	.LVL9:
+ 150              		.loc 1 22 16 discriminator 3 view .LVU33
+ 151 001e F050     		str	r0, [r6, r3]
+  21:err0r.c       ****     for(size_t i = 0; i < 0x100; ++i) {
+ 152              		.loc 1 21 34 is_stmt 1 discriminator 3 view .LVU34
+ 153              	.LVL10:
+  21:err0r.c       ****     for(size_t i = 0; i < 0x100; ++i) {
+ 154              		.loc 1 21 23 discriminator 3 view .LVU35
+  21:err0r.c       ****     for(size_t i = 0; i < 0x100; ++i) {
+ 155              		.loc 1 21 5 is_stmt 0 discriminator 3 view .LVU36
+ 156 0020 BC42     		cmp	r4, r7
+ 157 0022 F7D1     		bne	.L10
+ 158              	.LVL11:
+ 159              	.L9:
+  21:err0r.c       ****     for(size_t i = 0; i < 0x100; ++i) {
+ 160              		.loc 1 21 5 discriminator 3 view .LVU37
+ 161 0024 0098     		ldr	r0, [sp]
+ 162 0026 019B     		ldr	r3, [sp, #4]
+ 163 0028 C118     		adds	r1, r0, r3
+ 164              	.L11:
+ 165              	.LVL12:
+  21:err0r.c       ****     for(size_t i = 0; i < 0x100; ++i) {
+ 166              		.loc 1 21 5 discriminator 3 view .LVU38
+ 167              	.LBE4:
+ 168              	.LBB5:
+  23:err0r.c       ****     }
+  24:err0r.c       ****   }
+  25:err0r.c       ****   for(size_t i = 0; i < n_bytes; ++i) {
+ 169              		.loc 1 25 21 is_stmt 1 discriminator 1 view .LVU39
+ 170              		.loc 1 25 3 is_stmt 0 discriminator 1 view .LVU40
+ 171 002a 8842     		cmp	r0, r1
+ 172 002c 00D1     		bne	.L12
+ 173              	.LBE5:
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+  27:err0r.c       ****   }
+  28:err0r.c       **** }
+ 174              		.loc 1 28 1 view .LVU41
+ 175              		@ sp needed
+ 176              	.LVL13:
+ 177              		.loc 1 28 1 view .LVU42
+ 178 002e F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 179              	.LVL14:
+ 180              	.L12:
+ 181              	.LBB6:
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 182              		.loc 1 26 5 is_stmt 1 discriminator 3 view .LVU43
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 183              		.loc 1 26 27 is_stmt 0 discriminator 3 view .LVU44
+ 184 0030 2A68     		ldr	r2, [r5]
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 185              		.loc 1 26 32 discriminator 3 view .LVU45
+ 186 0032 0378     		ldrb	r3, [r0]
+ 187 0034 0130     		adds	r0, r0, #1
+ 188              	.LVL15:
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 189              		.loc 1 26 32 discriminator 3 view .LVU46
+ 190 0036 5340     		eors	r3, r2
+ 191 0038 DBB2     		uxtb	r3, r3
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 192              		.loc 1 26 17 discriminator 3 view .LVU47
+ 193 003a 9B00     		lsls	r3, r3, #2
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 194              		.loc 1 26 55 discriminator 3 view .LVU48
+ 195 003c F358     		ldr	r3, [r6, r3]
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 196              		.loc 1 26 62 discriminator 3 view .LVU49
+ 197 003e 120A     		lsrs	r2, r2, #8
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 198              		.loc 1 26 55 discriminator 3 view .LVU50
+ 199 0040 5A40     		eors	r2, r3
+  26:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 200              		.loc 1 26 10 discriminator 3 view .LVU51
+ 201 0042 2A60     		str	r2, [r5]
+  25:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 202              		.loc 1 25 34 is_stmt 1 discriminator 3 view .LVU52
+ 203              	.LVL16:
+  25:err0r.c       ****     *crc = table[(uint8_t)*crc ^ ((uint8_t*)data)[i]] ^ *crc >> 8;
+ 204              		.loc 1 25 34 is_stmt 0 discriminator 3 view .LVU53
+ 205 0044 F1E7     		b	.L11
+ 206              	.L15:
+ 207 0046 C046     		.align	2
+ 208              	.L14:
+ 209 0048 00000000 		.word	table.5253
+ 210              	.LBE6:
+ 211              		.cfi_endproc
+ 212              	.LFE1:
+ 214              		.global	__aeabi_idivmod
+ 215              		.section	.text.hash_loop,"ax",%progbits
+ 216              		.align	1
+ 217              		.global	hash_loop
+ 218              		.syntax unified
+ 219              		.code	16
+ 220              		.thumb_func
+ 221              		.fpu softvfp
+ 223              	hash_loop:
+ 224              	.LVL17:
+ 225              	.LFB2:
+  29:err0r.c       **** 
+  30:err0r.c       **** uint8_t hash_loop(uint8_t* txt, uint8_t len) {
+ 226              		.loc 1 30 46 is_stmt 1 view -0
+ 227              		.cfi_startproc
+ 228              		@ args = 0, pretend = 0, frame = 24
+ 229              		@ frame_needed = 0, uses_anonymous_args = 0
+  31:err0r.c       ****     uint32_t crc = 0;
+ 230              		.loc 1 31 5 view .LVU55
+ 231              		.loc 1 31 14 is_stmt 0 view .LVU56
+ 232 0000 0023     		movs	r3, #0
+  30:err0r.c       ****     uint32_t crc = 0;
+ 233              		.loc 1 30 46 view .LVU57
+ 234 0002 10B5     		push	{r4, lr}
+ 235              	.LCFI2:
+ 236              		.cfi_def_cfa_offset 8
+ 237              		.cfi_offset 4, -8
+ 238              		.cfi_offset 14, -4
+ 239 0004 86B0     		sub	sp, sp, #24
+ 240              	.LCFI3:
+ 241              		.cfi_def_cfa_offset 32
+  32:err0r.c       ****     uint32_t crc_2 = 0;
+  33:err0r.c       **** 
+  34:err0r.c       ****     char buf[8]="";
+ 242              		.loc 1 34 10 view .LVU58
+ 243 0006 04AC     		add	r4, sp, #16
+  31:err0r.c       ****     uint32_t crc_2 = 0;
+ 244              		.loc 1 31 14 view .LVU59
+ 245 0008 0093     		str	r3, [sp]
+  32:err0r.c       ****     uint32_t crc_2 = 0;
+ 246              		.loc 1 32 5 is_stmt 1 view .LVU60
+  32:err0r.c       ****     uint32_t crc_2 = 0;
+ 247              		.loc 1 32 14 is_stmt 0 view .LVU61
+ 248 000a 0193     		str	r3, [sp, #4]
+ 249              		.loc 1 34 5 is_stmt 1 view .LVU62
+ 250              		.loc 1 34 10 is_stmt 0 view .LVU63
+ 251 000c 0493     		str	r3, [sp, #16]
+ 252 000e 6360     		str	r3, [r4, #4]
+  35:err0r.c       ****     for(int i=0;i<8;i++){
+ 253              		.loc 1 35 5 is_stmt 1 view .LVU64
+ 254              	.LBB7:
+ 255              		.loc 1 35 9 view .LVU65
+ 256              	.LVL18:
+ 257              		.loc 1 35 17 view .LVU66
+ 258              	.L17:
+  36:err0r.c       ****       buf[i]=txt[i];
+ 259              		.loc 1 36 7 discriminator 3 view .LVU67
+ 260              		.loc 1 36 13 is_stmt 0 discriminator 3 view .LVU68
+ 261 0010 C25C     		ldrb	r2, [r0, r3]
+ 262 0012 E254     		strb	r2, [r4, r3]
+  35:err0r.c       ****     for(int i=0;i<8;i++){
+ 263              		.loc 1 35 21 is_stmt 1 discriminator 3 view .LVU69
+  35:err0r.c       ****     for(int i=0;i<8;i++){
+ 264              		.loc 1 35 22 is_stmt 0 discriminator 3 view .LVU70
+ 265 0014 0133     		adds	r3, r3, #1
+ 266              	.LVL19:
+  35:err0r.c       ****     for(int i=0;i<8;i++){
+ 267              		.loc 1 35 17 is_stmt 1 discriminator 3 view .LVU71
+  35:err0r.c       ****     for(int i=0;i<8;i++){
+ 268              		.loc 1 35 5 is_stmt 0 discriminator 3 view .LVU72
+ 269 0016 082B     		cmp	r3, #8
+ 270 0018 FAD1     		bne	.L17
+ 271              	.LBE7:
+  37:err0r.c       ****     }
+  38:err0r.c       ****     trigger_high();
+ 272              		.loc 1 38 5 is_stmt 1 view .LVU73
+ 273 001a FFF7FEFF 		bl	trigger_high
+ 274              	.LVL20:
+  39:err0r.c       ****     srand(HAL_GetTick());
+ 275              		.loc 1 39 5 view .LVU74
+ 276              		.loc 1 39 11 is_stmt 0 view .LVU75
+ 277 001e FFF7FEFF 		bl	HAL_GetTick
+ 278              	.LVL21:
+ 279              		.loc 1 39 5 view .LVU76
+ 280 0022 FFF7FEFF 		bl	srand
+ 281              	.LVL22:
+  40:err0r.c       ****     uint32_t wait = rand()%10;
+ 282              		.loc 1 40 5 is_stmt 1 view .LVU77
+ 283              		.loc 1 40 21 is_stmt 0 view .LVU78
+ 284 0026 FFF7FEFF 		bl	rand
+ 285              	.LVL23:
+ 286              		.loc 1 40 27 view .LVU79
+ 287 002a 0A21     		movs	r1, #10
+ 288 002c FFF7FEFF 		bl	__aeabi_idivmod
+ 289              	.LVL24:
+  41:err0r.c       ****     for( volatile uint32_t i = 0; i< wait;i++);
+ 290              		.loc 1 41 5 is_stmt 1 view .LVU80
+ 291              	.LBB8:
+ 292              		.loc 1 41 10 view .LVU81
+ 293              		.loc 1 41 28 is_stmt 0 view .LVU82
+ 294 0030 0023     		movs	r3, #0
+ 295              	.L25:
+ 296              		.loc 1 41 44 discriminator 3 view .LVU83
+ 297 0032 0293     		str	r3, [sp, #8]
+ 298              		.loc 1 41 35 is_stmt 1 discriminator 3 view .LVU84
+ 299              		.loc 1 41 36 is_stmt 0 discriminator 3 view .LVU85
+ 300 0034 029B     		ldr	r3, [sp, #8]
+ 301              		.loc 1 41 5 discriminator 3 view .LVU86
+ 302 0036 8B42     		cmp	r3, r1
+ 303 0038 25D3     		bcc	.L19
+ 304              	.LBE8:
+  42:err0r.c       ****     crc32(buf, sizeof(buf), &crc);
+ 305              		.loc 1 42 5 is_stmt 1 view .LVU87
+ 306 003a 6A46     		mov	r2, sp
+ 307 003c 0821     		movs	r1, #8
+ 308              	.LVL25:
+ 309              		.loc 1 42 5 is_stmt 0 view .LVU88
+ 310 003e 2000     		movs	r0, r4
+ 311 0040 FFF7FEFF 		bl	crc32
+ 312              	.LVL26:
+  43:err0r.c       ****     crc32(buf, sizeof(buf), &crc_2);
+ 313              		.loc 1 43 5 is_stmt 1 view .LVU89
+ 314 0044 0821     		movs	r1, #8
+ 315 0046 01AA     		add	r2, sp, #4
+ 316 0048 2000     		movs	r0, r4
+ 317 004a FFF7FEFF 		bl	crc32
+ 318              	.LVL27:
+  44:err0r.c       ****     wait = rand()%10;
+ 319              		.loc 1 44 5 view .LVU90
+ 320              		.loc 1 44 12 is_stmt 0 view .LVU91
+ 321 004e FFF7FEFF 		bl	rand
+ 322              	.LVL28:
+ 323              		.loc 1 44 18 view .LVU92
+ 324 0052 0A21     		movs	r1, #10
+ 325 0054 FFF7FEFF 		bl	__aeabi_idivmod
+ 326              	.LVL29:
+  45:err0r.c       ****     for( volatile uint32_t i = 0; i< wait;i++);
+ 327              		.loc 1 45 5 is_stmt 1 view .LVU93
+ 328              	.LBB9:
+ 329              		.loc 1 45 10 view .LVU94
+ 330              		.loc 1 45 28 is_stmt 0 view .LVU95
+ 331 0058 0023     		movs	r3, #0
+ 332              	.L26:
+ 333              		.loc 1 45 44 discriminator 3 view .LVU96
+ 334 005a 0393     		str	r3, [sp, #12]
+ 335              		.loc 1 45 35 is_stmt 1 discriminator 3 view .LVU97
+ 336              		.loc 1 45 36 is_stmt 0 discriminator 3 view .LVU98
+ 337 005c 039B     		ldr	r3, [sp, #12]
+ 338              		.loc 1 45 5 discriminator 3 view .LVU99
+ 339 005e 8B42     		cmp	r3, r1
+ 340 0060 14D3     		bcc	.L21
+ 341              	.LBE9:
+  46:err0r.c       **** 
+  47:err0r.c       ****     if(crc!=crc_2){
+ 342              		.loc 1 47 5 is_stmt 1 view .LVU100
+ 343              		.loc 1 47 7 is_stmt 0 view .LVU101
+ 344 0062 009B     		ldr	r3, [sp]
+ 345 0064 019A     		ldr	r2, [sp, #4]
+ 346 0066 9342     		cmp	r3, r2
+ 347 0068 0AD1     		bne	.L22
+  48:err0r.c       ****       return 0x00;
+  49:err0r.c       ****     }
+  50:err0r.c       **** 
+  51:err0r.c       ****     trigger_low();
+ 348              		.loc 1 51 5 is_stmt 1 view .LVU102
+ 349 006a FFF7FEFF 		bl	trigger_low
+ 350              	.LVL30:
+  52:err0r.c       **** 
+  53:err0r.c       ****     if (crc != crc_2) {
+ 351              		.loc 1 53 5 view .LVU103
+ 352              		.loc 1 53 8 is_stmt 0 view .LVU104
+ 353 006e 009B     		ldr	r3, [sp]
+ 354 0070 019A     		ldr	r2, [sp, #4]
+ 355 0072 9342     		cmp	r3, r2
+ 356 0074 0DD0     		beq	.L23
+  54:err0r.c       ****       simpleserial_put('r',4, win_code);
+ 357              		.loc 1 54 7 is_stmt 1 view .LVU105
+ 358 0076 084A     		ldr	r2, .L28
+ 359              	.L27:
+  55:err0r.c       ****    } else {
+  56:err0r.c       ****       simpleserial_put('r',4 , (uint8_t*)&crc);
+ 360              		.loc 1 56 7 is_stmt 0 view .LVU106
+ 361 0078 0421     		movs	r1, #4
+ 362 007a 7220     		movs	r0, #114
+ 363 007c FFF7FEFF 		bl	simpleserial_put
+ 364              	.LVL31:
+ 365              	.L22:
+  57:err0r.c       ****     }
+  58:err0r.c       ****     return 0x00;
+  59:err0r.c       **** }
+ 366              		.loc 1 59 1 view .LVU107
+ 367 0080 0020     		movs	r0, #0
+ 368 0082 06B0     		add	sp, sp, #24
+ 369              		@ sp needed
+ 370 0084 10BD     		pop	{r4, pc}
+ 371              	.LVL32:
+ 372              	.L19:
+ 373              	.LBB10:
+  41:err0r.c       ****     crc32(buf, sizeof(buf), &crc);
+ 374              		.loc 1 41 47 is_stmt 1 discriminator 3 view .LVU108
+  41:err0r.c       ****     crc32(buf, sizeof(buf), &crc);
+ 375              		.loc 1 41 43 discriminator 3 view .LVU109
+  41:err0r.c       ****     crc32(buf, sizeof(buf), &crc);
+ 376              		.loc 1 41 44 is_stmt 0 discriminator 3 view .LVU110
+ 377 0086 029B     		ldr	r3, [sp, #8]
+ 378 0088 0133     		adds	r3, r3, #1
+ 379 008a D2E7     		b	.L25
+ 380              	.L21:
+  41:err0r.c       ****     crc32(buf, sizeof(buf), &crc);
+ 381              		.loc 1 41 44 discriminator 3 view .LVU111
+ 382              	.LBE10:
+ 383              	.LBB11:
+  45:err0r.c       **** 
+ 384              		.loc 1 45 47 is_stmt 1 discriminator 3 view .LVU112
+  45:err0r.c       **** 
+ 385              		.loc 1 45 43 discriminator 3 view .LVU113
+  45:err0r.c       **** 
+ 386              		.loc 1 45 44 is_stmt 0 discriminator 3 view .LVU114
+ 387 008c 039B     		ldr	r3, [sp, #12]
+ 388 008e 0133     		adds	r3, r3, #1
+ 389 0090 E3E7     		b	.L26
+ 390              	.LVL33:
+ 391              	.L23:
+  45:err0r.c       **** 
+ 392              		.loc 1 45 44 discriminator 3 view .LVU115
+ 393              	.LBE11:
+  56:err0r.c       ****     }
+ 394              		.loc 1 56 7 is_stmt 1 view .LVU116
+ 395 0092 6A46     		mov	r2, sp
+ 396 0094 F0E7     		b	.L27
+ 397              	.L29:
+ 398 0096 C046     		.align	2
+ 399              	.L28:
+ 400 0098 00000000 		.word	.LANCHOR0
+ 401              		.cfi_endproc
+ 402              	.LFE2:
+ 404              		.section	.text.startup.main,"ax",%progbits
+ 405              		.align	1
+ 406              		.global	main
+ 407              		.syntax unified
+ 408              		.code	16
+ 409              		.thumb_func
+ 410              		.fpu softvfp
+ 412              	main:
+ 413              	.LFB3:
+  60:err0r.c       **** 
+  61:err0r.c       **** int main(void) {
+ 414              		.loc 1 61 16 view -0
+ 415              		.cfi_startproc
+ 416              		@ Volatile: function does not return.
+ 417              		@ args = 0, pretend = 0, frame = 0
+ 418              		@ frame_needed = 0, uses_anonymous_args = 0
+  62:err0r.c       ****     platform_init();
+ 419              		.loc 1 62 5 view .LVU118
+  61:err0r.c       ****     platform_init();
+ 420              		.loc 1 61 16 is_stmt 0 view .LVU119
+ 421 0000 10B5     		push	{r4, lr}
+ 422              	.LCFI4:
+ 423              		.cfi_def_cfa_offset 8
+ 424              		.cfi_offset 4, -8
+ 425              		.cfi_offset 14, -4
+ 426              		.loc 1 62 5 view .LVU120
+ 427 0002 FFF7FEFF 		bl	platform_init
+ 428              	.LVL34:
+  63:err0r.c       ****     init_uart();
+ 429              		.loc 1 63 5 is_stmt 1 view .LVU121
+ 430 0006 FFF7FEFF 		bl	init_uart
+ 431              	.LVL35:
+  64:err0r.c       ****     trigger_setup();
+ 432              		.loc 1 64 5 view .LVU122
+ 433 000a FFF7FEFF 		bl	trigger_setup
+ 434              	.LVL36:
+  65:err0r.c       **** 
+  66:err0r.c       ****     /* Device reset detected */
+  67:err0r.c       ****     putch('r');
+ 435              		.loc 1 67 5 view .LVU123
+ 436 000e 7220     		movs	r0, #114
+ 437 0010 FFF7FEFF 		bl	putch
+ 438              	.LVL37:
+  68:err0r.c       ****     putch('R');
+ 439              		.loc 1 68 5 view .LVU124
+ 440 0014 5220     		movs	r0, #82
+ 441 0016 FFF7FEFF 		bl	putch
+ 442              	.LVL38:
+  69:err0r.c       ****     putch('E');
+ 443              		.loc 1 69 5 view .LVU125
+ 444 001a 4520     		movs	r0, #69
+ 445 001c FFF7FEFF 		bl	putch
+ 446              	.LVL39:
+  70:err0r.c       ****     putch('S');
+ 447              		.loc 1 70 5 view .LVU126
+ 448 0020 5320     		movs	r0, #83
+ 449 0022 FFF7FEFF 		bl	putch
+ 450              	.LVL40:
+  71:err0r.c       ****     putch('E');
+ 451              		.loc 1 71 5 view .LVU127
+ 452 0026 4520     		movs	r0, #69
+ 453 0028 FFF7FEFF 		bl	putch
+ 454              	.LVL41:
+  72:err0r.c       ****     putch('T');
+ 455              		.loc 1 72 5 view .LVU128
+ 456 002c 5420     		movs	r0, #84
+ 457 002e FFF7FEFF 		bl	putch
+ 458              	.LVL42:
+  73:err0r.c       ****     putch(' ');
+ 459              		.loc 1 73 5 view .LVU129
+ 460 0032 2020     		movs	r0, #32
+ 461 0034 FFF7FEFF 		bl	putch
+ 462              	.LVL43:
+  74:err0r.c       ****     putch(' ');
+ 463              		.loc 1 74 5 view .LVU130
+ 464 0038 2020     		movs	r0, #32
+ 465 003a FFF7FEFF 		bl	putch
+ 466              	.LVL44:
+  75:err0r.c       ****     putch(' ');
+ 467              		.loc 1 75 5 view .LVU131
+ 468 003e 2020     		movs	r0, #32
+ 469 0040 FFF7FEFF 		bl	putch
+ 470              	.LVL45:
+  76:err0r.c       ****     putch('\n');
+ 471              		.loc 1 76 5 view .LVU132
+ 472 0044 0A20     		movs	r0, #10
+ 473 0046 FFF7FEFF 		bl	putch
+ 474              	.LVL46:
+  77:err0r.c       **** 
+  78:err0r.c       ****     simpleserial_init();
+ 475              		.loc 1 78 5 view .LVU133
+ 476 004a FFF7FEFF 		bl	simpleserial_init
+ 477              	.LVL47:
+  79:err0r.c       **** 
+  80:err0r.c       ****     simpleserial_addcmd('h', 8, hash_loop);
+ 478              		.loc 1 80 5 view .LVU134
+ 479 004e 0821     		movs	r1, #8
+ 480 0050 6820     		movs	r0, #104
+ 481 0052 034A     		ldr	r2, .L32
+ 482 0054 FFF7FEFF 		bl	simpleserial_addcmd
+ 483              	.LVL48:
+ 484              	.L31:
+  81:err0r.c       **** 
+  82:err0r.c       ****     while(1) {
+ 485              		.loc 1 82 5 discriminator 1 view .LVU135
+  83:err0r.c       ****       simpleserial_get();
+ 486              		.loc 1 83 7 discriminator 1 view .LVU136
+ 487 0058 FFF7FEFF 		bl	simpleserial_get
+ 488              	.LVL49:
+  82:err0r.c       ****       simpleserial_get();
+ 489              		.loc 1 82 10 discriminator 1 view .LVU137
+ 490 005c FCE7     		b	.L31
+ 491              	.L33:
+ 492 005e C046     		.align	2
+ 493              	.L32:
+ 494 0060 00000000 		.word	hash_loop
+ 495              		.cfi_endproc
+ 496              	.LFE3:
+ 498              		.global	win_code
+ 499              		.data
+ 500              		.set	.LANCHOR0,. + 0
+ 503              	win_code:
+ 504 0000 00010203 		.ascii	"\000\001\002\003"
+ 505              		.bss
+ 506              		.align	2
+ 509              	table.5253:
+ 510 0000 00000000 		.space	1024
+ 510      00000000 
+ 510      00000000 
+ 510      00000000 
+ 510      00000000 
+ 511              		.text
+ 512              	.Letext0:
+ 513              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 514              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 515              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 516              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 517              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 518              		.file 7 "/usr/include/newlib/stdlib.h"
+ 519              		.file 8 "/usr/include/newlib/sys/unistd.h"
+ 520              		.file 9 ".././hal/hal.h"
+ 521              		.file 10 ".././hal/stm32f0/stm32f0_hal.h"
+ 522              		.file 11 "../simpleserial/simpleserial.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 err0r.c
+     /tmp/cccJH9RO.s:16     .text.crc32_for_byte:0000000000000000 $t
+     /tmp/cccJH9RO.s:24     .text.crc32_for_byte:0000000000000000 crc32_for_byte
+     /tmp/cccJH9RO.s:88     .text.crc32_for_byte:0000000000000028 $d
+     /tmp/cccJH9RO.s:94     .text.crc32:0000000000000000 $t
+     /tmp/cccJH9RO.s:101    .text.crc32:0000000000000000 crc32
+     /tmp/cccJH9RO.s:209    .text.crc32:0000000000000048 $d
+     /tmp/cccJH9RO.s:509    .bss:0000000000000000 table.5253
+     /tmp/cccJH9RO.s:216    .text.hash_loop:0000000000000000 $t
+     /tmp/cccJH9RO.s:223    .text.hash_loop:0000000000000000 hash_loop
+     /tmp/cccJH9RO.s:400    .text.hash_loop:0000000000000098 $d
+     /tmp/cccJH9RO.s:405    .text.startup.main:0000000000000000 $t
+     /tmp/cccJH9RO.s:412    .text.startup.main:0000000000000000 main
+     /tmp/cccJH9RO.s:494    .text.startup.main:0000000000000060 $d
+     /tmp/cccJH9RO.s:503    .data:0000000000000000 win_code
+     /tmp/cccJH9RO.s:506    .bss:0000000000000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_idivmod
+trigger_high
+HAL_GetTick
+srand
+rand
+trigger_low
+simpleserial_put
+platform_init
+init_uart
+trigger_setup
+putch
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get

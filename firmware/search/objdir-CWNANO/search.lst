@@ -1,0 +1,892 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"search.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.verify,"ax",%progbits
+  16              		.align	1
+  17              		.global	verify
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	verify:
+  25              	.LVL0:
+  26              	.LFB0:
+  27              		.file 1 "search.c"
+   1:search.c      **** #include "hal.h"
+   2:search.c      **** #include <stdint.h>
+   3:search.c      **** #include <stdlib.h>
+   4:search.c      **** #include <time.h>
+   5:search.c      **** #include <stdbool.h>
+   6:search.c      **** #include <string.h>
+   7:search.c      **** #include "../simpleserial/simpleserial.h"
+   8:search.c      **** 
+   9:search.c      **** #define DELAY 10
+  10:search.c      **** 
+  11:search.c      **** uint8_t arr[257] = {
+  12:search.c      ****   0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,
+  13:search.c      ****   18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34,
+  14:search.c      ****   35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51,
+  15:search.c      ****   52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68,
+  16:search.c      ****   69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85,
+  17:search.c      ****   86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102,
+  18:search.c      ****   103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116,
+  19:search.c      ****   117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130,
+  20:search.c      ****   131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144,
+  21:search.c      ****   145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158,
+  22:search.c      ****   159, 160, 161, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172,
+  23:search.c      ****   173, 174, 175, 176, 177, 178, 179, 180, 181, 182, 183, 184, 185, 186,
+  24:search.c      ****   187, 188, 189, 190, 191, 192, 193, 194, 195, 196, 197, 198, 199, 200,
+  25:search.c      ****   201, 202, 203, 204, 205, 206, 207, 208, 209, 210, 211, 212, 213, 214,
+  26:search.c      ****   215, 216, 217, 218, 219, 220, 221, 222, 223, 224, 225, 226, 227, 228,
+  27:search.c      ****   229, 230, 231, 232, 233, 234, 235, 236, 237, 238, 239, 240, 241, 242,
+  28:search.c      ****   243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 0
+  29:search.c      **** };
+  30:search.c      **** 
+  31:search.c      **** #if SS_VER == SS_VER_2_1
+  32:search.c      **** uint8_t verify(uint8_t cmd, uint8_t scmd, uint8_t dlen, uint8_t* data)
+  33:search.c      **** #else
+  34:search.c      **** uint8_t verify(uint8_t* data, uint8_t dlen)
+  35:search.c      **** #endif
+  36:search.c      **** {
+  28              		.loc 1 36 1 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 24
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  37:search.c      ****   uint8_t zero = 0, one = 1;
+  32              		.loc 1 37 3 view .LVU1
+  36:search.c      ****   uint8_t zero = 0, one = 1;
+  33              		.loc 1 36 1 is_stmt 0 view .LVU2
+  34 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 20
+  37              		.cfi_offset 4, -20
+  38              		.cfi_offset 5, -16
+  39              		.cfi_offset 6, -12
+  40              		.cfi_offset 7, -8
+  41              		.cfi_offset 14, -4
+  42              		.loc 1 37 21 view .LVU3
+  43 0002 0125     		movs	r5, #1
+  36:search.c      ****   uint8_t zero = 0, one = 1;
+  44              		.loc 1 36 1 view .LVU4
+  45 0004 87B0     		sub	sp, sp, #28
+  46              	.LCFI1:
+  47              		.cfi_def_cfa_offset 48
+  48              		.loc 1 37 11 view .LVU5
+  49 0006 04AB     		add	r3, sp, #16
+  50 0008 0633     		adds	r3, r3, #6
+  51 000a 0193     		str	r3, [sp, #4]
+  52 000c 0023     		movs	r3, #0
+  38:search.c      ****   bool allmatch = true;
+  53              		.loc 1 38 8 view .LVU6
+  54 000e 2C00     		movs	r4, r5
+  37:search.c      ****   uint8_t zero = 0, one = 1;
+  55              		.loc 1 37 11 view .LVU7
+  56 0010 019A     		ldr	r2, [sp, #4]
+  57              	.LBB2:
+  58              	.LBB3:
+  59              	.LBB4:
+  39:search.c      ****   for (int i = 0; i < 6; i++) {
+  40:search.c      ****     bool onematch = false;
+  41:search.c      ****     for (int j = 0; j < 6; j++) {
+  42:search.c      ****       if (arr[250+j] == data[i]) {
+  60              		.loc 1 42 14 view .LVU8
+  61 0012 124F     		ldr	r7, .L11
+  62              	.LBE4:
+  63              	.LBE3:
+  64              	.LBE2:
+  37:search.c      ****   bool allmatch = true;
+  65              		.loc 1 37 11 view .LVU9
+  66 0014 1370     		strb	r3, [r2]
+  37:search.c      ****   bool allmatch = true;
+  67              		.loc 1 37 21 view .LVU10
+  68 0016 04AB     		add	r3, sp, #16
+  69 0018 DE1D     		adds	r6, r3, #7
+  70 001a 831D     		adds	r3, r0, #6
+  71 001c 0393     		str	r3, [sp, #12]
+  72 001e 3570     		strb	r5, [r6]
+  38:search.c      ****   bool allmatch = true;
+  73              		.loc 1 38 3 is_stmt 1 view .LVU11
+  74              	.LVL1:
+  39:search.c      ****   for (int i = 0; i < 6; i++) {
+  75              		.loc 1 39 3 view .LVU12
+  76              	.LBB9:
+  39:search.c      ****   for (int i = 0; i < 6; i++) {
+  77              		.loc 1 39 8 view .LVU13
+  39:search.c      ****   for (int i = 0; i < 6; i++) {
+  78              		.loc 1 39 19 view .LVU14
+  79              	.L2:
+  80              	.LBB7:
+  81              	.LBB5:
+  41:search.c      ****       if (arr[250+j] == data[i]) {
+  82              		.loc 1 41 21 view .LVU15
+  83              		.loc 1 42 29 is_stmt 0 view .LVU16
+  84 0020 0378     		ldrb	r3, [r0]
+  85 0022 0293     		str	r3, [sp, #8]
+  41:search.c      ****       if (arr[250+j] == data[i]) {
+  86              		.loc 1 41 14 view .LVU17
+  87 0024 0023     		movs	r3, #0
+  88              	.LBE5:
+  40:search.c      ****     for (int j = 0; j < 6; j++) {
+  89              		.loc 1 40 10 view .LVU18
+  90 0026 1900     		movs	r1, r3
+  91              	.LVL2:
+  92              	.L4:
+  93              	.LBB6:
+  94              		.loc 1 42 7 is_stmt 1 view .LVU19
+  95              		.loc 1 42 10 is_stmt 0 view .LVU20
+  96 0028 FA5C     		ldrb	r2, [r7, r3]
+  97 002a 9446     		mov	ip, r2
+  98 002c 029A     		ldr	r2, [sp, #8]
+  99 002e 9445     		cmp	ip, r2
+ 100 0030 00D1     		bne	.L3
+  43:search.c      ****         onematch = true;
+ 101              		.loc 1 43 18 view .LVU21
+ 102 0032 2900     		movs	r1, r5
+ 103              	.LVL3:
+ 104              	.L3:
+  41:search.c      ****       if (arr[250+j] == data[i]) {
+ 105              		.loc 1 41 28 is_stmt 1 discriminator 2 view .LVU22
+  41:search.c      ****       if (arr[250+j] == data[i]) {
+ 106              		.loc 1 41 29 is_stmt 0 discriminator 2 view .LVU23
+ 107 0034 0133     		adds	r3, r3, #1
+ 108              	.LVL4:
+  41:search.c      ****       if (arr[250+j] == data[i]) {
+ 109              		.loc 1 41 21 is_stmt 1 discriminator 2 view .LVU24
+  41:search.c      ****       if (arr[250+j] == data[i]) {
+ 110              		.loc 1 41 5 is_stmt 0 discriminator 2 view .LVU25
+ 111 0036 062B     		cmp	r3, #6
+ 112 0038 F6D1     		bne	.L4
+ 113              	.LBE6:
+  44:search.c      ****       }
+  45:search.c      ****     }
+  46:search.c      ****     if (!onematch) {
+ 114              		.loc 1 46 5 is_stmt 1 view .LVU26
+ 115              	.LBE7:
+  39:search.c      ****     bool onematch = false;
+ 116              		.loc 1 39 3 is_stmt 0 view .LVU27
+ 117 003a 039B     		ldr	r3, [sp, #12]
+ 118              	.LVL5:
+ 119              	.LBB8:
+  47:search.c      ****       allmatch = false;
+ 120              		.loc 1 47 16 view .LVU28
+ 121 003c 4942     		rsbs	r1, r1, #0
+ 122              	.LVL6:
+ 123              		.loc 1 47 16 view .LVU29
+ 124 003e 0130     		adds	r0, r0, #1
+ 125              	.LVL7:
+ 126              		.loc 1 47 16 view .LVU30
+ 127 0040 0C40     		ands	r4, r1
+ 128              	.LVL8:
+ 129              		.loc 1 47 16 view .LVU31
+ 130              	.LBE8:
+  39:search.c      ****     bool onematch = false;
+ 131              		.loc 1 39 26 is_stmt 1 view .LVU32
+  39:search.c      ****     bool onematch = false;
+ 132              		.loc 1 39 19 view .LVU33
+  39:search.c      ****     bool onematch = false;
+ 133              		.loc 1 39 3 is_stmt 0 view .LVU34
+ 134 0042 8342     		cmp	r3, r0
+ 135 0044 ECD1     		bne	.L2
+ 136              	.LBE9:
+  48:search.c      ****     }
+  49:search.c      ****   }
+  50:search.c      ****   if (allmatch) {
+ 137              		.loc 1 50 3 is_stmt 1 view .LVU35
+  51:search.c      ****     simpleserial_put('r', 1, &one); // GOAL
+ 138              		.loc 1 51 5 is_stmt 0 view .LVU36
+ 139 0046 3200     		movs	r2, r6
+  50:search.c      ****     simpleserial_put('r', 1, &one); // GOAL
+ 140              		.loc 1 50 6 view .LVU37
+ 141 0048 002C     		cmp	r4, #0
+ 142 004a 00D1     		bne	.L10
+  52:search.c      ****   } else {
+  53:search.c      ****     simpleserial_put('r', 1, &zero);
+ 143              		.loc 1 53 5 is_stmt 1 view .LVU38
+ 144 004c 019A     		ldr	r2, [sp, #4]
+ 145              	.L10:
+ 146 004e 0121     		movs	r1, #1
+ 147 0050 7220     		movs	r0, #114
+ 148 0052 FFF7FEFF 		bl	simpleserial_put
+ 149              	.LVL9:
+  54:search.c      ****   }
+  55:search.c      ****   return allmatch ? 0x01 : 0x00;
+ 150              		.loc 1 55 3 view .LVU39
+  56:search.c      **** }
+ 151              		.loc 1 56 1 is_stmt 0 view .LVU40
+ 152 0056 2000     		movs	r0, r4
+ 153 0058 07B0     		add	sp, sp, #28
+ 154              		@ sp needed
+ 155              	.LVL10:
+ 156              		.loc 1 56 1 view .LVU41
+ 157 005a F0BD     		pop	{r4, r5, r6, r7, pc}
+ 158              	.L12:
+ 159              		.align	2
+ 160              	.L11:
+ 161 005c FA000000 		.word	arr+250
+ 162              		.cfi_endproc
+ 163              	.LFE0:
+ 165              		.section	.text.binarySearch,"ax",%progbits
+ 166              		.align	1
+ 167              		.global	binarySearch
+ 168              		.syntax unified
+ 169              		.code	16
+ 170              		.thumb_func
+ 171              		.fpu softvfp
+ 173              	binarySearch:
+ 174              	.LVL11:
+ 175              	.LFB1:
+  57:search.c      **** 
+  58:search.c      **** // uint8_t __attribute__((optimize("O0"))) binarySearch(uint8_t l, uint8_t r, uint8_t x, uint8_t cn
+  59:search.c      **** //   volatile uint8_t mid = l + (r - l) / 2;
+  60:search.c      **** //   uint8_t temp=-1;
+  61:search.c      **** //   if (r >= l && cnt<8) {
+  62:search.c      **** //     // If the element is present at the middle itself
+  63:search.c      **** //     if (arr[mid] == x) {
+  64:search.c      **** //       binarySearch(pre_l, pre_r, x,cnt+1,l,r);
+  65:search.c      **** //       temp = mid;
+  66:search.c      **** //       arr[mid] = x;
+  67:search.c      **** //     }
+  68:search.c      **** //     else if (arr[mid] > x) {
+  69:search.c      **** //       temp = binarySearch(l, mid - 1, x,cnt+1,l ,r);
+  70:search.c      **** //     }
+  71:search.c      **** //     else {
+  72:search.c      **** //       temp = binarySearch(mid + 1, r, x,cnt+1,l,r);
+  73:search.c      **** //     }
+  74:search.c      **** //   }
+  75:search.c      **** //   // We reach here when element is not present in array
+  76:search.c      **** //   return temp;
+  77:search.c      **** // }
+  78:search.c      **** 
+  79:search.c      **** 
+  80:search.c      **** 
+  81:search.c      **** 
+  82:search.c      **** // uint8_t binarySearch(uint8_t l, uint8_t r, uint8_t x) {
+  83:search.c      **** //   volatile uint8_t mid = l + (r - l) / 2;
+  84:search.c      **** //   if (r >= l) {
+  85:search.c      **** //     // If the element is present at the middle itself
+  86:search.c      **** //     if (arr[mid] == x) return mid;
+  87:search.c      **** 
+  88:search.c      **** //     // If element is smaller than mid, then
+  89:search.c      **** //     // it can only be present in left subarray
+  90:search.c      **** //     if (arr[mid] > x) return binarySearch(l, mid - 1, x);
+  91:search.c      **** 
+  92:search.c      **** //     // Else the element can only be present in right subarray
+  93:search.c      **** //     return binarySearch(mid + 1, r, x);
+  94:search.c      **** //   }
+  95:search.c      **** //   // We reach here when element is not present in array
+  96:search.c      **** //   return -1;
+  97:search.c      **** // }
+  98:search.c      **** 
+  99:search.c      **** 
+ 100:search.c      **** // iterative binary search makes number of binary function call 1
+ 101:search.c      **** // fixed number of iterations: ceil(log(n)) 
+ 102:search.c      **** uint8_t binarySearch(uint8_t l, uint8_t r, uint8_t x) {
+ 176              		.loc 1 102 55 is_stmt 1 view -0
+ 177              		.cfi_startproc
+ 178              		@ args = 0, pretend = 0, frame = 8
+ 179              		@ frame_needed = 0, uses_anonymous_args = 0
+ 103:search.c      ****   uint8_t correct_indx = -1;
+ 180              		.loc 1 103 3 view .LVU43
+ 104:search.c      ****   for(volatile int i=0;i<8;i++){
+ 181              		.loc 1 104 3 view .LVU44
+ 182              	.LBB10:
+ 183              		.loc 1 104 7 view .LVU45
+ 184              		.loc 1 104 20 is_stmt 0 view .LVU46
+ 185 0000 0023     		movs	r3, #0
+ 186              	.LBE10:
+ 102:search.c      ****   uint8_t correct_indx = -1;
+ 187              		.loc 1 102 55 view .LVU47
+ 188 0002 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 189              	.LCFI2:
+ 190              		.cfi_def_cfa_offset 32
+ 191              		.cfi_offset 0, -32
+ 192              		.cfi_offset 1, -28
+ 193              		.cfi_offset 2, -24
+ 194              		.cfi_offset 4, -20
+ 195              		.cfi_offset 5, -16
+ 196              		.cfi_offset 6, -12
+ 197              		.cfi_offset 7, -8
+ 198              		.cfi_offset 14, -4
+ 102:search.c      ****   uint8_t correct_indx = -1;
+ 199              		.loc 1 102 55 view .LVU48
+ 200 0004 0500     		movs	r5, r0
+ 103:search.c      ****   uint8_t correct_indx = -1;
+ 201              		.loc 1 103 11 view .LVU49
+ 202 0006 FF20     		movs	r0, #255
+ 203              	.LVL12:
+ 204              	.LBB14:
+ 205              		.loc 1 104 20 view .LVU50
+ 206 0008 0193     		str	r3, [sp, #4]
+ 207              	.LVL13:
+ 208              	.L14:
+ 209              		.loc 1 104 24 is_stmt 1 discriminator 1 view .LVU51
+ 210              		.loc 1 104 25 is_stmt 0 discriminator 1 view .LVU52
+ 211 000a 019B     		ldr	r3, [sp, #4]
+ 212              		.loc 1 104 3 discriminator 1 view .LVU53
+ 213 000c 072B     		cmp	r3, #7
+ 214 000e 00DD     		ble	.L15
+ 215              		.loc 1 104 3 discriminator 1 view .LVU54
+ 216              	.LBE14:
+ 105:search.c      ****     uint8_t m = l+(r-l)/2;
+ 106:search.c      **** 
+ 107:search.c      ****     uint8_t is_eq = arr[m]==x;
+ 108:search.c      ****     uint8_t is_gr = arr[m]>x;
+ 109:search.c      ****     uint8_t is_less = arr[m]<x;
+ 110:search.c      **** // solution for avoiding if else branching leakage
+ 111:search.c      ****     correct_indx = m*is_eq + correct_indx*(1-is_eq);
+ 112:search.c      ****     r = (m-1)*is_gr + r*(1-is_gr);
+ 113:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 114:search.c      **** 
+ 115:search.c      ****   }
+ 116:search.c      ****   return correct_indx;
+ 117:search.c      **** 
+ 118:search.c      **** }
+ 217              		.loc 1 118 1 view .LVU55
+ 218              		@ sp needed
+ 219              	.LVL14:
+ 220              		.loc 1 118 1 view .LVU56
+ 221 0010 FEBD     		pop	{r1, r2, r3, r4, r5, r6, r7, pc}
+ 222              	.LVL15:
+ 223              	.L15:
+ 224              	.LBB15:
+ 225              	.LBB11:
+ 105:search.c      ****     uint8_t m = l+(r-l)/2;
+ 226              		.loc 1 105 5 is_stmt 1 discriminator 3 view .LVU57
+ 105:search.c      ****     uint8_t m = l+(r-l)/2;
+ 227              		.loc 1 105 21 is_stmt 0 discriminator 3 view .LVU58
+ 228 0012 4C1B     		subs	r4, r1, r5
+ 105:search.c      ****     uint8_t m = l+(r-l)/2;
+ 229              		.loc 1 105 24 discriminator 3 view .LVU59
+ 230 0014 E30F     		lsrs	r3, r4, #31
+ 231 0016 1B19     		adds	r3, r3, r4
+ 232 0018 5B10     		asrs	r3, r3, #1
+ 105:search.c      ****     uint8_t m = l+(r-l)/2;
+ 233              		.loc 1 105 13 discriminator 3 view .LVU60
+ 234 001a EB18     		adds	r3, r5, r3
+ 107:search.c      ****     uint8_t is_gr = arr[m]>x;
+ 235              		.loc 1 107 24 discriminator 3 view .LVU61
+ 236 001c 134C     		ldr	r4, .L16
+ 105:search.c      ****     uint8_t m = l+(r-l)/2;
+ 237              		.loc 1 105 13 discriminator 3 view .LVU62
+ 238 001e DBB2     		uxtb	r3, r3
+ 239              	.LVL16:
+ 107:search.c      ****     uint8_t is_gr = arr[m]>x;
+ 240              		.loc 1 107 5 is_stmt 1 discriminator 3 view .LVU63
+ 107:search.c      ****     uint8_t is_gr = arr[m]>x;
+ 241              		.loc 1 107 24 is_stmt 0 discriminator 3 view .LVU64
+ 242 0020 E45C     		ldrb	r4, [r4, r3]
+ 107:search.c      ****     uint8_t is_gr = arr[m]>x;
+ 243              		.loc 1 107 27 discriminator 3 view .LVU65
+ 244 0022 A61A     		subs	r6, r4, r2
+ 245 0024 3700     		movs	r7, r6
+ 246 0026 7E42     		rsbs	r6, r7, #0
+ 247 0028 7E41     		adcs	r6, r6, r7
+ 248              	.LVL17:
+ 108:search.c      ****     uint8_t is_less = arr[m]<x;
+ 249              		.loc 1 108 5 is_stmt 1 discriminator 3 view .LVU66
+ 108:search.c      ****     uint8_t is_less = arr[m]<x;
+ 250              		.loc 1 108 27 is_stmt 0 discriminator 3 view .LVU67
+ 251 002a A242     		cmp	r2, r4
+ 252 002c BF41     		sbcs	r7, r7, r7
+ 253 002e 7F42     		rsbs	r7, r7, #0
+ 254 0030 BC46     		mov	ip, r7
+ 255              	.LVL18:
+ 109:search.c      **** // solution for avoiding if else branching leakage
+ 256              		.loc 1 109 5 is_stmt 1 discriminator 3 view .LVU68
+ 111:search.c      ****     r = (m-1)*is_gr + r*(1-is_gr);
+ 257              		.loc 1 111 45 is_stmt 0 discriminator 3 view .LVU69
+ 258 0032 0127     		movs	r7, #1
+ 259 0034 BF1B     		subs	r7, r7, r6
+ 111:search.c      ****     r = (m-1)*is_gr + r*(1-is_gr);
+ 260              		.loc 1 111 28 discriminator 3 view .LVU70
+ 261 0036 7843     		muls	r0, r7
+ 262              	.LVL19:
+ 111:search.c      ****     r = (m-1)*is_gr + r*(1-is_gr);
+ 263              		.loc 1 111 21 discriminator 3 view .LVU71
+ 264 0038 5E43     		muls	r6, r3
+ 265              	.LVL20:
+ 112:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 266              		.loc 1 112 27 discriminator 3 view .LVU72
+ 267 003a 0127     		movs	r7, #1
+ 111:search.c      ****     r = (m-1)*is_gr + r*(1-is_gr);
+ 268              		.loc 1 111 18 discriminator 3 view .LVU73
+ 269 003c 8019     		adds	r0, r0, r6
+ 112:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 270              		.loc 1 112 27 discriminator 3 view .LVU74
+ 271 003e 6646     		mov	r6, ip
+ 272 0040 BE1B     		subs	r6, r7, r6
+ 112:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 273              		.loc 1 112 21 discriminator 3 view .LVU75
+ 274 0042 6746     		mov	r7, ip
+ 275 0044 7143     		muls	r1, r6
+ 276              	.LVL21:
+ 112:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 277              		.loc 1 112 21 discriminator 3 view .LVU76
+ 278 0046 5E1E     		subs	r6, r3, #1
+ 279 0048 7E43     		muls	r6, r7
+ 109:search.c      **** // solution for avoiding if else branching leakage
+ 280              		.loc 1 109 29 discriminator 3 view .LVU77
+ 281 004a 9442     		cmp	r4, r2
+ 282 004c A441     		sbcs	r4, r4, r4
+ 283              	.LVL22:
+ 112:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 284              		.loc 1 112 7 discriminator 3 view .LVU78
+ 285 004e 8919     		adds	r1, r1, r6
+ 113:search.c      **** 
+ 286              		.loc 1 113 29 discriminator 3 view .LVU79
+ 287 0050 0126     		movs	r6, #1
+ 109:search.c      **** // solution for avoiding if else branching leakage
+ 288              		.loc 1 109 29 discriminator 3 view .LVU80
+ 289 0052 6442     		rsbs	r4, r4, #0
+ 290              	.LVL23:
+ 111:search.c      ****     r = (m-1)*is_gr + r*(1-is_gr);
+ 291              		.loc 1 111 5 is_stmt 1 discriminator 3 view .LVU81
+ 113:search.c      **** 
+ 292              		.loc 1 113 29 is_stmt 0 discriminator 3 view .LVU82
+ 293 0054 361B     		subs	r6, r6, r4
+ 113:search.c      **** 
+ 294              		.loc 1 113 23 discriminator 3 view .LVU83
+ 295 0056 0133     		adds	r3, r3, #1
+ 296              	.LVL24:
+ 113:search.c      **** 
+ 297              		.loc 1 113 23 discriminator 3 view .LVU84
+ 298 0058 5C43     		muls	r4, r3
+ 299              	.LVL25:
+ 113:search.c      **** 
+ 300              		.loc 1 113 23 discriminator 3 view .LVU85
+ 301 005a 7543     		muls	r5, r6
+ 302              	.LVL26:
+ 113:search.c      **** 
+ 303              		.loc 1 113 23 discriminator 3 view .LVU86
+ 304              	.LBE11:
+ 104:search.c      ****     uint8_t m = l+(r-l)/2;
+ 305              		.loc 1 104 29 discriminator 3 view .LVU87
+ 306 005c 019B     		ldr	r3, [sp, #4]
+ 307              	.LVL27:
+ 308              	.LBB12:
+ 113:search.c      **** 
+ 309              		.loc 1 113 7 discriminator 3 view .LVU88
+ 310 005e 2D19     		adds	r5, r5, r4
+ 311              	.LBE12:
+ 104:search.c      ****     uint8_t m = l+(r-l)/2;
+ 312              		.loc 1 104 29 discriminator 3 view .LVU89
+ 313 0060 0133     		adds	r3, r3, #1
+ 314              	.LBB13:
+ 111:search.c      ****     r = (m-1)*is_gr + r*(1-is_gr);
+ 315              		.loc 1 111 18 discriminator 3 view .LVU90
+ 316 0062 C0B2     		uxtb	r0, r0
+ 317              	.LVL28:
+ 112:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 318              		.loc 1 112 5 is_stmt 1 discriminator 3 view .LVU91
+ 112:search.c      ****     l = (m+1)*is_less + l*(1-is_less);
+ 319              		.loc 1 112 7 is_stmt 0 discriminator 3 view .LVU92
+ 320 0064 C9B2     		uxtb	r1, r1
+ 321              	.LVL29:
+ 113:search.c      **** 
+ 322              		.loc 1 113 5 is_stmt 1 discriminator 3 view .LVU93
+ 113:search.c      **** 
+ 323              		.loc 1 113 7 is_stmt 0 discriminator 3 view .LVU94
+ 324 0066 EDB2     		uxtb	r5, r5
+ 325              	.LVL30:
+ 113:search.c      **** 
+ 326              		.loc 1 113 7 discriminator 3 view .LVU95
+ 327              	.LBE13:
+ 104:search.c      ****     uint8_t m = l+(r-l)/2;
+ 328              		.loc 1 104 28 is_stmt 1 discriminator 3 view .LVU96
+ 104:search.c      ****     uint8_t m = l+(r-l)/2;
+ 329              		.loc 1 104 29 is_stmt 0 discriminator 3 view .LVU97
+ 330 0068 0193     		str	r3, [sp, #4]
+ 331 006a CEE7     		b	.L14
+ 332              	.L17:
+ 333              		.align	2
+ 334              	.L16:
+ 335 006c 00000000 		.word	arr
+ 336              	.LBE15:
+ 337              		.cfi_endproc
+ 338              	.LFE1:
+ 340              		.section	.text.search,"ax",%progbits
+ 341              		.align	1
+ 342              		.global	search
+ 343              		.syntax unified
+ 344              		.code	16
+ 345              		.thumb_func
+ 346              		.fpu softvfp
+ 348              	search:
+ 349              	.LVL31:
+ 350              	.LFB3:
+ 119:search.c      **** 
+ 120:search.c      **** 
+ 121:search.c      **** void remove_six(void) {
+ 122:search.c      ****   for (uint8_t i = 1 ; i <= 6; i++) {
+ 123:search.c      ****     uint8_t rep = rand();
+ 124:search.c      ****     arr[256] = arr[rep];
+ 125:search.c      ****     memmove(&arr[rep], &arr[rep+1], (256-rep)*sizeof(arr[0]));
+ 126:search.c      ****   }
+ 127:search.c      **** }
+ 128:search.c      **** 
+ 129:search.c      **** #if SS_VER == SS_VER_2_1
+ 130:search.c      **** uint8_t search(uint8_t cmd, uint8_t scmd, uint8_t dlen, uint8_t* data)
+ 131:search.c      **** #else
+ 132:search.c      **** uint8_t search(uint8_t* data, uint8_t dlen)
+ 133:search.c      **** #endif
+ 134:search.c      **** {
+ 351              		.loc 1 134 1 is_stmt 1 view -0
+ 352              		.cfi_startproc
+ 353              		@ args = 0, pretend = 0, frame = 0
+ 354              		@ frame_needed = 0, uses_anonymous_args = 0
+ 135:search.c      ****   trigger_high();
+ 355              		.loc 1 135 3 view .LVU99
+ 134:search.c      ****   trigger_high();
+ 356              		.loc 1 134 1 is_stmt 0 view .LVU100
+ 357 0000 10B5     		push	{r4, lr}
+ 358              	.LCFI3:
+ 359              		.cfi_def_cfa_offset 8
+ 360              		.cfi_offset 4, -8
+ 361              		.cfi_offset 14, -4
+ 134:search.c      ****   trigger_high();
+ 362              		.loc 1 134 1 view .LVU101
+ 363 0002 0400     		movs	r4, r0
+ 364              		.loc 1 135 3 view .LVU102
+ 365 0004 FFF7FEFF 		bl	trigger_high
+ 366              	.LVL32:
+ 136:search.c      ****   binarySearch(0, 249, data[0]);
+ 367              		.loc 1 136 3 is_stmt 1 view .LVU103
+ 368 0008 F921     		movs	r1, #249
+ 369 000a 2278     		ldrb	r2, [r4]
+ 370 000c 0020     		movs	r0, #0
+ 371 000e FFF7FEFF 		bl	binarySearch
+ 372              	.LVL33:
+ 137:search.c      ****   trigger_low();
+ 373              		.loc 1 137 3 view .LVU104
+ 138:search.c      ****   return 0;
+ 139:search.c      **** }
+ 374              		.loc 1 139 1 is_stmt 0 view .LVU105
+ 375              		@ sp needed
+ 137:search.c      ****   trigger_low();
+ 376              		.loc 1 137 3 view .LVU106
+ 377 0012 FFF7FEFF 		bl	trigger_low
+ 378              	.LVL34:
+ 138:search.c      ****   return 0;
+ 379              		.loc 1 138 3 is_stmt 1 view .LVU107
+ 380              		.loc 1 139 1 is_stmt 0 view .LVU108
+ 381 0016 0020     		movs	r0, #0
+ 382              	.LVL35:
+ 383              		.loc 1 139 1 view .LVU109
+ 384 0018 10BD     		pop	{r4, pc}
+ 385              		.cfi_endproc
+ 386              	.LFE3:
+ 388              		.section	.text.remove_six,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	remove_six
+ 391              		.syntax unified
+ 392              		.code	16
+ 393              		.thumb_func
+ 394              		.fpu softvfp
+ 396              	remove_six:
+ 397              	.LFB2:
+ 121:search.c      ****   for (uint8_t i = 1 ; i <= 6; i++) {
+ 398              		.loc 1 121 23 is_stmt 1 view -0
+ 399              		.cfi_startproc
+ 400              		@ args = 0, pretend = 0, frame = 0
+ 401              		@ frame_needed = 0, uses_anonymous_args = 0
+ 122:search.c      ****     uint8_t rep = rand();
+ 402              		.loc 1 122 3 view .LVU111
+ 403              	.LBB16:
+ 122:search.c      ****     uint8_t rep = rand();
+ 404              		.loc 1 122 8 view .LVU112
+ 405              	.LVL36:
+ 122:search.c      ****     uint8_t rep = rand();
+ 406              		.loc 1 122 24 view .LVU113
+ 407              	.LBE16:
+ 121:search.c      ****   for (uint8_t i = 1 ; i <= 6; i++) {
+ 408              		.loc 1 121 23 is_stmt 0 view .LVU114
+ 409 0000 70B5     		push	{r4, r5, r6, lr}
+ 410              	.LCFI4:
+ 411              		.cfi_def_cfa_offset 16
+ 412              		.cfi_offset 4, -16
+ 413              		.cfi_offset 5, -12
+ 414              		.cfi_offset 6, -8
+ 415              		.cfi_offset 14, -4
+ 416              	.LBB19:
+ 417              	.LBB17:
+ 125:search.c      ****   }
+ 418              		.loc 1 125 41 view .LVU115
+ 419 0002 8025     		movs	r5, #128
+ 420              	.LBE17:
+ 421              	.LBE19:
+ 121:search.c      ****   for (uint8_t i = 1 ; i <= 6; i++) {
+ 422              		.loc 1 121 23 view .LVU116
+ 423 0004 0624     		movs	r4, #6
+ 424 0006 FF26     		movs	r6, #255
+ 425              	.LBB20:
+ 426              	.LBB18:
+ 125:search.c      ****   }
+ 427              		.loc 1 125 41 view .LVU117
+ 428 0008 6D00     		lsls	r5, r5, #1
+ 429              	.LVL37:
+ 430              	.L20:
+ 123:search.c      ****     arr[256] = arr[rep];
+ 431              		.loc 1 123 5 is_stmt 1 discriminator 3 view .LVU118
+ 123:search.c      ****     arr[256] = arr[rep];
+ 432              		.loc 1 123 19 is_stmt 0 discriminator 3 view .LVU119
+ 433 000a FFF7FEFF 		bl	rand
+ 434              	.LVL38:
+ 124:search.c      ****     memmove(&arr[rep], &arr[rep+1], (256-rep)*sizeof(arr[0]));
+ 435              		.loc 1 124 5 is_stmt 1 discriminator 3 view .LVU120
+ 124:search.c      ****     memmove(&arr[rep], &arr[rep+1], (256-rep)*sizeof(arr[0]));
+ 436              		.loc 1 124 14 is_stmt 0 discriminator 3 view .LVU121
+ 437 000e 084B     		ldr	r3, .L22
+ 438 0010 3040     		ands	r0, r6
+ 439              	.LVL39:
+ 124:search.c      ****     memmove(&arr[rep], &arr[rep+1], (256-rep)*sizeof(arr[0]));
+ 440              		.loc 1 124 14 discriminator 3 view .LVU122
+ 441 0012 1A00     		movs	r2, r3
+ 442 0014 195C     		ldrb	r1, [r3, r0]
+ 443 0016 FF32     		adds	r2, r2, #255
+ 444 0018 5170     		strb	r1, [r2, #1]
+ 125:search.c      ****   }
+ 445              		.loc 1 125 5 is_stmt 1 discriminator 3 view .LVU123
+ 446 001a 013C     		subs	r4, r4, #1
+ 447              	.LVL40:
+ 125:search.c      ****   }
+ 448              		.loc 1 125 32 is_stmt 0 discriminator 3 view .LVU124
+ 449 001c 411C     		adds	r1, r0, #1
+ 125:search.c      ****   }
+ 450              		.loc 1 125 41 discriminator 3 view .LVU125
+ 451 001e 2A1A     		subs	r2, r5, r0
+ 125:search.c      ****   }
+ 452              		.loc 1 125 24 discriminator 3 view .LVU126
+ 453 0020 C918     		adds	r1, r1, r3
+ 125:search.c      ****   }
+ 454              		.loc 1 125 13 discriminator 3 view .LVU127
+ 455 0022 C018     		adds	r0, r0, r3
+ 456 0024 E4B2     		uxtb	r4, r4
+ 125:search.c      ****   }
+ 457              		.loc 1 125 5 discriminator 3 view .LVU128
+ 458 0026 FFF7FEFF 		bl	memmove
+ 459              	.LVL41:
+ 460              	.LBE18:
+ 122:search.c      ****     uint8_t rep = rand();
+ 461              		.loc 1 122 32 is_stmt 1 discriminator 3 view .LVU129
+ 122:search.c      ****     uint8_t rep = rand();
+ 462              		.loc 1 122 24 discriminator 3 view .LVU130
+ 122:search.c      ****     uint8_t rep = rand();
+ 463              		.loc 1 122 3 is_stmt 0 discriminator 3 view .LVU131
+ 464 002a 002C     		cmp	r4, #0
+ 465 002c EDD1     		bne	.L20
+ 466              	.LBE20:
+ 127:search.c      **** 
+ 467              		.loc 1 127 1 view .LVU132
+ 468              		@ sp needed
+ 469 002e 70BD     		pop	{r4, r5, r6, pc}
+ 470              	.L23:
+ 471              		.align	2
+ 472              	.L22:
+ 473 0030 00000000 		.word	arr
+ 474              		.cfi_endproc
+ 475              	.LFE2:
+ 477              		.section	.text.startup.main,"ax",%progbits
+ 478              		.align	1
+ 479              		.global	main
+ 480              		.syntax unified
+ 481              		.code	16
+ 482              		.thumb_func
+ 483              		.fpu softvfp
+ 485              	main:
+ 486              	.LFB4:
+ 140:search.c      **** 
+ 141:search.c      **** 
+ 142:search.c      **** int main(void) {
+ 487              		.loc 1 142 16 is_stmt 1 view -0
+ 488              		.cfi_startproc
+ 489              		@ args = 0, pretend = 0, frame = 0
+ 490              		@ frame_needed = 0, uses_anonymous_args = 0
+ 143:search.c      ****   platform_init();
+ 491              		.loc 1 143 3 view .LVU134
+ 142:search.c      ****   platform_init();
+ 492              		.loc 1 142 16 is_stmt 0 view .LVU135
+ 493 0000 10B5     		push	{r4, lr}
+ 494              	.LCFI5:
+ 495              		.cfi_def_cfa_offset 8
+ 496              		.cfi_offset 4, -8
+ 497              		.cfi_offset 14, -4
+ 498              		.loc 1 143 3 view .LVU136
+ 499 0002 FFF7FEFF 		bl	platform_init
+ 500              	.LVL42:
+ 144:search.c      ****   init_uart();
+ 501              		.loc 1 144 3 is_stmt 1 view .LVU137
+ 502 0006 FFF7FEFF 		bl	init_uart
+ 503              	.LVL43:
+ 145:search.c      ****   trigger_setup();
+ 504              		.loc 1 145 3 view .LVU138
+ 505 000a FFF7FEFF 		bl	trigger_setup
+ 506              	.LVL44:
+ 146:search.c      ****   simpleserial_init();
+ 507              		.loc 1 146 3 view .LVU139
+ 508 000e FFF7FEFF 		bl	simpleserial_init
+ 509              	.LVL45:
+ 147:search.c      **** 
+ 148:search.c      ****   int key = 0xdeadbeef; // DUMMY VAL
+ 510              		.loc 1 148 3 view .LVU140
+ 149:search.c      **** 
+ 150:search.c      ****   srand(key);
+ 511              		.loc 1 150 3 view .LVU141
+ 512 0012 0948     		ldr	r0, .L26
+ 513 0014 FFF7FEFF 		bl	srand
+ 514              	.LVL46:
+ 151:search.c      ****   remove_six();
+ 515              		.loc 1 151 3 view .LVU142
+ 516 0018 FFF7FEFF 		bl	remove_six
+ 517              	.LVL47:
+ 152:search.c      **** 
+ 153:search.c      ****   simpleserial_addcmd('a', 6, verify);
+ 518              		.loc 1 153 3 view .LVU143
+ 519 001c 0621     		movs	r1, #6
+ 520 001e 074A     		ldr	r2, .L26+4
+ 521 0020 6120     		movs	r0, #97
+ 522 0022 FFF7FEFF 		bl	simpleserial_addcmd
+ 523              	.LVL48:
+ 154:search.c      ****   simpleserial_addcmd('s', 1, search);
+ 524              		.loc 1 154 3 view .LVU144
+ 525 0026 0121     		movs	r1, #1
+ 526 0028 7320     		movs	r0, #115
+ 527 002a 054A     		ldr	r2, .L26+8
+ 528 002c FFF7FEFF 		bl	simpleserial_addcmd
+ 529              	.LVL49:
+ 530              	.L25:
+ 155:search.c      **** 
+ 156:search.c      ****   while(1) simpleserial_get();
+ 531              		.loc 1 156 3 discriminator 1 view .LVU145
+ 532              		.loc 1 156 12 discriminator 1 view .LVU146
+ 533 0030 FFF7FEFF 		bl	simpleserial_get
+ 534              	.LVL50:
+ 535              		.loc 1 156 8 discriminator 1 view .LVU147
+ 536 0034 FCE7     		b	.L25
+ 537              	.L27:
+ 538 0036 C046     		.align	2
+ 539              	.L26:
+ 540 0038 EFBEADDE 		.word	-559038737
+ 541 003c 00000000 		.word	verify
+ 542 0040 00000000 		.word	search
+ 543              		.cfi_endproc
+ 544              	.LFE4:
+ 546              		.global	arr
+ 547              		.data
+ 550              	arr:
+ 551 0000 00010203 		.ascii	"\000\001\002\003\004\005\006\007\010\011\012\013\014"
+ 551      04050607 
+ 551      08090A0B 
+ 551      0C
+ 552 000d 0D0E0F10 		.ascii	"\015\016\017\020\021\022\023\024\025\026\027\030\031"
+ 552      11121314 
+ 552      15161718 
+ 552      19
+ 553 001a 1A1B1C1D 		.ascii	"\032\033\034\035\036\037 !\"#$%&'()*+,-./0123456789"
+ 553      1E1F2021 
+ 553      22232425 
+ 553      26272829 
+ 553      2A2B2C2D 
+ 554 003a 3A3B3C3D 		.ascii	":;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijk"
+ 554      3E3F4041 
+ 554      42434445 
+ 554      46474849 
+ 554      4A4B4C4D 
+ 555 006c 6C6D6E6F 		.ascii	"lmnopqrstuvwxyz{|}~\177\200\201\202\203\204\205\206"
+ 555      70717273 
+ 555      74757677 
+ 555      78797A7B 
+ 555      7C7D7E7F 
+ 556 0087 8788898A 		.ascii	"\207\210\211\212\213\214\215\216\217\220\221\222\223"
+ 556      8B8C8D8E 
+ 556      8F909192 
+ 556      93
+ 557 0094 94959697 		.ascii	"\224\225\226\227\230\231\232\233\234\235\236\237\240"
+ 557      98999A9B 
+ 557      9C9D9E9F 
+ 557      A0
+ 558 00a1 A1A2A3A4 		.ascii	"\241\242\243\244\245\246\247\250\251\252\253\254\255"
+ 558      A5A6A7A8 
+ 558      A9AAABAC 
+ 558      AD
+ 559 00ae AEAFB0B1 		.ascii	"\256\257\260\261\262\263\264\265\266\267\270\271\272"
+ 559      B2B3B4B5 
+ 559      B6B7B8B9 
+ 559      BA
+ 560 00bb BBBCBDBE 		.ascii	"\273\274\275\276\277\300\301\302\303\304\305\306\307"
+ 560      BFC0C1C2 
+ 560      C3C4C5C6 
+ 560      C7
+ 561 00c8 C8C9CACB 		.ascii	"\310\311\312\313\314\315\316\317\320\321\322\323\324"
+ 561      CCCDCECF 
+ 561      D0D1D2D3 
+ 561      D4
+ 562 00d5 D5D6D7D8 		.ascii	"\325\326\327\330\331\332\333\334\335\336\337\340\341"
+ 562      D9DADBDC 
+ 562      DDDEDFE0 
+ 562      E1
+ 563 00e2 E2E3E4E5 		.ascii	"\342\343\344\345\346\347\350\351\352\353\354\355\356"
+ 563      E6E7E8E9 
+ 563      EAEBECED 
+ 563      EE
+ 564 00ef EFF0F1F2 		.ascii	"\357\360\361\362\363\364\365\366\367\370\371\372\373"
+ 564      F3F4F5F6 
+ 564      F7F8F9FA 
+ 564      FB
+ 565 00fc FCFDFEFF 		.ascii	"\374\375\376\377\000"
+ 565      00
+ 566              		.text
+ 567              	.Letext0:
+ 568              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 569              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 570              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 571              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 572              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 573              		.file 7 "/usr/include/newlib/stdlib.h"
+ 574              		.file 8 "/usr/include/newlib/time.h"
+ 575              		.file 9 ".././hal/hal.h"
+ 576              		.file 10 ".././hal/stm32f0/stm32f0_hal.h"
+ 577              		.file 11 "../simpleserial/simpleserial.h"
+ 578              		.file 12 "/usr/include/newlib/string.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 search.c
+     /tmp/ccoKru1O.s:16     .text.verify:0000000000000000 $t
+     /tmp/ccoKru1O.s:24     .text.verify:0000000000000000 verify
+     /tmp/ccoKru1O.s:161    .text.verify:000000000000005c $d
+     /tmp/ccoKru1O.s:550    .data:0000000000000000 arr
+     /tmp/ccoKru1O.s:166    .text.binarySearch:0000000000000000 $t
+     /tmp/ccoKru1O.s:173    .text.binarySearch:0000000000000000 binarySearch
+     /tmp/ccoKru1O.s:335    .text.binarySearch:000000000000006c $d
+     /tmp/ccoKru1O.s:341    .text.search:0000000000000000 $t
+     /tmp/ccoKru1O.s:348    .text.search:0000000000000000 search
+     /tmp/ccoKru1O.s:389    .text.remove_six:0000000000000000 $t
+     /tmp/ccoKru1O.s:396    .text.remove_six:0000000000000000 remove_six
+     /tmp/ccoKru1O.s:473    .text.remove_six:0000000000000030 $d
+     /tmp/ccoKru1O.s:478    .text.startup.main:0000000000000000 $t
+     /tmp/ccoKru1O.s:485    .text.startup.main:0000000000000000 main
+     /tmp/ccoKru1O.s:540    .text.startup.main:0000000000000038 $d
+
+UNDEFINED SYMBOLS
+simpleserial_put
+trigger_high
+trigger_low
+rand
+memmove
+platform_init
+init_uart
+trigger_setup
+simpleserial_init
+srand
+simpleserial_addcmd
+simpleserial_get

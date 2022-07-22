@@ -1,0 +1,1146 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"crt.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.global	__aeabi_lmul
+  16              		.section	.text.mult64to128,"ax",%progbits
+  17              		.align	1
+  18              		.global	mult64to128
+  19              		.arch armv6s-m
+  20              		.syntax unified
+  21              		.code	16
+  22              		.thumb_func
+  23              		.fpu softvfp
+  25              	mult64to128:
+  26              	.LVL0:
+  27              	.LFB0:
+  28              		.file 1 "crt.c"
+   1:crt.c         **** #include "hal.h"
+   2:crt.c         **** #include <stdint.h>
+   3:crt.c         **** #include <stdlib.h>
+   4:crt.c         **** #include "../simpleserial/simpleserial.h"
+   5:crt.c         **** 
+   6:crt.c         **** void mult64to128(uint64_t op1, uint64_t op2, uint64_t *hi, uint64_t *lo)
+   7:crt.c         **** {
+  29              		.loc 1 7 1 view -0
+  30              		.cfi_startproc
+  31              		@ args = 8, pretend = 0, frame = 24
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+   8:crt.c         ****     uint64_t u1 = (op1 & 0xffffffff);
+  33              		.loc 1 8 5 view .LVU1
+   7:crt.c         ****     uint64_t u1 = (op1 & 0xffffffff);
+  34              		.loc 1 7 1 is_stmt 0 view .LVU2
+  35 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 20
+  38              		.cfi_offset 4, -20
+  39              		.cfi_offset 5, -16
+  40              		.cfi_offset 6, -12
+  41              		.cfi_offset 7, -8
+  42              		.cfi_offset 14, -4
+  43              		.loc 1 8 14 view .LVU3
+  44 0002 0024     		movs	r4, #0
+   7:crt.c         ****     uint64_t u1 = (op1 & 0xffffffff);
+  45              		.loc 1 7 1 view .LVU4
+  46 0004 87B0     		sub	sp, sp, #28
+  47              	.LCFI1:
+  48              		.cfi_def_cfa_offset 48
+  49              	.LVL1:
+   9:crt.c         ****     uint64_t v1 = (op2 & 0xffffffff);
+  50              		.loc 1 9 5 is_stmt 1 view .LVU5
+  10:crt.c         ****     uint64_t t = (u1 * v1);
+  51              		.loc 1 10 5 view .LVU6
+   7:crt.c         ****     uint64_t u1 = (op1 & 0xffffffff);
+  52              		.loc 1 7 1 is_stmt 0 view .LVU7
+  53 0006 1D00     		movs	r5, r3
+  54 0008 0491     		str	r1, [sp, #16]
+  55              		.loc 1 10 14 view .LVU8
+  56 000a 2300     		movs	r3, r4
+  57 000c 2100     		movs	r1, r4
+   7:crt.c         ****     uint64_t u1 = (op1 & 0xffffffff);
+  58              		.loc 1 7 1 view .LVU9
+  59 000e 0092     		str	r2, [sp]
+  60              	.LVL2:
+   7:crt.c         ****     uint64_t u1 = (op1 & 0xffffffff);
+  61              		.loc 1 7 1 view .LVU10
+  62 0010 0390     		str	r0, [sp, #12]
+  63              	.LVL3:
+  64              		.loc 1 10 14 view .LVU11
+  65 0012 FFF7FEFF 		bl	__aeabi_lmul
+  66              	.LVL4:
+  11:crt.c         ****     uint64_t w3 = (t & 0xffffffff);
+  12:crt.c         ****     uint64_t k = (t >> 32);
+  13:crt.c         **** 
+  14:crt.c         ****     op1 >>= 32;
+  15:crt.c         ****     t = (op1 * v1) + k;
+  67              		.loc 1 15 14 view .LVU12
+  68 0016 2300     		movs	r3, r4
+  12:crt.c         **** 
+  69              		.loc 1 12 14 view .LVU13
+  70 0018 0E00     		movs	r6, r1
+  71              		.loc 1 15 14 view .LVU14
+  72 001a 049A     		ldr	r2, [sp, #16]
+  10:crt.c         ****     uint64_t t = (u1 * v1);
+  73              		.loc 1 10 14 view .LVU15
+  74 001c 0590     		str	r0, [sp, #20]
+  75              	.LVL5:
+  11:crt.c         ****     uint64_t w3 = (t & 0xffffffff);
+  76              		.loc 1 11 5 is_stmt 1 view .LVU16
+  12:crt.c         **** 
+  77              		.loc 1 12 5 view .LVU17
+  78              		.loc 1 15 14 is_stmt 0 view .LVU18
+  79 001e 2100     		movs	r1, r4
+  80              	.LVL6:
+  81              		.loc 1 15 14 view .LVU19
+  82 0020 0098     		ldr	r0, [sp]
+  83              	.LVL7:
+  84              		.loc 1 15 14 view .LVU20
+  85 0022 FFF7FEFF 		bl	__aeabi_lmul
+  86              	.LVL8:
+  12:crt.c         **** 
+  87              		.loc 1 12 14 view .LVU21
+  88 0026 2700     		movs	r7, r4
+  89              	.LVL9:
+  14:crt.c         ****     t = (op1 * v1) + k;
+  90              		.loc 1 14 5 is_stmt 1 view .LVU22
+  91              		.loc 1 15 5 view .LVU23
+  92              		.loc 1 15 7 is_stmt 0 view .LVU24
+  93 0028 8019     		adds	r0, r0, r6
+  94 002a 7941     		adcs	r1, r1, r7
+  16:crt.c         ****     k = (t & 0xffffffff);
+  17:crt.c         ****     uint64_t w1 = (t >> 32);
+  18:crt.c         **** 
+  19:crt.c         ****     op2 >>= 32;
+  20:crt.c         ****     t = (u1 * op2) + k;
+  95              		.loc 1 20 13 view .LVU25
+  96 002c 2A00     		movs	r2, r5
+  15:crt.c         ****     k = (t & 0xffffffff);
+  97              		.loc 1 15 7 view .LVU26
+  98 002e 0090     		str	r0, [sp]
+  99 0030 0191     		str	r1, [sp, #4]
+ 100              	.LVL10:
+  16:crt.c         ****     k = (t & 0xffffffff);
+ 101              		.loc 1 16 5 is_stmt 1 view .LVU27
+ 102              		.loc 1 20 13 is_stmt 0 view .LVU28
+ 103 0032 2300     		movs	r3, r4
+ 104 0034 2100     		movs	r1, r4
+ 105 0036 0398     		ldr	r0, [sp, #12]
+ 106              	.LVL11:
+ 107              		.loc 1 20 13 view .LVU29
+ 108 0038 FFF7FEFF 		bl	__aeabi_lmul
+ 109              	.LVL12:
+  16:crt.c         ****     k = (t & 0xffffffff);
+ 110              		.loc 1 16 7 view .LVU30
+ 111 003c 009E     		ldr	r6, [sp]
+ 112              	.LVL13:
+  17:crt.c         **** 
+ 113              		.loc 1 17 5 is_stmt 1 view .LVU31
+  19:crt.c         ****     t = (u1 * op2) + k;
+ 114              		.loc 1 19 5 view .LVU32
+ 115              		.loc 1 20 5 view .LVU33
+  21:crt.c         ****     k = (t >> 32);
+  22:crt.c         **** 
+  23:crt.c         ****     *hi = (op1 * op2) + w1 + k;
+ 116              		.loc 1 23 16 is_stmt 0 view .LVU34
+ 117 003e 2A00     		movs	r2, r5
+  20:crt.c         ****     k = (t >> 32);
+ 118              		.loc 1 20 7 view .LVU35
+ 119 0040 3618     		adds	r6, r6, r0
+ 120 0042 4F41     		adcs	r7, r7, r1
+ 121              	.LVL14:
+  21:crt.c         ****     k = (t >> 32);
+ 122              		.loc 1 21 5 is_stmt 1 view .LVU36
+ 123              		.loc 1 23 5 view .LVU37
+ 124              		.loc 1 23 16 is_stmt 0 view .LVU38
+ 125 0044 2300     		movs	r3, r4
+ 126 0046 2100     		movs	r1, r4
+ 127 0048 0498     		ldr	r0, [sp, #16]
+ 128 004a FFF7FEFF 		bl	__aeabi_lmul
+ 129              	.LVL15:
+  17:crt.c         **** 
+ 130              		.loc 1 17 14 view .LVU39
+ 131 004e 2300     		movs	r3, r4
+ 132 0050 019A     		ldr	r2, [sp, #4]
+ 133              		.loc 1 23 23 view .LVU40
+ 134 0052 1218     		adds	r2, r2, r0
+ 135 0054 4B41     		adcs	r3, r3, r1
+  21:crt.c         ****     k = (t >> 32);
+ 136              		.loc 1 21 7 view .LVU41
+ 137 0056 3800     		movs	r0, r7
+ 138 0058 2100     		movs	r1, r4
+ 139              		.loc 1 23 28 view .LVU42
+ 140 005a 1218     		adds	r2, r2, r0
+ 141 005c 4B41     		adcs	r3, r3, r1
+ 142              		.loc 1 23 9 view .LVU43
+ 143 005e 0C99     		ldr	r1, [sp, #48]
+  11:crt.c         ****     uint64_t k = (t >> 32);
+ 144              		.loc 1 11 14 view .LVU44
+ 145 0060 0598     		ldr	r0, [sp, #20]
+ 146              		.loc 1 23 9 view .LVU45
+ 147 0062 0A60     		str	r2, [r1]
+ 148 0064 4B60     		str	r3, [r1, #4]
+  24:crt.c         ****     *lo = (t << 32) + w3;
+ 149              		.loc 1 24 5 is_stmt 1 view .LVU46
+  11:crt.c         ****     uint64_t k = (t >> 32);
+ 150              		.loc 1 11 14 is_stmt 0 view .LVU47
+ 151 0066 2100     		movs	r1, r4
+ 152              		.loc 1 24 14 view .LVU48
+ 153 0068 3300     		movs	r3, r6
+ 154 006a 2200     		movs	r2, r4
+ 155              		.loc 1 24 21 view .LVU49
+ 156 006c 1218     		adds	r2, r2, r0
+ 157 006e 4B41     		adcs	r3, r3, r1
+ 158              		.loc 1 24 9 view .LVU50
+ 159 0070 0D99     		ldr	r1, [sp, #52]
+ 160 0072 0A60     		str	r2, [r1]
+ 161 0074 4B60     		str	r3, [r1, #4]
+  25:crt.c         **** }
+ 162              		.loc 1 25 1 view .LVU51
+ 163 0076 07B0     		add	sp, sp, #28
+ 164              	.LVL16:
+ 165              		.loc 1 25 1 view .LVU52
+ 166              		@ sp needed
+ 167              	.LVL17:
+ 168              	.LVL18:
+ 169              	.LVL19:
+ 170              	.LVL20:
+ 171              		.loc 1 25 1 view .LVU53
+ 172 0078 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 173              		.cfi_endproc
+ 174              	.LFE0:
+ 176              		.global	__aeabi_uldivmod
+ 177              		.section	.text.modular_mul,"ax",%progbits
+ 178              		.align	1
+ 179              		.global	modular_mul
+ 180              		.syntax unified
+ 181              		.code	16
+ 182              		.thumb_func
+ 183              		.fpu softvfp
+ 185              	modular_mul:
+ 186              	.LVL21:
+ 187              	.LFB1:
+  26:crt.c         **** 
+  27:crt.c         **** uint64_t modular_mul(uint64_t a, uint64_t b, uint64_t mod) {
+ 188              		.loc 1 27 60 is_stmt 1 view -0
+ 189              		.cfi_startproc
+ 190              		@ args = 8, pretend = 0, frame = 24
+ 191              		@ frame_needed = 0, uses_anonymous_args = 0
+  28:crt.c         ****     uint64_t result = 0;
+ 192              		.loc 1 28 5 view .LVU55
+  29:crt.c         ****     for (uint64_t current_term = a; b; b >>= 1) {
+ 193              		.loc 1 29 5 view .LVU56
+ 194              	.LBB2:
+ 195              		.loc 1 29 10 view .LVU57
+ 196              	.LBE2:
+  27:crt.c         ****     uint64_t result = 0;
+ 197              		.loc 1 27 60 is_stmt 0 view .LVU58
+ 198 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 199              	.LCFI2:
+ 200              		.cfi_def_cfa_offset 20
+ 201              		.cfi_offset 4, -20
+ 202              		.cfi_offset 5, -16
+ 203              		.cfi_offset 6, -12
+ 204              		.cfi_offset 7, -8
+ 205              		.cfi_offset 14, -4
+ 206 0002 1400     		movs	r4, r2
+ 207 0004 1D00     		movs	r5, r3
+  28:crt.c         ****     uint64_t result = 0;
+ 208              		.loc 1 28 14 view .LVU59
+ 209 0006 0026     		movs	r6, #0
+ 210 0008 0027     		movs	r7, #0
+  27:crt.c         ****     uint64_t result = 0;
+ 211              		.loc 1 27 60 view .LVU60
+ 212 000a 87B0     		sub	sp, sp, #28
+ 213              	.LCFI3:
+ 214              		.cfi_def_cfa_offset 48
+ 215              	.LVL22:
+  27:crt.c         ****     uint64_t result = 0;
+ 216              		.loc 1 27 60 view .LVU61
+ 217 000c 0090     		str	r0, [sp]
+ 218              	.LVL23:
+  27:crt.c         ****     uint64_t result = 0;
+ 219              		.loc 1 27 60 view .LVU62
+ 220 000e 0191     		str	r1, [sp, #4]
+ 221              	.LVL24:
+ 222              	.L3:
+ 223              	.LBB5:
+ 224              		.loc 1 29 37 is_stmt 1 discriminator 1 view .LVU63
+ 225              		.loc 1 29 5 is_stmt 0 discriminator 1 view .LVU64
+ 226 0010 2300     		movs	r3, r4
+ 227 0012 2B43     		orrs	r3, r5
+ 228 0014 03D1     		bne	.L4
+ 229              	.LBE5:
+  30:crt.c         ****         // if (b & 1) {
+  31:crt.c         ****         //     result = (result + current_term) % mod;
+  32:crt.c         ****         // }
+  33:crt.c         ****         // if-else counter meausre
+  34:crt.c         ****         // number of adds and mults no longer dependant on b&1
+  35:crt.c         ****         uint64_t result1 = (result + current_term) % mod;
+  36:crt.c         ****         uint64_t cnd = b & 1;
+  37:crt.c         ****         result = result1*cnd + result*(1-cnd);
+  38:crt.c         ****         current_term = 2 * current_term % mod;
+  39:crt.c         ****     }
+  40:crt.c         ****     return result;
+ 230              		.loc 1 40 5 is_stmt 1 view .LVU65
+  41:crt.c         **** }
+ 231              		.loc 1 41 1 is_stmt 0 view .LVU66
+ 232 0016 3000     		movs	r0, r6
+ 233 0018 3900     		movs	r1, r7
+ 234 001a 07B0     		add	sp, sp, #28
+ 235              	.LVL25:
+ 236              		.loc 1 41 1 view .LVU67
+ 237              		@ sp needed
+ 238              	.LVL26:
+ 239              	.LVL27:
+ 240              		.loc 1 41 1 view .LVU68
+ 241 001c F0BD     		pop	{r4, r5, r6, r7, pc}
+ 242              	.LVL28:
+ 243              	.L4:
+ 244              	.LBB6:
+ 245              	.LBB3:
+  35:crt.c         ****         uint64_t cnd = b & 1;
+ 246              		.loc 1 35 9 is_stmt 1 discriminator 3 view .LVU69
+  36:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 247              		.loc 1 36 9 discriminator 3 view .LVU70
+  36:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 248              		.loc 1 36 18 is_stmt 0 discriminator 3 view .LVU71
+ 249 001e 0123     		movs	r3, #1
+  35:crt.c         ****         uint64_t cnd = b & 1;
+ 250              		.loc 1 35 36 discriminator 3 view .LVU72
+ 251 0020 0098     		ldr	r0, [sp]
+ 252 0022 0199     		ldr	r1, [sp, #4]
+  36:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 253              		.loc 1 36 18 discriminator 3 view .LVU73
+ 254 0024 2340     		ands	r3, r4
+ 255 0026 0293     		str	r3, [sp, #8]
+ 256 0028 0023     		movs	r3, #0
+  35:crt.c         ****         uint64_t cnd = b & 1;
+ 257              		.loc 1 35 36 discriminator 3 view .LVU74
+ 258 002a 8019     		adds	r0, r0, r6
+ 259 002c 7941     		adcs	r1, r1, r7
+  36:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 260              		.loc 1 36 18 discriminator 3 view .LVU75
+ 261 002e 0393     		str	r3, [sp, #12]
+ 262              	.LVL29:
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 263              		.loc 1 37 9 is_stmt 1 discriminator 3 view .LVU76
+  35:crt.c         ****         uint64_t cnd = b & 1;
+ 264              		.loc 1 35 18 is_stmt 0 discriminator 3 view .LVU77
+ 265 0030 0C9A     		ldr	r2, [sp, #48]
+ 266 0032 0D9B     		ldr	r3, [sp, #52]
+ 267 0034 FFF7FEFF 		bl	__aeabi_uldivmod
+ 268              	.LVL30:
+ 269 0038 1000     		movs	r0, r2
+ 270 003a 1900     		movs	r1, r3
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 271              		.loc 1 37 25 discriminator 3 view .LVU78
+ 272 003c 029A     		ldr	r2, [sp, #8]
+ 273 003e 039B     		ldr	r3, [sp, #12]
+ 274 0040 FFF7FEFF 		bl	__aeabi_lmul
+ 275              	.LVL31:
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 276              		.loc 1 37 41 discriminator 3 view .LVU79
+ 277 0044 029A     		ldr	r2, [sp, #8]
+ 278 0046 039B     		ldr	r3, [sp, #12]
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 279              		.loc 1 37 25 discriminator 3 view .LVU80
+ 280 0048 0490     		str	r0, [sp, #16]
+ 281 004a 0591     		str	r1, [sp, #20]
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 282              		.loc 1 37 41 discriminator 3 view .LVU81
+ 283 004c 0120     		movs	r0, #1
+ 284 004e 0021     		movs	r1, #0
+ 285 0050 801A     		subs	r0, r0, r2
+ 286 0052 9941     		sbcs	r1, r1, r3
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 287              		.loc 1 37 38 discriminator 3 view .LVU82
+ 288 0054 3200     		movs	r2, r6
+ 289 0056 3B00     		movs	r3, r7
+ 290 0058 FFF7FEFF 		bl	__aeabi_lmul
+ 291              	.LVL32:
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 292              		.loc 1 37 16 discriminator 3 view .LVU83
+ 293 005c 049E     		ldr	r6, [sp, #16]
+ 294 005e 059F     		ldr	r7, [sp, #20]
+ 295              	.LVL33:
+  37:crt.c         ****         current_term = 2 * current_term % mod;
+ 296              		.loc 1 37 16 discriminator 3 view .LVU84
+ 297 0060 3618     		adds	r6, r6, r0
+ 298 0062 4F41     		adcs	r7, r7, r1
+ 299              	.LVL34:
+  38:crt.c         ****     }
+ 300              		.loc 1 38 9 is_stmt 1 discriminator 3 view .LVU85
+  38:crt.c         ****     }
+ 301              		.loc 1 38 26 is_stmt 0 discriminator 3 view .LVU86
+ 302 0064 0098     		ldr	r0, [sp]
+ 303 0066 0199     		ldr	r1, [sp, #4]
+ 304 0068 0200     		movs	r2, r0
+ 305 006a 0B00     		movs	r3, r1
+ 306 006c 8018     		adds	r0, r0, r2
+ 307 006e 5941     		adcs	r1, r1, r3
+  38:crt.c         ****     }
+ 308              		.loc 1 38 22 discriminator 3 view .LVU87
+ 309 0070 0C9A     		ldr	r2, [sp, #48]
+ 310 0072 0D9B     		ldr	r3, [sp, #52]
+ 311 0074 FFF7FEFF 		bl	__aeabi_uldivmod
+ 312              	.LVL35:
+ 313 0078 0193     		str	r3, [sp, #4]
+ 314              	.LVL36:
+  38:crt.c         ****     }
+ 315              		.loc 1 38 22 discriminator 3 view .LVU88
+ 316              	.LBE3:
+  29:crt.c         ****         // if (b & 1) {
+ 317              		.loc 1 29 40 is_stmt 1 discriminator 3 view .LVU89
+  29:crt.c         ****         // if (b & 1) {
+ 318              		.loc 1 29 42 is_stmt 0 discriminator 3 view .LVU90
+ 319 007a 6408     		lsrs	r4, r4, #1
+ 320              	.LVL37:
+  29:crt.c         ****         // if (b & 1) {
+ 321              		.loc 1 29 42 discriminator 3 view .LVU91
+ 322 007c EB07     		lsls	r3, r5, #31
+ 323              	.LBB4:
+  38:crt.c         ****     }
+ 324              		.loc 1 38 22 discriminator 3 view .LVU92
+ 325 007e 0092     		str	r2, [sp]
+ 326              	.LVL38:
+  38:crt.c         ****     }
+ 327              		.loc 1 38 22 discriminator 3 view .LVU93
+ 328              	.LBE4:
+  29:crt.c         ****         // if (b & 1) {
+ 329              		.loc 1 29 42 discriminator 3 view .LVU94
+ 330 0080 1C43     		orrs	r4, r3
+ 331 0082 6D08     		lsrs	r5, r5, #1
+ 332              	.LVL39:
+  29:crt.c         ****         // if (b & 1) {
+ 333              		.loc 1 29 42 discriminator 3 view .LVU95
+ 334 0084 C4E7     		b	.L3
+ 335              	.LBE6:
+ 336              		.cfi_endproc
+ 337              	.LFE1:
+ 339              		.section	.text.mod_exp,"ax",%progbits
+ 340              		.align	1
+ 341              		.global	mod_exp
+ 342              		.syntax unified
+ 343              		.code	16
+ 344              		.thumb_func
+ 345              		.fpu softvfp
+ 347              	mod_exp:
+ 348              	.LVL40:
+ 349              	.LFB2:
+  42:crt.c         **** 
+  43:crt.c         **** // p = 137, q = 131, n = 137.131 = 17947, e = 3, d = 11787.
+  44:crt.c         **** // m = 513
+  45:crt.c         **** // c = 513**3 mod n = 8363.
+  46:crt.c         **** 
+  47:crt.c         **** // m = 8363**11787 mod 17947 = 513.
+  48:crt.c         **** 
+  49:crt.c         **** // dP = e**(-1) mod (p-1) = d mod (p-1) = 11787 mod 136 = 91
+  50:crt.c         **** // dQ = e**(-1) mod (q-1) = d mod (q-1) = 11787 mod 130 = 87
+  51:crt.c         **** // qInv = q-1 mod p = 131-1 mod 137 = 114
+  52:crt.c         **** // m1 = c**dP mod p = 836391 mod 137 = 102
+  53:crt.c         **** // m2 = c**dQ mod q = 836387 mod 131 = 120
+  54:crt.c         **** // h = qInv.(m1 - m2) mod p = 114.(102-120+137) mod 137 = 3 [we add in an extra p here to keep the 
+  55:crt.c         **** // m = m2 + h.q = 120 + 3.131 = 513.
+  56:crt.c         **** 
+  57:crt.c         **** uint64_t mod_exp(uint64_t base, uint64_t exp, uint64_t mod) {
+ 350              		.loc 1 57 61 is_stmt 1 view -0
+ 351              		.cfi_startproc
+ 352              		@ args = 8, pretend = 0, frame = 24
+ 353              		@ frame_needed = 0, uses_anonymous_args = 0
+  58:crt.c         ****     uint64_t result = 1;
+ 354              		.loc 1 58 5 view .LVU97
+  59:crt.c         ****     for (uint64_t current_factor = base; exp; exp >>= 1) {
+ 355              		.loc 1 59 5 view .LVU98
+ 356              	.LBB7:
+ 357              		.loc 1 59 10 view .LVU99
+ 358              	.LBE7:
+  57:crt.c         ****     uint64_t result = 1;
+ 359              		.loc 1 57 61 is_stmt 0 view .LVU100
+ 360 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 361              	.LCFI4:
+ 362              		.cfi_def_cfa_offset 20
+ 363              		.cfi_offset 4, -20
+ 364              		.cfi_offset 5, -16
+ 365              		.cfi_offset 6, -12
+ 366              		.cfi_offset 7, -8
+ 367              		.cfi_offset 14, -4
+ 368 0002 0400     		movs	r4, r0
+ 369 0004 0D00     		movs	r5, r1
+ 370              	.LVL41:
+  58:crt.c         ****     uint64_t result = 1;
+ 371              		.loc 1 58 14 view .LVU101
+ 372 0006 0126     		movs	r6, #1
+ 373 0008 0027     		movs	r7, #0
+  57:crt.c         ****     uint64_t result = 1;
+ 374              		.loc 1 57 61 view .LVU102
+ 375 000a 89B0     		sub	sp, sp, #36
+ 376              	.LCFI5:
+ 377              		.cfi_def_cfa_offset 56
+  57:crt.c         ****     uint64_t result = 1;
+ 378              		.loc 1 57 61 view .LVU103
+ 379 000c 0292     		str	r2, [sp, #8]
+ 380 000e 0393     		str	r3, [sp, #12]
+ 381              	.LVL42:
+ 382              	.L6:
+ 383              	.LBB11:
+ 384              		.loc 1 59 42 is_stmt 1 discriminator 1 view .LVU104
+ 385              		.loc 1 59 5 is_stmt 0 discriminator 1 view .LVU105
+ 386 0010 029B     		ldr	r3, [sp, #8]
+ 387 0012 039A     		ldr	r2, [sp, #12]
+ 388 0014 1343     		orrs	r3, r2
+ 389 0016 03D1     		bne	.L7
+ 390              	.LBE11:
+  60:crt.c         ****         // if (exp & 1) {
+  61:crt.c         ****         //     result = modular_mul(result, current_factor, mod);
+  62:crt.c         ****         // }
+  63:crt.c         ****         // if-else counter meausre
+  64:crt.c         ****         // number of calls to modular_mul no longer dependant on exp&1
+  65:crt.c         ****         uint64_t result1 = modular_mul(result, current_factor, mod);
+  66:crt.c         ****         uint64_t cnd = exp & 1;
+  67:crt.c         ****         result = result1*cnd + result*(1-cnd);
+  68:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+  69:crt.c         ****     }
+  70:crt.c         ****     return result;
+ 391              		.loc 1 70 5 is_stmt 1 view .LVU106
+  71:crt.c         **** }
+ 392              		.loc 1 71 1 is_stmt 0 view .LVU107
+ 393 0018 3000     		movs	r0, r6
+ 394 001a 3900     		movs	r1, r7
+ 395 001c 09B0     		add	sp, sp, #36
+ 396              		@ sp needed
+ 397              	.LVL43:
+ 398              	.LVL44:
+ 399              		.loc 1 71 1 view .LVU108
+ 400 001e F0BD     		pop	{r4, r5, r6, r7, pc}
+ 401              	.LVL45:
+ 402              	.L7:
+ 403              	.LBB12:
+ 404              	.LBB8:
+  65:crt.c         ****         uint64_t cnd = exp & 1;
+ 405              		.loc 1 65 9 is_stmt 1 discriminator 3 view .LVU109
+  65:crt.c         ****         uint64_t cnd = exp & 1;
+ 406              		.loc 1 65 28 is_stmt 0 discriminator 3 view .LVU110
+ 407 0020 0E9A     		ldr	r2, [sp, #56]
+ 408 0022 0F9B     		ldr	r3, [sp, #60]
+ 409 0024 3000     		movs	r0, r6
+ 410 0026 0092     		str	r2, [sp]
+ 411 0028 0193     		str	r3, [sp, #4]
+ 412 002a 3900     		movs	r1, r7
+ 413 002c 2200     		movs	r2, r4
+ 414 002e 2B00     		movs	r3, r5
+ 415 0030 FFF7FEFF 		bl	modular_mul
+ 416              	.LVL46:
+  66:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 417              		.loc 1 66 18 discriminator 3 view .LVU111
+ 418 0034 0122     		movs	r2, #1
+ 419 0036 029B     		ldr	r3, [sp, #8]
+  65:crt.c         ****         uint64_t cnd = exp & 1;
+ 420              		.loc 1 65 28 discriminator 3 view .LVU112
+ 421 0038 0690     		str	r0, [sp, #24]
+  66:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 422              		.loc 1 66 18 discriminator 3 view .LVU113
+ 423 003a 1340     		ands	r3, r2
+ 424 003c 0493     		str	r3, [sp, #16]
+ 425 003e 0023     		movs	r3, #0
+  65:crt.c         ****         uint64_t cnd = exp & 1;
+ 426              		.loc 1 65 28 discriminator 3 view .LVU114
+ 427 0040 0791     		str	r1, [sp, #28]
+ 428              	.LVL47:
+  66:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 429              		.loc 1 66 9 is_stmt 1 discriminator 3 view .LVU115
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 430              		.loc 1 67 41 is_stmt 0 discriminator 3 view .LVU116
+ 431 0042 0120     		movs	r0, #1
+ 432              	.LVL48:
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 433              		.loc 1 67 41 discriminator 3 view .LVU117
+ 434 0044 0021     		movs	r1, #0
+ 435              	.LVL49:
+  66:crt.c         ****         result = result1*cnd + result*(1-cnd);
+ 436              		.loc 1 66 18 discriminator 3 view .LVU118
+ 437 0046 0593     		str	r3, [sp, #20]
+ 438              	.LVL50:
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 439              		.loc 1 67 9 is_stmt 1 discriminator 3 view .LVU119
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 440              		.loc 1 67 41 is_stmt 0 discriminator 3 view .LVU120
+ 441 0048 049A     		ldr	r2, [sp, #16]
+ 442 004a 059B     		ldr	r3, [sp, #20]
+ 443 004c 801A     		subs	r0, r0, r2
+ 444 004e 9941     		sbcs	r1, r1, r3
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 445              		.loc 1 67 38 discriminator 3 view .LVU121
+ 446 0050 3200     		movs	r2, r6
+ 447 0052 3B00     		movs	r3, r7
+ 448 0054 FFF7FEFF 		bl	__aeabi_lmul
+ 449              	.LVL51:
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 450              		.loc 1 67 25 discriminator 3 view .LVU122
+ 451 0058 049A     		ldr	r2, [sp, #16]
+ 452 005a 059B     		ldr	r3, [sp, #20]
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 453              		.loc 1 67 38 discriminator 3 view .LVU123
+ 454 005c 0600     		movs	r6, r0
+ 455              	.LVL52:
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 456              		.loc 1 67 38 discriminator 3 view .LVU124
+ 457 005e 0F00     		movs	r7, r1
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 458              		.loc 1 67 25 discriminator 3 view .LVU125
+ 459 0060 0698     		ldr	r0, [sp, #24]
+ 460 0062 0799     		ldr	r1, [sp, #28]
+ 461 0064 FFF7FEFF 		bl	__aeabi_lmul
+ 462              	.LVL53:
+  68:crt.c         ****     }
+ 463              		.loc 1 68 26 discriminator 3 view .LVU126
+ 464 0068 0E9A     		ldr	r2, [sp, #56]
+ 465 006a 0F9B     		ldr	r3, [sp, #60]
+  67:crt.c         ****         current_factor = modular_mul(current_factor, current_factor, mod);
+ 466              		.loc 1 67 16 discriminator 3 view .LVU127
+ 467 006c 3618     		adds	r6, r6, r0
+ 468 006e 4F41     		adcs	r7, r7, r1
+ 469              	.LVL54:
+  68:crt.c         ****     }
+ 470              		.loc 1 68 9 is_stmt 1 discriminator 3 view .LVU128
+  68:crt.c         ****     }
+ 471              		.loc 1 68 26 is_stmt 0 discriminator 3 view .LVU129
+ 472 0070 0092     		str	r2, [sp]
+ 473 0072 0193     		str	r3, [sp, #4]
+ 474 0074 2000     		movs	r0, r4
+ 475 0076 2200     		movs	r2, r4
+ 476 0078 2B00     		movs	r3, r5
+ 477 007a 2900     		movs	r1, r5
+ 478 007c FFF7FEFF 		bl	modular_mul
+ 479              	.LVL55:
+ 480              	.LBE8:
+  59:crt.c         ****         // if (exp & 1) {
+ 481              		.loc 1 59 51 discriminator 3 view .LVU130
+ 482 0080 039B     		ldr	r3, [sp, #12]
+ 483 0082 029A     		ldr	r2, [sp, #8]
+ 484 0084 DB07     		lsls	r3, r3, #31
+ 485 0086 5208     		lsrs	r2, r2, #1
+ 486 0088 1343     		orrs	r3, r2
+ 487 008a 0293     		str	r3, [sp, #8]
+ 488              	.LVL56:
+  59:crt.c         ****         // if (exp & 1) {
+ 489              		.loc 1 59 51 discriminator 3 view .LVU131
+ 490 008c 039B     		ldr	r3, [sp, #12]
+ 491              	.LBB9:
+  68:crt.c         ****     }
+ 492              		.loc 1 68 26 discriminator 3 view .LVU132
+ 493 008e 0400     		movs	r4, r0
+ 494              	.LVL57:
+  68:crt.c         ****     }
+ 495              		.loc 1 68 26 discriminator 3 view .LVU133
+ 496              	.LBE9:
+  59:crt.c         ****         // if (exp & 1) {
+ 497              		.loc 1 59 51 discriminator 3 view .LVU134
+ 498 0090 5B08     		lsrs	r3, r3, #1
+ 499              	.LBB10:
+  68:crt.c         ****     }
+ 500              		.loc 1 68 26 discriminator 3 view .LVU135
+ 501 0092 0D00     		movs	r5, r1
+ 502              	.LVL58:
+  68:crt.c         ****     }
+ 503              		.loc 1 68 26 discriminator 3 view .LVU136
+ 504              	.LBE10:
+  59:crt.c         ****         // if (exp & 1) {
+ 505              		.loc 1 59 47 is_stmt 1 discriminator 3 view .LVU137
+  59:crt.c         ****         // if (exp & 1) {
+ 506              		.loc 1 59 51 is_stmt 0 discriminator 3 view .LVU138
+ 507 0094 0393     		str	r3, [sp, #12]
+  59:crt.c         ****         // if (exp & 1) {
+ 508              		.loc 1 59 51 discriminator 3 view .LVU139
+ 509 0096 BBE7     		b	.L6
+ 510              	.LBE12:
+ 511              		.cfi_endproc
+ 512              	.LFE2:
+ 514              		.global	__aeabi_llsr
+ 515              		.section	.text.rsa_init,"ax",%progbits
+ 516              		.align	1
+ 517              		.global	rsa_init
+ 518              		.syntax unified
+ 519              		.code	16
+ 520              		.thumb_func
+ 521              		.fpu softvfp
+ 523              	rsa_init:
+ 524              	.LVL59:
+ 525              	.LFB4:
+  72:crt.c         **** 
+  73:crt.c         **** static void rsa(int x)
+  74:crt.c         **** {
+  75:crt.c         ****   // GOAL: Can you find P and Q?
+  76:crt.c         ****   
+  77:crt.c         ****   // ACTUAL VALUES HAVE BEEN REDACTED
+  78:crt.c         ****   uint64_t p = 0x89;
+  79:crt.c         ****   uint64_t q = 0x83;
+  80:crt.c         ****   uint64_t dp = 0x5b;
+  81:crt.c         ****   uint64_t dq = 0x57;
+  82:crt.c         **** 
+  83:crt.c         ****   /*********/
+  84:crt.c         ****   uint64_t qinv = 0x72;
+  85:crt.c         ****   /********/
+  86:crt.c         **** 
+  87:crt.c         ****   
+  88:crt.c         ****   // // CRT Decryption
+  89:crt.c         ****   uint64_t mp = mod_exp(x, dp, p);
+  90:crt.c         ****   uint64_t mq = mod_exp(x, dq, q);
+  91:crt.c         **** 
+  92:crt.c         **** 
+  93:crt.c         ****   // send only after full decryption
+  94:crt.c         ****   /***************/
+  95:crt.c         ****   uint64_t h = modular_mul(qinv,mp-mq+p,p);
+  96:crt.c         ****   uint64_t low,high;
+  97:crt.c         ****   mult64to128(h,q,&high,&low);
+  98:crt.c         ****   if (mq + low < mq || mq + low < low ){
+  99:crt.c         ****     high ++;
+ 100:crt.c         ****   }
+ 101:crt.c         ****   low = mq + low;
+ 102:crt.c         ****   /***************/
+ 103:crt.c         **** 
+ 104:crt.c         **** 
+ 105:crt.c         ****   uint8_t out[16];
+ 106:crt.c         ****   for (int i = 0; i < 8; i++) {
+ 107:crt.c         ****     out[i] = (low >> (8*i)) & 0xFF;
+ 108:crt.c         ****     out[i+8] = (high >> (8*i)) & 0xFF;
+ 109:crt.c         ****   }
+ 110:crt.c         ****   simpleserial_put('r', 16, out);
+ 111:crt.c         **** }
+ 112:crt.c         **** 
+ 113:crt.c         **** uint8_t rsa_init(uint8_t* data, uint8_t dlen)
+ 114:crt.c         **** {
+ 526              		.loc 1 114 1 is_stmt 1 view -0
+ 527              		.cfi_startproc
+ 528              		@ args = 0, pretend = 0, frame = 40
+ 529              		@ frame_needed = 0, uses_anonymous_args = 0
+ 115:crt.c         ****   int ptxt = 0;
+ 530              		.loc 1 115 3 view .LVU141
+ 116:crt.c         ****   for (int i = 0; i < dlen; i++) {
+ 531              		.loc 1 116 3 view .LVU142
+ 532              	.LBB17:
+ 533              		.loc 1 116 8 view .LVU143
+ 534              		.loc 1 116 12 is_stmt 0 view .LVU144
+ 535 0000 0023     		movs	r3, #0
+ 536              	.LBE17:
+ 114:crt.c         ****   int ptxt = 0;
+ 537              		.loc 1 114 1 view .LVU145
+ 538 0002 F0B5     		push	{r4, r5, r6, r7, lr}
+ 539              	.LCFI6:
+ 540              		.cfi_def_cfa_offset 20
+ 541              		.cfi_offset 4, -20
+ 542              		.cfi_offset 5, -16
+ 543              		.cfi_offset 6, -12
+ 544              		.cfi_offset 7, -8
+ 545              		.cfi_offset 14, -4
+ 115:crt.c         ****   int ptxt = 0;
+ 546              		.loc 1 115 7 view .LVU146
+ 547 0004 1E00     		movs	r6, r3
+ 114:crt.c         ****   int ptxt = 0;
+ 548              		.loc 1 114 1 view .LVU147
+ 549 0006 8DB0     		sub	sp, sp, #52
+ 550              	.LCFI7:
+ 551              		.cfi_def_cfa_offset 72
+ 552              	.LVL60:
+ 553              	.L9:
+ 554              	.LBB18:
+ 555              		.loc 1 116 19 is_stmt 1 discriminator 1 view .LVU148
+ 556              		.loc 1 116 3 is_stmt 0 discriminator 1 view .LVU149
+ 557 0008 9942     		cmp	r1, r3
+ 558 000a 00DD     		ble	.LCB446
+ 559 000c 68E0     		b	.L10	@long jump
+ 560              	.LCB446:
+ 561              	.LBE18:
+ 117:crt.c         ****     ptxt += (data[i] << (i*8));
+ 118:crt.c         ****   }
+ 119:crt.c         ****   trigger_high();
+ 562              		.loc 1 119 3 is_stmt 1 view .LVU150
+ 563              	.LBB19:
+ 564              	.LBB20:
+  89:crt.c         ****   uint64_t mq = mod_exp(x, dq, q);
+ 565              		.loc 1 89 17 is_stmt 0 view .LVU151
+ 566 000e 8924     		movs	r4, #137
+ 567 0010 0025     		movs	r5, #0
+ 568 0012 F717     		asrs	r7, r6, #31
+ 569              	.LBE20:
+ 570              	.LBE19:
+ 571              		.loc 1 119 3 view .LVU152
+ 572 0014 FFF7FEFF 		bl	trigger_high
+ 573              	.LVL61:
+ 120:crt.c         ****   rsa(ptxt);
+ 574              		.loc 1 120 3 is_stmt 1 view .LVU153
+ 575              	.LBB24:
+ 576              	.LBI19:
+  73:crt.c         **** {
+ 577              		.loc 1 73 13 view .LVU154
+ 578              	.LBB23:
+  78:crt.c         ****   uint64_t q = 0x83;
+ 579              		.loc 1 78 3 view .LVU155
+  79:crt.c         ****   uint64_t dp = 0x5b;
+ 580              		.loc 1 79 3 view .LVU156
+  80:crt.c         ****   uint64_t dq = 0x57;
+ 581              		.loc 1 80 3 view .LVU157
+  81:crt.c         **** 
+ 582              		.loc 1 81 3 view .LVU158
+  84:crt.c         ****   /********/
+ 583              		.loc 1 84 3 view .LVU159
+  89:crt.c         ****   uint64_t mq = mod_exp(x, dq, q);
+ 584              		.loc 1 89 3 view .LVU160
+  89:crt.c         ****   uint64_t mq = mod_exp(x, dq, q);
+ 585              		.loc 1 89 17 is_stmt 0 view .LVU161
+ 586 0018 0094     		str	r4, [sp]
+ 587 001a 0195     		str	r5, [sp, #4]
+ 588 001c 5B22     		movs	r2, #91
+ 589 001e 0023     		movs	r3, #0
+ 590 0020 3000     		movs	r0, r6
+ 591 0022 3900     		movs	r1, r7
+ 592 0024 FFF7FEFF 		bl	mod_exp
+ 593              	.LVL62:
+  90:crt.c         **** 
+ 594              		.loc 1 90 17 view .LVU162
+ 595 0028 8322     		movs	r2, #131
+ 596 002a 0023     		movs	r3, #0
+  89:crt.c         ****   uint64_t mq = mod_exp(x, dq, q);
+ 597              		.loc 1 89 17 view .LVU163
+ 598 002c 0290     		str	r0, [sp, #8]
+  90:crt.c         **** 
+ 599              		.loc 1 90 17 view .LVU164
+ 600 002e 0092     		str	r2, [sp]
+ 601 0030 0193     		str	r3, [sp, #4]
+ 602 0032 3000     		movs	r0, r6
+ 603 0034 5722     		movs	r2, #87
+ 604 0036 0023     		movs	r3, #0
+  89:crt.c         ****   uint64_t mq = mod_exp(x, dq, q);
+ 605              		.loc 1 89 17 view .LVU165
+ 606 0038 0391     		str	r1, [sp, #12]
+ 607              	.LVL63:
+  90:crt.c         **** 
+ 608              		.loc 1 90 3 is_stmt 1 view .LVU166
+  90:crt.c         **** 
+ 609              		.loc 1 90 17 is_stmt 0 view .LVU167
+ 610 003a 3900     		movs	r1, r7
+ 611 003c FFF7FEFF 		bl	mod_exp
+ 612              	.LVL64:
+  95:crt.c         ****   uint64_t low,high;
+ 613              		.loc 1 95 16 view .LVU168
+ 614 0040 029A     		ldr	r2, [sp, #8]
+ 615 0042 039B     		ldr	r3, [sp, #12]
+  90:crt.c         **** 
+ 616              		.loc 1 90 17 view .LVU169
+ 617 0044 0600     		movs	r6, r0
+ 618              	.LVL65:
+  90:crt.c         **** 
+ 619              		.loc 1 90 17 view .LVU170
+ 620 0046 0F00     		movs	r7, r1
+ 621              	.LVL66:
+  95:crt.c         ****   uint64_t low,high;
+ 622              		.loc 1 95 3 is_stmt 1 view .LVU171
+  95:crt.c         ****   uint64_t low,high;
+ 623              		.loc 1 95 16 is_stmt 0 view .LVU172
+ 624 0048 1219     		adds	r2, r2, r4
+ 625 004a 6B41     		adcs	r3, r3, r5
+ 626 004c 0094     		str	r4, [sp]
+ 627 004e 0195     		str	r5, [sp, #4]
+  98:crt.c         ****     high ++;
+ 628              		.loc 1 98 10 view .LVU173
+ 629 0050 3400     		movs	r4, r6
+ 630 0052 3D00     		movs	r5, r7
+  95:crt.c         ****   uint64_t low,high;
+ 631              		.loc 1 95 16 view .LVU174
+ 632 0054 921B     		subs	r2, r2, r6
+ 633 0056 BB41     		sbcs	r3, r3, r7
+ 634 0058 7220     		movs	r0, #114
+ 635 005a 0021     		movs	r1, #0
+ 636 005c FFF7FEFF 		bl	modular_mul
+ 637              	.LVL67:
+  96:crt.c         ****   mult64to128(h,q,&high,&low);
+ 638              		.loc 1 96 3 is_stmt 1 view .LVU175
+  97:crt.c         ****   if (mq + low < mq || mq + low < low ){
+ 639              		.loc 1 97 3 view .LVU176
+ 640 0060 04AB     		add	r3, sp, #16
+ 641 0062 0193     		str	r3, [sp, #4]
+ 642 0064 06AB     		add	r3, sp, #24
+ 643 0066 8322     		movs	r2, #131
+ 644 0068 0093     		str	r3, [sp]
+ 645 006a 0023     		movs	r3, #0
+ 646 006c FFF7FEFF 		bl	mult64to128
+ 647              	.LVL68:
+  98:crt.c         ****     high ++;
+ 648              		.loc 1 98 3 view .LVU177
+  98:crt.c         ****     high ++;
+ 649              		.loc 1 98 10 is_stmt 0 view .LVU178
+ 650 0070 049A     		ldr	r2, [sp, #16]
+ 651 0072 059B     		ldr	r3, [sp, #20]
+ 652 0074 A418     		adds	r4, r4, r2
+ 653 0076 5D41     		adcs	r5, r5, r3
+  98:crt.c         ****     high ++;
+ 654              		.loc 1 98 6 view .LVU179
+ 655 0078 AF42     		cmp	r7, r5
+ 656 007a 07D8     		bhi	.L11
+ 657 007c 01D1     		bne	.L16
+ 658 007e A642     		cmp	r6, r4
+ 659 0080 04D8     		bhi	.L11
+ 660              	.L16:
+  98:crt.c         ****     high ++;
+ 661              		.loc 1 98 21 view .LVU180
+ 662 0082 AB42     		cmp	r3, r5
+ 663 0084 02D8     		bhi	.L11
+ 664 0086 09D1     		bne	.L13
+ 665 0088 A242     		cmp	r2, r4
+ 666 008a 07D9     		bls	.L13
+ 667              	.L11:
+  99:crt.c         ****   }
+ 668              		.loc 1 99 5 is_stmt 1 view .LVU181
+  99:crt.c         ****   }
+ 669              		.loc 1 99 10 is_stmt 0 view .LVU182
+ 670 008c 0698     		ldr	r0, [sp, #24]
+ 671 008e 0799     		ldr	r1, [sp, #28]
+ 672 0090 0122     		movs	r2, #1
+ 673 0092 0023     		movs	r3, #0
+ 674 0094 1218     		adds	r2, r2, r0
+ 675 0096 4B41     		adcs	r3, r3, r1
+ 676 0098 0692     		str	r2, [sp, #24]
+ 677 009a 0793     		str	r3, [sp, #28]
+ 678              	.L13:
+ 101:crt.c         ****   /***************/
+ 679              		.loc 1 101 3 is_stmt 1 view .LVU183
+ 680              	.LBB21:
+ 108:crt.c         ****   }
+ 681              		.loc 1 108 22 is_stmt 0 view .LVU184
+ 682 009c 069A     		ldr	r2, [sp, #24]
+ 683 009e 079B     		ldr	r3, [sp, #28]
+ 684 00a0 0026     		movs	r6, #0
+ 685              	.LVL69:
+ 108:crt.c         ****   }
+ 686              		.loc 1 108 22 view .LVU185
+ 687              	.LBE21:
+ 101:crt.c         ****   /***************/
+ 688              		.loc 1 101 7 view .LVU186
+ 689 00a2 0494     		str	r4, [sp, #16]
+ 690 00a4 0595     		str	r5, [sp, #20]
+ 105:crt.c         ****   for (int i = 0; i < 8; i++) {
+ 691              		.loc 1 105 3 is_stmt 1 view .LVU187
+ 106:crt.c         ****     out[i] = (low >> (8*i)) & 0xFF;
+ 692              		.loc 1 106 3 view .LVU188
+ 693              	.LBB22:
+ 106:crt.c         ****     out[i] = (low >> (8*i)) & 0xFF;
+ 694              		.loc 1 106 8 view .LVU189
+ 695              	.LVL70:
+ 106:crt.c         ****     out[i] = (low >> (8*i)) & 0xFF;
+ 696              		.loc 1 106 19 view .LVU190
+ 108:crt.c         ****   }
+ 697              		.loc 1 108 22 is_stmt 0 view .LVU191
+ 698 00a6 0292     		str	r2, [sp, #8]
+ 699 00a8 0393     		str	r3, [sp, #12]
+ 700              	.LVL71:
+ 108:crt.c         ****   }
+ 701              		.loc 1 108 22 view .LVU192
+ 702 00aa 08AF     		add	r7, sp, #32
+ 703              	.LVL72:
+ 704              	.L15:
+ 107:crt.c         ****     out[i+8] = (high >> (8*i)) & 0xFF;
+ 705              		.loc 1 107 5 is_stmt 1 view .LVU193
+ 107:crt.c         ****     out[i+8] = (high >> (8*i)) & 0xFF;
+ 706              		.loc 1 107 19 is_stmt 0 view .LVU194
+ 707 00ac 3200     		movs	r2, r6
+ 708 00ae 2000     		movs	r0, r4
+ 709 00b0 2900     		movs	r1, r5
+ 710 00b2 FFF7FEFF 		bl	__aeabi_llsr
+ 711              	.LVL73:
+ 108:crt.c         ****   }
+ 712              		.loc 1 108 22 view .LVU195
+ 713 00b6 3200     		movs	r2, r6
+ 107:crt.c         ****     out[i+8] = (high >> (8*i)) & 0xFF;
+ 714              		.loc 1 107 12 view .LVU196
+ 715 00b8 3870     		strb	r0, [r7]
+ 108:crt.c         ****   }
+ 716              		.loc 1 108 5 is_stmt 1 view .LVU197
+ 108:crt.c         ****   }
+ 717              		.loc 1 108 22 is_stmt 0 view .LVU198
+ 718 00ba 0298     		ldr	r0, [sp, #8]
+ 719 00bc 0399     		ldr	r1, [sp, #12]
+ 720 00be FFF7FEFF 		bl	__aeabi_llsr
+ 721              	.LVL74:
+ 722 00c2 0836     		adds	r6, r6, #8
+ 108:crt.c         ****   }
+ 723              		.loc 1 108 14 view .LVU199
+ 724 00c4 3872     		strb	r0, [r7, #8]
+ 106:crt.c         ****     out[i] = (low >> (8*i)) & 0xFF;
+ 725              		.loc 1 106 26 is_stmt 1 view .LVU200
+ 726              	.LVL75:
+ 106:crt.c         ****     out[i] = (low >> (8*i)) & 0xFF;
+ 727              		.loc 1 106 19 view .LVU201
+ 728 00c6 0137     		adds	r7, r7, #1
+ 729              	.LVL76:
+ 106:crt.c         ****     out[i] = (low >> (8*i)) & 0xFF;
+ 730              		.loc 1 106 3 is_stmt 0 view .LVU202
+ 731 00c8 402E     		cmp	r6, #64
+ 732 00ca EFD1     		bne	.L15
+ 733              	.LBE22:
+ 110:crt.c         **** }
+ 734              		.loc 1 110 3 is_stmt 1 view .LVU203
+ 735 00cc 1021     		movs	r1, #16
+ 736 00ce 7220     		movs	r0, #114
+ 737 00d0 08AA     		add	r2, sp, #32
+ 738 00d2 FFF7FEFF 		bl	simpleserial_put
+ 739              	.LVL77:
+ 110:crt.c         **** }
+ 740              		.loc 1 110 3 is_stmt 0 view .LVU204
+ 741              	.LBE23:
+ 742              	.LBE24:
+ 121:crt.c         ****   trigger_low();
+ 743              		.loc 1 121 3 is_stmt 1 view .LVU205
+ 744 00d6 FFF7FEFF 		bl	trigger_low
+ 745              	.LVL78:
+ 122:crt.c         **** 
+ 123:crt.c         ****   return 0x00;
+ 746              		.loc 1 123 3 view .LVU206
+ 124:crt.c         **** }
+ 747              		.loc 1 124 1 is_stmt 0 view .LVU207
+ 748 00da 0020     		movs	r0, #0
+ 749 00dc 0DB0     		add	sp, sp, #52
+ 750              		@ sp needed
+ 751 00de F0BD     		pop	{r4, r5, r6, r7, pc}
+ 752              	.LVL79:
+ 753              	.L10:
+ 754              	.LBB25:
+ 117:crt.c         ****   }
+ 755              		.loc 1 117 5 is_stmt 1 discriminator 3 view .LVU208
+ 117:crt.c         ****   }
+ 756              		.loc 1 117 18 is_stmt 0 discriminator 3 view .LVU209
+ 757 00e0 C25C     		ldrb	r2, [r0, r3]
+ 117:crt.c         ****   }
+ 758              		.loc 1 117 27 discriminator 3 view .LVU210
+ 759 00e2 DC00     		lsls	r4, r3, #3
+ 117:crt.c         ****   }
+ 760              		.loc 1 117 22 discriminator 3 view .LVU211
+ 761 00e4 A240     		lsls	r2, r2, r4
+ 116:crt.c         ****     ptxt += (data[i] << (i*8));
+ 762              		.loc 1 116 30 discriminator 3 view .LVU212
+ 763 00e6 0133     		adds	r3, r3, #1
+ 764              	.LVL80:
+ 117:crt.c         ****   }
+ 765              		.loc 1 117 10 discriminator 3 view .LVU213
+ 766 00e8 B618     		adds	r6, r6, r2
+ 767              	.LVL81:
+ 116:crt.c         ****     ptxt += (data[i] << (i*8));
+ 768              		.loc 1 116 29 is_stmt 1 discriminator 3 view .LVU214
+ 116:crt.c         ****     ptxt += (data[i] << (i*8));
+ 769              		.loc 1 116 29 is_stmt 0 discriminator 3 view .LVU215
+ 770 00ea 8DE7     		b	.L9
+ 771              	.LBE25:
+ 772              		.cfi_endproc
+ 773              	.LFE4:
+ 775              		.section	.text.startup.main,"ax",%progbits
+ 776              		.align	1
+ 777              		.global	main
+ 778              		.syntax unified
+ 779              		.code	16
+ 780              		.thumb_func
+ 781              		.fpu softvfp
+ 783              	main:
+ 784              	.LFB5:
+ 125:crt.c         **** 
+ 126:crt.c         **** int main(void)
+ 127:crt.c         **** {
+ 785              		.loc 1 127 1 is_stmt 1 view -0
+ 786              		.cfi_startproc
+ 787              		@ Volatile: function does not return.
+ 788              		@ args = 0, pretend = 0, frame = 0
+ 789              		@ frame_needed = 0, uses_anonymous_args = 0
+ 128:crt.c         ****   platform_init();
+ 790              		.loc 1 128 3 view .LVU217
+ 127:crt.c         ****   platform_init();
+ 791              		.loc 1 127 1 is_stmt 0 view .LVU218
+ 792 0000 10B5     		push	{r4, lr}
+ 793              	.LCFI8:
+ 794              		.cfi_def_cfa_offset 8
+ 795              		.cfi_offset 4, -8
+ 796              		.cfi_offset 14, -4
+ 797              		.loc 1 128 3 view .LVU219
+ 798 0002 FFF7FEFF 		bl	platform_init
+ 799              	.LVL82:
+ 129:crt.c         ****   init_uart();
+ 800              		.loc 1 129 3 is_stmt 1 view .LVU220
+ 801 0006 FFF7FEFF 		bl	init_uart
+ 802              	.LVL83:
+ 130:crt.c         ****   trigger_setup();
+ 803              		.loc 1 130 3 view .LVU221
+ 804 000a FFF7FEFF 		bl	trigger_setup
+ 805              	.LVL84:
+ 131:crt.c         ****   simpleserial_init();
+ 806              		.loc 1 131 3 view .LVU222
+ 807 000e FFF7FEFF 		bl	simpleserial_init
+ 808              	.LVL85:
+ 132:crt.c         **** 
+ 133:crt.c         ****   simpleserial_addcmd('s', 4, rsa_init);
+ 809              		.loc 1 133 3 view .LVU223
+ 810 0012 0421     		movs	r1, #4
+ 811 0014 7320     		movs	r0, #115
+ 812 0016 034A     		ldr	r2, .L20
+ 813 0018 FFF7FEFF 		bl	simpleserial_addcmd
+ 814              	.LVL86:
+ 815              	.L19:
+ 134:crt.c         **** 
+ 135:crt.c         ****   while(1)
+ 816              		.loc 1 135 3 discriminator 1 view .LVU224
+ 136:crt.c         **** 		simpleserial_get();
+ 817              		.loc 1 136 3 discriminator 1 view .LVU225
+ 818 001c FFF7FEFF 		bl	simpleserial_get
+ 819              	.LVL87:
+ 135:crt.c         **** 		simpleserial_get();
+ 820              		.loc 1 135 8 discriminator 1 view .LVU226
+ 821 0020 FCE7     		b	.L19
+ 822              	.L21:
+ 823 0022 C046     		.align	2
+ 824              	.L20:
+ 825 0024 00000000 		.word	rsa_init
+ 826              		.cfi_endproc
+ 827              	.LFE5:
+ 829              		.text
+ 830              	.Letext0:
+ 831              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 832              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 833              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 834              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 835              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 836              		.file 7 "/usr/include/newlib/stdlib.h"
+ 837              		.file 8 ".././hal/hal.h"
+ 838              		.file 9 ".././hal/stm32f0/stm32f0_hal.h"
+ 839              		.file 10 "../simpleserial/simpleserial.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 crt.c
+     /tmp/ccZvtMuQ.s:17     .text.mult64to128:0000000000000000 $t
+     /tmp/ccZvtMuQ.s:25     .text.mult64to128:0000000000000000 mult64to128
+     /tmp/ccZvtMuQ.s:178    .text.modular_mul:0000000000000000 $t
+     /tmp/ccZvtMuQ.s:185    .text.modular_mul:0000000000000000 modular_mul
+     /tmp/ccZvtMuQ.s:340    .text.mod_exp:0000000000000000 $t
+     /tmp/ccZvtMuQ.s:347    .text.mod_exp:0000000000000000 mod_exp
+     /tmp/ccZvtMuQ.s:516    .text.rsa_init:0000000000000000 $t
+     /tmp/ccZvtMuQ.s:523    .text.rsa_init:0000000000000000 rsa_init
+     /tmp/ccZvtMuQ.s:776    .text.startup.main:0000000000000000 $t
+     /tmp/ccZvtMuQ.s:783    .text.startup.main:0000000000000000 main
+     /tmp/ccZvtMuQ.s:825    .text.startup.main:0000000000000024 $d
+
+UNDEFINED SYMBOLS
+__aeabi_lmul
+__aeabi_uldivmod
+__aeabi_llsr
+trigger_high
+simpleserial_put
+trigger_low
+platform_init
+init_uart
+trigger_setup
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get

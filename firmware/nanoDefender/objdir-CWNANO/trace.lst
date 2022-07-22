@@ -1,0 +1,880 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"trace.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.sort,"ax",%progbits
+  16              		.align	1
+  17              		.global	sort
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	sort:
+  25              	.LVL0:
+  26              	.LFB0:
+  27              		.file 1 "trace.c"
+   1:trace.c       **** #include "hal.h"
+   2:trace.c       **** #include <stdint.h>
+   3:trace.c       **** #include <stdlib.h>
+   4:trace.c       **** #include "../simpleserial/simpleserial.h"
+   5:trace.c       **** 
+   6:trace.c       **** 
+   7:trace.c       **** uint8_t sort(uint8_t* data, uint8_t dlen) {
+  28              		.loc 1 7 43 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+   8:trace.c       ****   // int a = 10, b = 20, c;  
+   9:trace.c       ****    
+  10:trace.c       ****   // asm {  
+  11:trace.c       ****   //     mov ax,a  
+  12:trace.c       ****   //     mov bx,b
+  13:trace.c       ****   // };
+  14:trace.c       ****        
+  15:trace.c       ****   trigger_high();
+  32              		.loc 1 15 3 view .LVU1
+   7:trace.c       ****   // int a = 10, b = 20, c;  
+  33              		.loc 1 7 43 is_stmt 0 view .LVU2
+  34 0000 10B5     		push	{r4, lr}
+  35              	.LCFI0:
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 4, -8
+  38              		.cfi_offset 14, -4
+  39              		.loc 1 15 3 view .LVU3
+  40 0002 FFF7FEFF 		bl	trigger_high
+  41              	.LVL1:
+  16:trace.c       ****   asm (  
+  42              		.loc 1 16 3 is_stmt 1 view .LVU4
+  43              		.syntax divided
+  44              	@ 16 "trace.c" 1
+  45 0006 6D18     		add r5,r1
+  46 0008 C046     		NOP
+  47 000a C046     		NOP
+  48 000c 6D18     		add r5,r1
+  49 000e C046     		NOP
+  50 0010 C046     		NOP
+  51 0012 6D18     		add r5,r1
+  52 0014 C046     		NOP
+  53 0016 C046     		NOP
+  54 0018 6D18     		add r5,r1
+  55 001a C046     		NOP
+  56 001c C046     		NOP
+  57 001e 6D18     		add r5,r1
+  58 0020 C046     		NOP
+  59 0022 C046     		NOP
+  60 0024 6D18     		add r5,r1
+  61 0026 C046     		NOP
+  62 0028 C046     		NOP
+  63 002a 6D18     		add r5,r1
+  64 002c C046     		NOP
+  65 002e C046     		NOP
+  66 0030 6D18     		add r5,r1
+  67 0032 C046     		NOP
+  68 0034 C046     		NOP
+  69 0036 6D18     		add r5,r1
+  70 0038 C046     		NOP
+  71 003a C046     		NOP
+  72 003c 6D18     		add r5,r1
+  73 003e C046     		NOP
+  74 0040 C046     		NOP
+  75 0042 6D18     		add r5,r1
+  76 0044 C046     		NOP
+  77 0046 C046     		NOP
+  78 0048 6D18     		add r5,r1
+  79 004a C046     		NOP
+  80 004c C046     		NOP
+  81 004e 6D18     		add r5,r1
+  82 0050 C046     		NOP
+  83 0052 C046     		NOP
+  84 0054 6D18     		add r5,r1
+  85 0056 C046     		NOP
+  86 0058 C046     		NOP
+  87 005a 6D18     		add r5,r1
+  88 005c C046     		NOP
+  89 005e C046     		NOP
+  90 0060 6D18     		add r5,r1
+  91 0062 C046     		NOP
+  92 0064 C046     		NOP
+  93 0066 6D18     		add r5,r1
+  94 0068 C046     		NOP
+  95 006a C046     		NOP
+  96 006c 6D18     		add r5,r1
+  97 006e C046     		NOP
+  98 0070 C046     		NOP
+  99 0072 6D18     		add r5,r1
+ 100 0074 C046     		NOP
+ 101 0076 C046     		NOP
+ 102 0078 6D18     		add r5,r1
+ 103 007a C046     		NOP
+ 104 007c C046     		NOP
+ 105 007e 6D18     		add r5,r1
+ 106 0080 C046     		NOP
+ 107 0082 C046     		NOP
+ 108 0084 6D18     		add r5,r1
+ 109 0086 C046     		NOP
+ 110 0088 C046     		NOP
+ 111 008a 6D18     		add r5,r1
+ 112 008c C046     		NOP
+ 113 008e C046     		NOP
+ 114 0090 6D18     		add r5,r1
+ 115 0092 C046     		NOP
+ 116 0094 C046     		NOP
+ 117 0096 6D18     		add r5,r1
+ 118 0098 C046     		NOP
+ 119 009a C046     		NOP
+ 120 009c 6D18     		add r5,r1
+ 121 009e C046     		NOP
+ 122 00a0 C046     		NOP
+ 123 00a2 6D18     		add r5,r1
+ 124 00a4 C046     		NOP
+ 125 00a6 C046     		NOP
+ 126 00a8 6D18     		add r5,r1
+ 127 00aa C046     		NOP
+ 128 00ac C046     		NOP
+ 129 00ae 6D18     		add r5,r1
+ 130 00b0 C046     		NOP
+ 131 00b2 C046     		NOP
+ 132 00b4 6D18     		add r5,r1
+ 133 00b6 C046     		NOP
+ 134 00b8 C046     		NOP
+ 135 00ba 6D18     		add r5,r1
+ 136 00bc C046     		NOP
+ 137 00be C046     		NOP
+ 138 00c0 6D18     		add r5,r1
+ 139 00c2 C046     		NOP
+ 140 00c4 C046     		NOP
+ 141 00c6 6D18     		add r5,r1
+ 142 00c8 C046     		NOP
+ 143 00ca C046     		NOP
+ 144 00cc 6D18     		add r5,r1
+ 145 00ce C046     		NOP
+ 146 00d0 C046     		NOP
+ 147 00d2 6D18     		add r5,r1
+ 148 00d4 C046     		NOP
+ 149 00d6 C046     		NOP
+ 150 00d8 6D18     		add r5,r1
+ 151 00da C046     		NOP
+ 152 00dc C046     		NOP
+ 153 00de 6D18     		add r5,r1
+ 154 00e0 C046     		NOP
+ 155 00e2 C046     		NOP
+ 156 00e4 6D18     		add r5,r1
+ 157 00e6 C046     		NOP
+ 158 00e8 C046     		NOP
+ 159 00ea 6D18     		add r5,r1
+ 160 00ec C046     		NOP
+ 161 00ee C046     		NOP
+ 162 00f0 6D18     		add r5,r1
+ 163 00f2 C046     		NOP
+ 164 00f4 C046     		NOP
+ 165 00f6 6D18     		add r5,r1
+ 166 00f8 C046     		NOP
+ 167 00fa C046     		NOP
+ 168 00fc 6D18     		add r5,r1
+ 169 00fe C046     		NOP
+ 170 0100 C046     		NOP
+ 171 0102 6D18     		add r5,r1
+ 172 0104 C046     		NOP
+ 173 0106 C046     		NOP
+ 174 0108 6D18     		add r5,r1
+ 175 010a C046     		NOP
+ 176 010c C046     		NOP
+ 177 010e 6D18     		add r5,r1
+ 178 0110 C046     		NOP
+ 179 0112 C046     		NOP
+ 180 0114 6D18     		add r5,r1
+ 181 0116 C046     		NOP
+ 182 0118 C046     		NOP
+ 183 011a 6D18     		add r5,r1
+ 184 011c C046     		NOP
+ 185 011e C046     		NOP
+ 186 0120 6D18     		add r5,r1
+ 187 0122 C046     		NOP
+ 188 0124 C046     		NOP
+ 189 0126 6D18     		add r5,r1
+ 190 0128 C046     		NOP
+ 191 012a C046     		NOP
+ 192 012c 6D18     		add r5,r1
+ 193 012e C046     		NOP
+ 194 0130 C046     		NOP
+ 195 0132 6D18     		add r5,r1
+ 196 0134 C046     		NOP
+ 197 0136 C046     		NOP
+ 198 0138 6D18     		add r5,r1
+ 199 013a C046     		NOP
+ 200 013c C046     		NOP
+ 201 013e 6D18     		add r5,r1
+ 202 0140 C046     		NOP
+ 203 0142 C046     		NOP
+ 204 0144 6D18     		add r5,r1
+ 205 0146 C046     		NOP
+ 206 0148 C046     		NOP
+ 207 014a 6D18     		add r5,r1
+ 208 014c C046     		NOP
+ 209 014e C046     		NOP
+ 210 0150 6D18     		add r5,r1
+ 211 0152 C046     		NOP
+ 212 0154 C046     		NOP
+ 213 0156 6D18     		add r5,r1
+ 214 0158 C046     		NOP
+ 215 015a C046     		NOP
+ 216 015c 6D18     		add r5,r1
+ 217 015e C046     		NOP
+ 218 0160 C046     		NOP
+ 219 0162 6D18     		add r5,r1
+ 220 0164 C046     		NOP
+ 221 0166 C046     		NOP
+ 222 0168 6D18     		add r5,r1
+ 223 016a C046     		NOP
+ 224 016c C046     		NOP
+ 225 016e 6D18     		add r5,r1
+ 226 0170 C046     		NOP
+ 227 0172 C046     		NOP
+ 228 0174 6D18     		add r5,r1
+ 229 0176 C046     		NOP
+ 230 0178 C046     		NOP
+ 231 017a 6D18     		add r5,r1
+ 232 017c C046     		NOP
+ 233 017e C046     		NOP
+ 234 0180 6D18     		add r5,r1
+ 235 0182 C046     		NOP
+ 236 0184 C046     		NOP
+ 237 0186 6D18     		add r5,r1
+ 238 0188 C046     		NOP
+ 239 018a C046     		NOP
+ 240 018c 6D18     		add r5,r1
+ 241 018e C046     		NOP
+ 242 0190 C046     		NOP
+ 243 0192 6D18     		add r5,r1
+ 244 0194 C046     		NOP
+ 245 0196 C046     		NOP
+ 246 0198 6D18     		add r5,r1
+ 247 019a C046     		NOP
+ 248 019c C046     		NOP
+ 249 019e 6D18     		add r5,r1
+ 250 01a0 C046     		NOP
+ 251 01a2 C046     		NOP
+ 252 01a4 6D18     		add r5,r1
+ 253 01a6 C046     		NOP
+ 254 01a8 C046     		NOP
+ 255 01aa 6D18     		add r5,r1
+ 256 01ac C046     		NOP
+ 257 01ae C046     		NOP
+ 258 01b0 6D18     		add r5,r1
+ 259 01b2 C046     		NOP
+ 260 01b4 C046     		NOP
+ 261 01b6 6D18     		add r5,r1
+ 262 01b8 C046     		NOP
+ 263 01ba C046     		NOP
+ 264 01bc 6D18     		add r5,r1
+ 265 01be C046     		NOP
+ 266 01c0 C046     		NOP
+ 267 01c2 6D18     		add r5,r1
+ 268 01c4 C046     		NOP
+ 269 01c6 C046     		NOP
+ 270 01c8 6D18     		add r5,r1
+ 271 01ca C046     		NOP
+ 272 01cc C046     		NOP
+ 273 01ce 6D18     		add r5,r1
+ 274 01d0 C046     		NOP
+ 275 01d2 C046     		NOP
+ 276 01d4 6D18     		add r5,r1
+ 277 01d6 C046     		NOP
+ 278 01d8 C046     		NOP
+ 279 01da 6D18     		add r5,r1
+ 280 01dc C046     		NOP
+ 281 01de C046     		NOP
+ 282 01e0 6D18     		add r5,r1
+ 283 01e2 C046     		NOP
+ 284 01e4 C046     		NOP
+ 285 01e6 6D18     		add r5,r1
+ 286 01e8 C046     		NOP
+ 287 01ea C046     		NOP
+ 288 01ec 6D18     		add r5,r1
+ 289 01ee C046     		NOP
+ 290 01f0 C046     		NOP
+ 291 01f2 6D18     		add r5,r1
+ 292 01f4 C046     		NOP
+ 293 01f6 C046     		NOP
+ 294 01f8 6D18     		add r5,r1
+ 295 01fa C046     		NOP
+ 296 01fc C046     		NOP
+ 297 01fe 6D18     		add r5,r1
+ 298 0200 C046     		NOP
+ 299 0202 C046     		NOP
+ 300 0204 6D18     		add r5,r1
+ 301 0206 C046     		NOP
+ 302 0208 C046     		NOP
+ 303 020a 6D18     		add r5,r1
+ 304 020c C046     		NOP
+ 305 020e C046     		NOP
+ 306 0210 6D18     		add r5,r1
+ 307 0212 C046     		NOP
+ 308 0214 C046     		NOP
+ 309 0216 6D18     		add r5,r1
+ 310 0218 C046     		NOP
+ 311 021a C046     		NOP
+ 312 021c 6D18     		add r5,r1
+ 313 021e C046     		NOP
+ 314 0220 C046     		NOP
+ 315 0222 6D18     		add r5,r1
+ 316 0224 C046     		NOP
+ 317 0226 C046     		NOP
+ 318 0228 6D18     		add r5,r1
+ 319 022a C046     		NOP
+ 320 022c C046     		NOP
+ 321 022e 6D18     		add r5,r1
+ 322 0230 C046     		NOP
+ 323 0232 C046     		NOP
+ 324 0234 6D18     		add r5,r1
+ 325 0236 C046     		NOP
+ 326 0238 C046     		NOP
+ 327 023a 6D18     		add r5,r1
+ 328 023c C046     		NOP
+ 329 023e C046     		NOP
+ 330 0240 6D18     		add r5,r1
+ 331 0242 C046     		NOP
+ 332 0244 C046     		NOP
+ 333 0246 6D18     		add r5,r1
+ 334 0248 C046     		NOP
+ 335 024a C046     		NOP
+ 336 024c 6D18     		add r5,r1
+ 337 024e C046     		NOP
+ 338 0250 C046     		NOP
+ 339 0252 6D18     		add r5,r1
+ 340 0254 C046     		NOP
+ 341 0256 C046     		NOP
+ 342 0258 6D18     		add r5,r1
+ 343 025a C046     		NOP
+ 344 025c C046     		NOP
+ 345              		
+ 346              	@ 0 "" 2
+  17:trace.c       **** "add r5,r1\n\t"
+  18:trace.c       **** "NOP\n\t"
+  19:trace.c       **** "NOP\n\t"
+  20:trace.c       **** //"mul r5,r5,r1\n\t"
+  21:trace.c       **** "add r5,r1\n\t"
+  22:trace.c       **** "NOP\n\t"
+  23:trace.c       **** "NOP\n\t"
+  24:trace.c       **** //"mul r5,r5,r1\n\t"
+  25:trace.c       **** "add r5,r1\n\t"
+  26:trace.c       **** "NOP\n\t"
+  27:trace.c       **** "NOP\n\t"
+  28:trace.c       **** //"mul r5,r5,r1\n\t"
+  29:trace.c       **** "add r5,r1\n\t"
+  30:trace.c       **** "NOP\n\t"
+  31:trace.c       **** "NOP\n\t"
+  32:trace.c       **** //"mul r5,r5,r1\n\t"
+  33:trace.c       **** "add r5,r1\n\t"
+  34:trace.c       **** "NOP\n\t"
+  35:trace.c       **** "NOP\n\t"
+  36:trace.c       **** //"mul r5,r5,r1\n\t"
+  37:trace.c       **** "add r5,r1\n\t"
+  38:trace.c       **** "NOP\n\t"
+  39:trace.c       **** "NOP\n\t"
+  40:trace.c       **** //"mul r5,r5,r1\n\t"
+  41:trace.c       **** "add r5,r1\n\t"
+  42:trace.c       **** "NOP\n\t"
+  43:trace.c       **** "NOP\n\t"
+  44:trace.c       **** //"mul r5,r5,r1\n\t"
+  45:trace.c       **** "add r5,r1\n\t"
+  46:trace.c       **** "NOP\n\t"
+  47:trace.c       **** "NOP\n\t"
+  48:trace.c       **** //"mul r5,r5,r1\n\t"
+  49:trace.c       **** "add r5,r1\n\t"
+  50:trace.c       **** "NOP\n\t"
+  51:trace.c       **** "NOP\n\t"
+  52:trace.c       **** //"mul r5,r5,r1\n\t"
+  53:trace.c       **** "add r5,r1\n\t"
+  54:trace.c       **** "NOP\n\t"
+  55:trace.c       **** "NOP\n\t"
+  56:trace.c       **** //"mul r5,r5,r1\n\t"
+  57:trace.c       **** "add r5,r1\n\t"
+  58:trace.c       **** "NOP\n\t"
+  59:trace.c       **** "NOP\n\t"
+  60:trace.c       **** //"mul r5,r5,r1\n\t"
+  61:trace.c       **** "add r5,r1\n\t"
+  62:trace.c       **** "NOP\n\t"
+  63:trace.c       **** "NOP\n\t"
+  64:trace.c       **** //"mul r5,r5,r1\n\t"
+  65:trace.c       **** "add r5,r1\n\t"
+  66:trace.c       **** "NOP\n\t"
+  67:trace.c       **** "NOP\n\t"
+  68:trace.c       **** //"mul r5,r5,r1\n\t"
+  69:trace.c       **** "add r5,r1\n\t"
+  70:trace.c       **** "NOP\n\t"
+  71:trace.c       **** "NOP\n\t"
+  72:trace.c       **** //"mul r5,r5,r1\n\t"
+  73:trace.c       **** "add r5,r1\n\t"
+  74:trace.c       **** "NOP\n\t"
+  75:trace.c       **** "NOP\n\t"
+  76:trace.c       **** //"mul r5,r5,r1\n\t"
+  77:trace.c       **** "add r5,r1\n\t"
+  78:trace.c       **** "NOP\n\t"
+  79:trace.c       **** "NOP\n\t"
+  80:trace.c       **** //"mul r5,r5,r1\n\t"
+  81:trace.c       **** "add r5,r1\n\t"
+  82:trace.c       **** "NOP\n\t"
+  83:trace.c       **** "NOP\n\t"
+  84:trace.c       **** //"mul r5,r5,r1\n\t"
+  85:trace.c       **** "add r5,r1\n\t"
+  86:trace.c       **** "NOP\n\t"
+  87:trace.c       **** "NOP\n\t"
+  88:trace.c       **** //"mul r5,r5,r1\n\t"
+  89:trace.c       **** "add r5,r1\n\t"
+  90:trace.c       **** "NOP\n\t"
+  91:trace.c       **** "NOP\n\t"
+  92:trace.c       **** //"mul r5,r5,r1\n\t"
+  93:trace.c       **** "add r5,r1\n\t"
+  94:trace.c       **** "NOP\n\t"
+  95:trace.c       **** "NOP\n\t"
+  96:trace.c       **** //"mul r5,r5,r1\n\t"
+  97:trace.c       **** "add r5,r1\n\t"
+  98:trace.c       **** "NOP\n\t"
+  99:trace.c       **** "NOP\n\t"
+ 100:trace.c       **** //"mul r5,r5,r1\n\t"
+ 101:trace.c       **** "add r5,r1\n\t"
+ 102:trace.c       **** "NOP\n\t"
+ 103:trace.c       **** "NOP\n\t"
+ 104:trace.c       **** //"mul r5,r5,r1\n\t"
+ 105:trace.c       **** "add r5,r1\n\t"
+ 106:trace.c       **** "NOP\n\t"
+ 107:trace.c       **** "NOP\n\t"
+ 108:trace.c       **** //"mul r5,r5,r1\n\t"
+ 109:trace.c       **** "add r5,r1\n\t"
+ 110:trace.c       **** "NOP\n\t"
+ 111:trace.c       **** "NOP\n\t"
+ 112:trace.c       **** //"mul r5,r5,r1\n\t"
+ 113:trace.c       **** "add r5,r1\n\t"
+ 114:trace.c       **** "NOP\n\t"
+ 115:trace.c       **** "NOP\n\t"
+ 116:trace.c       **** //"mul r5,r5,r1\n\t"
+ 117:trace.c       **** "add r5,r1\n\t"
+ 118:trace.c       **** "NOP\n\t"
+ 119:trace.c       **** "NOP\n\t"
+ 120:trace.c       **** //"mul r5,r5,r1\n\t"
+ 121:trace.c       **** "add r5,r1\n\t"
+ 122:trace.c       **** "NOP\n\t"
+ 123:trace.c       **** "NOP\n\t"
+ 124:trace.c       **** //"mul r5,r5,r1\n\t"
+ 125:trace.c       **** "add r5,r1\n\t"
+ 126:trace.c       **** "NOP\n\t"
+ 127:trace.c       **** "NOP\n\t"
+ 128:trace.c       **** //"mul r5,r5,r1\n\t"
+ 129:trace.c       **** "add r5,r1\n\t"
+ 130:trace.c       **** "NOP\n\t"
+ 131:trace.c       **** "NOP\n\t"
+ 132:trace.c       **** //"mul r5,r5,r1\n\t"
+ 133:trace.c       **** "add r5,r1\n\t"
+ 134:trace.c       **** "NOP\n\t"
+ 135:trace.c       **** "NOP\n\t"
+ 136:trace.c       **** //"mul r5,r5,r1\n\t"
+ 137:trace.c       **** "add r5,r1\n\t"
+ 138:trace.c       **** "NOP\n\t"
+ 139:trace.c       **** "NOP\n\t"
+ 140:trace.c       **** //"mul r5,r5,r1\n\t"
+ 141:trace.c       **** "add r5,r1\n\t"
+ 142:trace.c       **** "NOP\n\t"
+ 143:trace.c       **** "NOP\n\t"
+ 144:trace.c       **** //"mul r5,r5,r1\n\t"
+ 145:trace.c       **** "add r5,r1\n\t"
+ 146:trace.c       **** "NOP\n\t"
+ 147:trace.c       **** "NOP\n\t"
+ 148:trace.c       **** //"mul r5,r5,r1\n\t"
+ 149:trace.c       **** "add r5,r1\n\t"
+ 150:trace.c       **** "NOP\n\t"
+ 151:trace.c       **** "NOP\n\t"
+ 152:trace.c       **** //"mul r5,r5,r1\n\t"
+ 153:trace.c       **** "add r5,r1\n\t"
+ 154:trace.c       **** "NOP\n\t"
+ 155:trace.c       **** "NOP\n\t"
+ 156:trace.c       **** //"mul r5,r5,r1\n\t"
+ 157:trace.c       **** "add r5,r1\n\t"
+ 158:trace.c       **** "NOP\n\t"
+ 159:trace.c       **** "NOP\n\t"
+ 160:trace.c       **** //"mul r5,r5,r1\n\t"
+ 161:trace.c       **** "add r5,r1\n\t"
+ 162:trace.c       **** "NOP\n\t"
+ 163:trace.c       **** "NOP\n\t"
+ 164:trace.c       **** //"mul r5,r5,r1\n\t"
+ 165:trace.c       **** "add r5,r1\n\t"
+ 166:trace.c       **** "NOP\n\t"
+ 167:trace.c       **** "NOP\n\t"
+ 168:trace.c       **** //"mul r5,r5,r1\n\t"
+ 169:trace.c       **** "add r5,r1\n\t"
+ 170:trace.c       **** "NOP\n\t"
+ 171:trace.c       **** "NOP\n\t"
+ 172:trace.c       **** //"mul r5,r5,r1\n\t"
+ 173:trace.c       **** "add r5,r1\n\t"
+ 174:trace.c       **** "NOP\n\t"
+ 175:trace.c       **** "NOP\n\t"
+ 176:trace.c       **** //"mul r5,r5,r1\n\t"
+ 177:trace.c       **** "add r5,r1\n\t"
+ 178:trace.c       **** "NOP\n\t"
+ 179:trace.c       **** "NOP\n\t"
+ 180:trace.c       **** //"mul r5,r5,r1\n\t"
+ 181:trace.c       **** "add r5,r1\n\t"
+ 182:trace.c       **** "NOP\n\t"
+ 183:trace.c       **** "NOP\n\t"
+ 184:trace.c       **** //"mul r5,r5,r1\n\t"
+ 185:trace.c       **** "add r5,r1\n\t"
+ 186:trace.c       **** "NOP\n\t"
+ 187:trace.c       **** "NOP\n\t"
+ 188:trace.c       **** //"mul r5,r5,r1\n\t"
+ 189:trace.c       **** "add r5,r1\n\t"
+ 190:trace.c       **** "NOP\n\t"
+ 191:trace.c       **** "NOP\n\t"
+ 192:trace.c       **** //"mul r5,r5,r1\n\t"
+ 193:trace.c       **** "add r5,r1\n\t"
+ 194:trace.c       **** "NOP\n\t"
+ 195:trace.c       **** "NOP\n\t"
+ 196:trace.c       **** //"mul r5,r5,r1\n\t"
+ 197:trace.c       **** "add r5,r1\n\t"
+ 198:trace.c       **** "NOP\n\t"
+ 199:trace.c       **** "NOP\n\t"
+ 200:trace.c       **** //"mul r5,r5,r1\n\t"
+ 201:trace.c       **** "add r5,r1\n\t"
+ 202:trace.c       **** "NOP\n\t"
+ 203:trace.c       **** "NOP\n\t"
+ 204:trace.c       **** //"mul r5,r5,r1\n\t"
+ 205:trace.c       **** "add r5,r1\n\t"
+ 206:trace.c       **** "NOP\n\t"
+ 207:trace.c       **** "NOP\n\t"
+ 208:trace.c       **** //"mul r5,r5,r1\n\t"
+ 209:trace.c       **** "add r5,r1\n\t"
+ 210:trace.c       **** "NOP\n\t"
+ 211:trace.c       **** "NOP\n\t"
+ 212:trace.c       **** //"mul r5,r5,r1\n\t"
+ 213:trace.c       **** "add r5,r1\n\t"
+ 214:trace.c       **** "NOP\n\t"
+ 215:trace.c       **** "NOP\n\t"
+ 216:trace.c       **** //"mul r5,r5,r1\n\t"
+ 217:trace.c       **** "add r5,r1\n\t"
+ 218:trace.c       **** "NOP\n\t"
+ 219:trace.c       **** "NOP\n\t"
+ 220:trace.c       **** //"mul r5,r5,r1\n\t"
+ 221:trace.c       **** "add r5,r1\n\t"
+ 222:trace.c       **** "NOP\n\t"
+ 223:trace.c       **** "NOP\n\t"
+ 224:trace.c       **** //"mul r5,r5,r1\n\t"
+ 225:trace.c       **** "add r5,r1\n\t"
+ 226:trace.c       **** "NOP\n\t"
+ 227:trace.c       **** "NOP\n\t"
+ 228:trace.c       **** //"mul r5,r5,r1\n\t"
+ 229:trace.c       **** "add r5,r1\n\t"
+ 230:trace.c       **** "NOP\n\t"
+ 231:trace.c       **** "NOP\n\t"
+ 232:trace.c       **** //"mul r5,r5,r1\n\t"
+ 233:trace.c       **** "add r5,r1\n\t"
+ 234:trace.c       **** "NOP\n\t"
+ 235:trace.c       **** "NOP\n\t"
+ 236:trace.c       **** //"mul r5,r5,r1\n\t"
+ 237:trace.c       **** "add r5,r1\n\t"
+ 238:trace.c       **** "NOP\n\t"
+ 239:trace.c       **** "NOP\n\t"
+ 240:trace.c       **** //"mul r5,r5,r1\n\t"
+ 241:trace.c       **** "add r5,r1\n\t"
+ 242:trace.c       **** "NOP\n\t"
+ 243:trace.c       **** "NOP\n\t"
+ 244:trace.c       **** //"mul r5,r5,r1\n\t"
+ 245:trace.c       **** "add r5,r1\n\t"
+ 246:trace.c       **** "NOP\n\t"
+ 247:trace.c       **** "NOP\n\t"
+ 248:trace.c       **** //"mul r5,r5,r1\n\t"
+ 249:trace.c       **** "add r5,r1\n\t"
+ 250:trace.c       **** "NOP\n\t"
+ 251:trace.c       **** "NOP\n\t"
+ 252:trace.c       **** //"mul r5,r5,r1\n\t"
+ 253:trace.c       **** "add r5,r1\n\t"
+ 254:trace.c       **** "NOP\n\t"
+ 255:trace.c       **** "NOP\n\t"
+ 256:trace.c       **** //"mul r5,r5,r1\n\t"
+ 257:trace.c       **** "add r5,r1\n\t"
+ 258:trace.c       **** "NOP\n\t"
+ 259:trace.c       **** "NOP\n\t"
+ 260:trace.c       **** //"mul r5,r5,r1\n\t"
+ 261:trace.c       **** "add r5,r1\n\t"
+ 262:trace.c       **** "NOP\n\t"
+ 263:trace.c       **** "NOP\n\t"
+ 264:trace.c       **** //"mul r5,r5,r1\n\t"
+ 265:trace.c       **** "add r5,r1\n\t"
+ 266:trace.c       **** "NOP\n\t"
+ 267:trace.c       **** "NOP\n\t"
+ 268:trace.c       **** //"mul r5,r5,r1\n\t"
+ 269:trace.c       **** "add r5,r1\n\t"
+ 270:trace.c       **** "NOP\n\t"
+ 271:trace.c       **** "NOP\n\t"
+ 272:trace.c       **** //"mul r5,r5,r1\n\t"
+ 273:trace.c       **** "add r5,r1\n\t"
+ 274:trace.c       **** "NOP\n\t"
+ 275:trace.c       **** "NOP\n\t"
+ 276:trace.c       **** //"mul r5,r5,r1\n\t"
+ 277:trace.c       **** "add r5,r1\n\t"
+ 278:trace.c       **** "NOP\n\t"
+ 279:trace.c       **** "NOP\n\t"
+ 280:trace.c       **** //"mul r5,r5,r1\n\t"
+ 281:trace.c       **** "add r5,r1\n\t"
+ 282:trace.c       **** "NOP\n\t"
+ 283:trace.c       **** "NOP\n\t"
+ 284:trace.c       **** //"mul r5,r5,r1\n\t"
+ 285:trace.c       **** "add r5,r1\n\t"
+ 286:trace.c       **** "NOP\n\t"
+ 287:trace.c       **** "NOP\n\t"
+ 288:trace.c       **** //"mul r5,r5,r1\n\t"
+ 289:trace.c       **** "add r5,r1\n\t"
+ 290:trace.c       **** "NOP\n\t"
+ 291:trace.c       **** "NOP\n\t"
+ 292:trace.c       **** //"mul r5,r5,r1\n\t"
+ 293:trace.c       **** "add r5,r1\n\t"
+ 294:trace.c       **** "NOP\n\t"
+ 295:trace.c       **** "NOP\n\t"
+ 296:trace.c       **** //"mul r5,r5,r1\n\t"
+ 297:trace.c       **** "add r5,r1\n\t"
+ 298:trace.c       **** "NOP\n\t"
+ 299:trace.c       **** "NOP\n\t"
+ 300:trace.c       **** //"mul r5,r5,r1\n\t"
+ 301:trace.c       **** "add r5,r1\n\t"
+ 302:trace.c       **** "NOP\n\t"
+ 303:trace.c       **** "NOP\n\t"
+ 304:trace.c       **** //"mul r5,r5,r1\n\t"
+ 305:trace.c       **** "add r5,r1\n\t"
+ 306:trace.c       **** "NOP\n\t"
+ 307:trace.c       **** "NOP\n\t"
+ 308:trace.c       **** //"mul r5,r5,r1\n\t"
+ 309:trace.c       **** "add r5,r1\n\t"
+ 310:trace.c       **** "NOP\n\t"
+ 311:trace.c       **** "NOP\n\t"
+ 312:trace.c       **** //"mul r5,r5,r1\n\t"
+ 313:trace.c       **** "add r5,r1\n\t"
+ 314:trace.c       **** "NOP\n\t"
+ 315:trace.c       **** "NOP\n\t"
+ 316:trace.c       **** //"mul r5,r5,r1\n\t"
+ 317:trace.c       **** "add r5,r1\n\t"
+ 318:trace.c       **** "NOP\n\t"
+ 319:trace.c       **** "NOP\n\t"
+ 320:trace.c       **** //"mul r5,r5,r1\n\t"
+ 321:trace.c       **** "add r5,r1\n\t"
+ 322:trace.c       **** "NOP\n\t"
+ 323:trace.c       **** "NOP\n\t"
+ 324:trace.c       **** //"mul r5,r5,r1\n\t"
+ 325:trace.c       **** "add r5,r1\n\t"
+ 326:trace.c       **** "NOP\n\t"
+ 327:trace.c       **** "NOP\n\t"
+ 328:trace.c       **** //"mul r5,r5,r1\n\t"
+ 329:trace.c       **** "add r5,r1\n\t"
+ 330:trace.c       **** "NOP\n\t"
+ 331:trace.c       **** "NOP\n\t"
+ 332:trace.c       **** //"mul r5,r5,r1\n\t"
+ 333:trace.c       **** "add r5,r1\n\t"
+ 334:trace.c       **** "NOP\n\t"
+ 335:trace.c       **** "NOP\n\t"
+ 336:trace.c       **** //"mul r5,r5,r1\n\t"
+ 337:trace.c       **** "add r5,r1\n\t"
+ 338:trace.c       **** "NOP\n\t"
+ 339:trace.c       **** "NOP\n\t"
+ 340:trace.c       **** //"mul r5,r5,r1\n\t"
+ 341:trace.c       **** "add r5,r1\n\t"
+ 342:trace.c       **** "NOP\n\t"
+ 343:trace.c       **** "NOP\n\t"
+ 344:trace.c       **** //"mul r5,r5,r1\n\t"
+ 345:trace.c       **** "add r5,r1\n\t"
+ 346:trace.c       **** "NOP\n\t"
+ 347:trace.c       **** "NOP\n\t"
+ 348:trace.c       **** //"mul r5,r5,r1\n\t"
+ 349:trace.c       **** "add r5,r1\n\t"
+ 350:trace.c       **** "NOP\n\t"
+ 351:trace.c       **** "NOP\n\t"
+ 352:trace.c       **** //"mul r5,r5,r1\n\t"
+ 353:trace.c       **** "add r5,r1\n\t"
+ 354:trace.c       **** "NOP\n\t"
+ 355:trace.c       **** "NOP\n\t"
+ 356:trace.c       **** //"mul r5,r5,r1\n\t"
+ 357:trace.c       **** "add r5,r1\n\t"
+ 358:trace.c       **** "NOP\n\t"
+ 359:trace.c       **** "NOP\n\t"
+ 360:trace.c       **** //"mul r5,r5,r1\n\t"
+ 361:trace.c       **** "add r5,r1\n\t"
+ 362:trace.c       **** "NOP\n\t"
+ 363:trace.c       **** "NOP\n\t"
+ 364:trace.c       **** //"mul r5,r5,r1\n\t"
+ 365:trace.c       **** "add r5,r1\n\t"
+ 366:trace.c       **** "NOP\n\t"
+ 367:trace.c       **** "NOP\n\t"
+ 368:trace.c       **** //"mul r5,r5,r1\n\t"
+ 369:trace.c       **** "add r5,r1\n\t"
+ 370:trace.c       **** "NOP\n\t"
+ 371:trace.c       **** "NOP\n\t"
+ 372:trace.c       **** //"mul r5,r5,r1\n\t"
+ 373:trace.c       **** "add r5,r1\n\t"
+ 374:trace.c       **** "NOP\n\t"
+ 375:trace.c       **** "NOP\n\t"
+ 376:trace.c       **** //"mul r5,r5,r1\n\t"
+ 377:trace.c       **** "add r5,r1\n\t"
+ 378:trace.c       **** "NOP\n\t"
+ 379:trace.c       **** "NOP\n\t"
+ 380:trace.c       **** //"mul r5,r5,r1\n\t"
+ 381:trace.c       **** "add r5,r1\n\t"
+ 382:trace.c       **** "NOP\n\t"
+ 383:trace.c       **** "NOP\n\t"
+ 384:trace.c       **** //"mul r5,r5,r1\n\t"
+ 385:trace.c       **** "add r5,r1\n\t"
+ 386:trace.c       **** "NOP\n\t"
+ 387:trace.c       **** "NOP\n\t"
+ 388:trace.c       **** //"mul r5,r5,r1\n\t"
+ 389:trace.c       **** "add r5,r1\n\t"
+ 390:trace.c       **** "NOP\n\t"
+ 391:trace.c       **** "NOP\n\t"
+ 392:trace.c       **** //"mul r5,r5,r1\n\t"
+ 393:trace.c       **** "add r5,r1\n\t"
+ 394:trace.c       **** "NOP\n\t"
+ 395:trace.c       **** "NOP\n\t"
+ 396:trace.c       **** //"mul r5,r5,r1\n\t"
+ 397:trace.c       **** "add r5,r1\n\t"
+ 398:trace.c       **** "NOP\n\t"
+ 399:trace.c       **** "NOP\n\t"
+ 400:trace.c       **** //"mul r5,r5,r1\n\t"
+ 401:trace.c       **** "add r5,r1\n\t"
+ 402:trace.c       **** "NOP\n\t"
+ 403:trace.c       **** "NOP\n\t"
+ 404:trace.c       **** //"mul r5,r5,r1\n\t"
+ 405:trace.c       **** "add r5,r1\n\t"
+ 406:trace.c       **** "NOP\n\t"
+ 407:trace.c       **** "NOP\n\t"
+ 408:trace.c       **** //"mul r5,r5,r1\n\t"
+ 409:trace.c       **** "add r5,r1\n\t"
+ 410:trace.c       **** "NOP\n\t"
+ 411:trace.c       **** "NOP\n\t"
+ 412:trace.c       **** //"mul r5,r5,r1\n\t"
+ 413:trace.c       **** "add r5,r1\n\t"
+ 414:trace.c       **** "NOP\n\t"
+ 415:trace.c       **** "NOP\n\t"
+ 416:trace.c       **** //"mul r5,r5,r1\n\t" 
+ 417:trace.c       ****   );
+ 418:trace.c       ****   // asm{
+ 419:trace.c       ****   //   add ax,bx 
+ 420:trace.c       ****   // };
+ 421:trace.c       ****   trigger_low();
+ 347              		.loc 1 421 3 view .LVU5
+ 348              		.thumb
+ 349              		.syntax unified
+ 350 025e FFF7FEFF 		bl	trigger_low
+ 351              	.LVL2:
+ 422:trace.c       ****   // asm{
+ 423:trace.c       ****   //   mov c,ax 
+ 424:trace.c       ****   // };
+ 425:trace.c       ****   return 0;
+ 352              		.loc 1 425 3 view .LVU6
+ 426:trace.c       **** }
+ 353              		.loc 1 426 1 is_stmt 0 view .LVU7
+ 354              		@ sp needed
+ 355 0262 0020     		movs	r0, #0
+ 356 0264 10BD     		pop	{r4, pc}
+ 357              		.cfi_endproc
+ 358              	.LFE0:
+ 360              		.section	.text.startup.main,"ax",%progbits
+ 361              		.align	1
+ 362              		.global	main
+ 363              		.syntax unified
+ 364              		.code	16
+ 365              		.thumb_func
+ 366              		.fpu softvfp
+ 368              	main:
+ 369              	.LFB1:
+ 427:trace.c       **** 
+ 428:trace.c       **** int main(void) {
+ 370              		.loc 1 428 16 is_stmt 1 view -0
+ 371              		.cfi_startproc
+ 372              		@ Volatile: function does not return.
+ 373              		@ args = 0, pretend = 0, frame = 0
+ 374              		@ frame_needed = 0, uses_anonymous_args = 0
+ 429:trace.c       **** 
+ 430:trace.c       ****   // WARNING: Do not call verify and sort from the same python process
+ 431:trace.c       ****   // Just call one at a time
+ 432:trace.c       **** 
+ 433:trace.c       ****   platform_init();
+ 375              		.loc 1 433 3 view .LVU9
+ 428:trace.c       **** 
+ 376              		.loc 1 428 16 is_stmt 0 view .LVU10
+ 377 0000 10B5     		push	{r4, lr}
+ 378              	.LCFI1:
+ 379              		.cfi_def_cfa_offset 8
+ 380              		.cfi_offset 4, -8
+ 381              		.cfi_offset 14, -4
+ 382              		.loc 1 433 3 view .LVU11
+ 383 0002 FFF7FEFF 		bl	platform_init
+ 384              	.LVL3:
+ 434:trace.c       ****   init_uart();
+ 385              		.loc 1 434 3 is_stmt 1 view .LVU12
+ 386 0006 FFF7FEFF 		bl	init_uart
+ 387              	.LVL4:
+ 435:trace.c       ****   trigger_setup();
+ 388              		.loc 1 435 3 view .LVU13
+ 389 000a FFF7FEFF 		bl	trigger_setup
+ 390              	.LVL5:
+ 436:trace.c       ****   simpleserial_init();
+ 391              		.loc 1 436 3 view .LVU14
+ 392 000e FFF7FEFF 		bl	simpleserial_init
+ 393              	.LVL6:
+ 437:trace.c       ****   simpleserial_addcmd('s', 0, sort);
+ 394              		.loc 1 437 3 view .LVU15
+ 395 0012 0021     		movs	r1, #0
+ 396 0014 7320     		movs	r0, #115
+ 397 0016 034A     		ldr	r2, .L4
+ 398 0018 FFF7FEFF 		bl	simpleserial_addcmd
+ 399              	.LVL7:
+ 400              	.L3:
+ 438:trace.c       **** 
+ 439:trace.c       ****   while(1) {
+ 401              		.loc 1 439 3 discriminator 1 view .LVU16
+ 440:trace.c       **** 		simpleserial_get();
+ 402              		.loc 1 440 3 discriminator 1 view .LVU17
+ 403 001c FFF7FEFF 		bl	simpleserial_get
+ 404              	.LVL8:
+ 439:trace.c       **** 		simpleserial_get();
+ 405              		.loc 1 439 8 discriminator 1 view .LVU18
+ 406 0020 FCE7     		b	.L3
+ 407              	.L5:
+ 408 0022 C046     		.align	2
+ 409              	.L4:
+ 410 0024 00000000 		.word	sort
+ 411              		.cfi_endproc
+ 412              	.LFE1:
+ 414              		.text
+ 415              	.Letext0:
+ 416              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 417              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 418              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 419              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 420              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 421              		.file 7 "/usr/include/newlib/stdlib.h"
+ 422              		.file 8 ".././hal/hal.h"
+ 423              		.file 9 ".././hal/stm32f0/stm32f0_hal.h"
+ 424              		.file 10 "../simpleserial/simpleserial.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 trace.c
+     /tmp/ccoPAJlu.s:16     .text.sort:0000000000000000 $t
+     /tmp/ccoPAJlu.s:24     .text.sort:0000000000000000 sort
+     /tmp/ccoPAJlu.s:361    .text.startup.main:0000000000000000 $t
+     /tmp/ccoPAJlu.s:368    .text.startup.main:0000000000000000 main
+     /tmp/ccoPAJlu.s:410    .text.startup.main:0000000000000024 $d
+
+UNDEFINED SYMBOLS
+trigger_high
+trigger_low
+platform_init
+init_uart
+trigger_setup
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get

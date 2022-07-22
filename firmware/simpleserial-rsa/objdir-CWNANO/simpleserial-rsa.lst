@@ -1,0 +1,182 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 2
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"simpleserial-rsa.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.startup.main,"ax",%progbits
+  16              		.align	1
+  17              		.p2align 2,,3
+  18              		.global	main
+  19              		.arch armv6s-m
+  20              		.syntax unified
+  21              		.code	16
+  22              		.thumb_func
+  23              		.fpu softvfp
+  25              	main:
+  26              	.LFB0:
+  27              		.file 1 "simpleserial-rsa.c"
+   1:simpleserial-rsa.c **** /*
+   2:simpleserial-rsa.c ****     This file is part of the ChipWhisperer Example Targets
+   3:simpleserial-rsa.c ****     Copyright (C) 2016-2017 NewAE Technology Inc.
+   4:simpleserial-rsa.c **** 
+   5:simpleserial-rsa.c ****     This program is free software: you can redistribute it and/or modify
+   6:simpleserial-rsa.c ****     it under the terms of the GNU General Public License as published by
+   7:simpleserial-rsa.c ****     the Free Software Foundation, either version 3 of the License, or
+   8:simpleserial-rsa.c ****     (at your option) any later version.
+   9:simpleserial-rsa.c **** 
+  10:simpleserial-rsa.c ****     This program is distributed in the hope that it will be useful,
+  11:simpleserial-rsa.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  12:simpleserial-rsa.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  13:simpleserial-rsa.c ****     GNU General Public License for more details.
+  14:simpleserial-rsa.c **** 
+  15:simpleserial-rsa.c ****     You should have received a copy of the GNU General Public License
+  16:simpleserial-rsa.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  17:simpleserial-rsa.c **** */
+  18:simpleserial-rsa.c **** 
+  19:simpleserial-rsa.c **** #include "hal.h"
+  20:simpleserial-rsa.c **** #include "simpleserial.h"
+  21:simpleserial-rsa.c **** #include <string.h>
+  22:simpleserial-rsa.c **** #include <stdint.h>
+  23:simpleserial-rsa.c **** #include <stdlib.h>
+  24:simpleserial-rsa.c **** 
+  25:simpleserial-rsa.c **** #define IDLE 0
+  26:simpleserial-rsa.c **** #define KEY 1
+  27:simpleserial-rsa.c **** #define PLAIN 2
+  28:simpleserial-rsa.c **** 
+  29:simpleserial-rsa.c **** void rsa_init(void);
+  30:simpleserial-rsa.c **** uint8_t real_dec(uint8_t * pt, uint8_t len);
+  31:simpleserial-rsa.c **** uint8_t get_pt(uint8_t * pt, uint8_t len);
+  32:simpleserial-rsa.c **** 
+  33:simpleserial-rsa.c **** #if defined(__arm__)
+  34:simpleserial-rsa.c **** 
+  35:simpleserial-rsa.c **** uint8_t sig_chunk_1(uint8_t *pt, uint8_t len);
+  36:simpleserial-rsa.c **** uint8_t sig_chunk_2(uint8_t *pt, uint8_t len);
+  37:simpleserial-rsa.c **** #endif
+  38:simpleserial-rsa.c **** 
+  39:simpleserial-rsa.c **** int main(void)
+  40:simpleserial-rsa.c **** {
+  28              		.loc 1 40 1 view -0
+  29              		.cfi_startproc
+  30              		@ Volatile: function does not return.
+  31              		@ args = 0, pretend = 0, frame = 0
+  32              		@ frame_needed = 0, uses_anonymous_args = 0
+  41:simpleserial-rsa.c ****     platform_init();
+  33              		.loc 1 41 5 view .LVU1
+  40:simpleserial-rsa.c ****     platform_init();
+  34              		.loc 1 40 1 is_stmt 0 view .LVU2
+  35 0000 10B5     		push	{r4, lr}
+  36              	.LCFI0:
+  37              		.cfi_def_cfa_offset 8
+  38              		.cfi_offset 4, -8
+  39              		.cfi_offset 14, -4
+  40              		.loc 1 41 5 view .LVU3
+  41 0002 FFF7FEFF 		bl	platform_init
+  42              	.LVL0:
+  42:simpleserial-rsa.c ****     init_uart();
+  43              		.loc 1 42 5 is_stmt 1 view .LVU4
+  44 0006 FFF7FEFF 		bl	init_uart
+  45              	.LVL1:
+  43:simpleserial-rsa.c ****     trigger_setup();
+  46              		.loc 1 43 5 view .LVU5
+  47 000a FFF7FEFF 		bl	trigger_setup
+  48              	.LVL2:
+  44:simpleserial-rsa.c **** 
+  45:simpleserial-rsa.c ****     /* Load all the keys etc */
+  46:simpleserial-rsa.c ****     rsa_init();
+  49              		.loc 1 46 5 view .LVU6
+  50 000e FFF7FEFF 		bl	rsa_init
+  51              	.LVL3:
+  47:simpleserial-rsa.c **** 
+  48:simpleserial-rsa.c ****     simpleserial_init();
+  52              		.loc 1 48 5 view .LVU7
+  53 0012 FFF7FEFF 		bl	simpleserial_init
+  54              	.LVL4:
+  49:simpleserial-rsa.c ****     simpleserial_addcmd('t', 0,  real_dec);
+  55              		.loc 1 49 5 view .LVU8
+  56 0016 0021     		movs	r1, #0
+  57 0018 0A4A     		ldr	r2, .L4
+  58 001a 7420     		movs	r0, #116
+  59 001c FFF7FEFF 		bl	simpleserial_addcmd
+  60              	.LVL5:
+  50:simpleserial-rsa.c ****     #if (SS_VER != SS_VER_2_1) && defined(__arm__)
+  51:simpleserial-rsa.c ****     simpleserial_addcmd('1', 0,  sig_chunk_1);
+  61              		.loc 1 51 5 view .LVU9
+  62 0020 0021     		movs	r1, #0
+  63 0022 094A     		ldr	r2, .L4+4
+  64 0024 3120     		movs	r0, #49
+  65 0026 FFF7FEFF 		bl	simpleserial_addcmd
+  66              	.LVL6:
+  52:simpleserial-rsa.c ****     simpleserial_addcmd('2', 0,  sig_chunk_2);
+  67              		.loc 1 52 5 view .LVU10
+  68 002a 0021     		movs	r1, #0
+  69 002c 074A     		ldr	r2, .L4+8
+  70 002e 3220     		movs	r0, #50
+  71 0030 FFF7FEFF 		bl	simpleserial_addcmd
+  72              	.LVL7:
+  53:simpleserial-rsa.c ****     #endif
+  54:simpleserial-rsa.c **** 
+  55:simpleserial-rsa.c ****     //Perform encryption -  must set key via plaintext
+  56:simpleserial-rsa.c ****     simpleserial_addcmd('p', 16, get_pt);
+  73              		.loc 1 56 5 view .LVU11
+  74 0034 1021     		movs	r1, #16
+  75 0036 7020     		movs	r0, #112
+  76 0038 054A     		ldr	r2, .L4+12
+  77 003a FFF7FEFF 		bl	simpleserial_addcmd
+  78              	.LVL8:
+  79              	.L2:
+  57:simpleserial-rsa.c ****     //simpleserial_addcmd('k', 16, set_key);
+  58:simpleserial-rsa.c ****     while(1)
+  80              		.loc 1 58 5 discriminator 1 view .LVU12
+  59:simpleserial-rsa.c ****         simpleserial_get();
+  81              		.loc 1 59 9 discriminator 1 view .LVU13
+  82 003e FFF7FEFF 		bl	simpleserial_get
+  83              	.LVL9:
+  58:simpleserial-rsa.c ****         simpleserial_get();
+  84              		.loc 1 58 10 discriminator 1 view .LVU14
+  85 0042 FCE7     		b	.L2
+  86              	.L5:
+  87              		.align	2
+  88              	.L4:
+  89 0044 00000000 		.word	real_dec
+  90 0048 00000000 		.word	sig_chunk_1
+  91 004c 00000000 		.word	sig_chunk_2
+  92 0050 00000000 		.word	get_pt
+  93              		.cfi_endproc
+  94              	.LFE0:
+  96              		.text
+  97              	.Letext0:
+  98              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+  99              		.file 3 "/usr/include/newlib/sys/_types.h"
+ 100              		.file 4 "/usr/include/newlib/sys/reent.h"
+ 101              		.file 5 "/usr/include/newlib/sys/lock.h"
+ 102              		.file 6 "/usr/include/newlib/stdlib.h"
+ 103              		.file 7 ".././hal/hal.h"
+ 104              		.file 8 ".././hal/stm32f0/stm32f0_hal.h"
+ 105              		.file 9 ".././simpleserial/simpleserial.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 simpleserial-rsa.c
+     /tmp/cc7hkZzZ.s:16     .text.startup.main:0000000000000000 $t
+     /tmp/cc7hkZzZ.s:25     .text.startup.main:0000000000000000 main
+     /tmp/cc7hkZzZ.s:89     .text.startup.main:0000000000000044 $d
+
+UNDEFINED SYMBOLS
+platform_init
+init_uart
+trigger_setup
+rsa_init
+simpleserial_init
+simpleserial_addcmd
+simpleserial_get
+real_dec
+sig_chunk_1
+sig_chunk_2
+get_pt

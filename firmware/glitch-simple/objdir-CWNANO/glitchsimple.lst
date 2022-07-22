@@ -1,0 +1,830 @@
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 4
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"glitchsimple.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.uart_puts,"ax",%progbits
+  16              		.align	1
+  17              		.global	uart_puts
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	uart_puts:
+  25              	.LVL0:
+  26              	.LFB3:
+  27              		.file 1 "glitchsimple.c"
+   1:glitchsimple.c **** /*
+   2:glitchsimple.c ****     This file is part of the ChipWhisperer Example Targets
+   3:glitchsimple.c ****     Copyright (C) 2012-2015 NewAE Technology Inc.
+   4:glitchsimple.c **** 
+   5:glitchsimple.c ****     This program is free software: you can redistribute it and/or modify
+   6:glitchsimple.c ****     it under the terms of the GNU General Public License as published by
+   7:glitchsimple.c ****     the Free Software Foundation, either version 3 of the License, or
+   8:glitchsimple.c ****     (at your option) any later version.
+   9:glitchsimple.c **** 
+  10:glitchsimple.c ****     This program is distributed in the hope that it will be useful,
+  11:glitchsimple.c ****     but WITHOUT ANY WARRANTY; without even the implied warranty of
+  12:glitchsimple.c ****     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  13:glitchsimple.c ****     GNU General Public License for more details.
+  14:glitchsimple.c **** 
+  15:glitchsimple.c ****     You should have received a copy of the GNU General Public License
+  16:glitchsimple.c ****     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  17:glitchsimple.c **** */
+  18:glitchsimple.c **** 
+  19:glitchsimple.c **** #include <stdio.h>
+  20:glitchsimple.c **** #include "hal.h"
+  21:glitchsimple.c **** 
+  22:glitchsimple.c **** 
+  23:glitchsimple.c **** void uart_puts(char * s){
+  28              		.loc 1 23 25 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		.loc 1 23 25 is_stmt 0 view .LVU1
+  33 0000 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 4, -8
+  37              		.cfi_offset 14, -4
+  38 0002 0400     		movs	r4, r0
+  24:glitchsimple.c ****     while(*s){
+  39              		.loc 1 24 5 is_stmt 1 view .LVU2
+  40              	.LVL1:
+  41              	.L2:
+  42              		.loc 1 24 10 view .LVU3
+  43              		.loc 1 24 11 is_stmt 0 view .LVU4
+  44 0004 2078     		ldrb	r0, [r4]
+  45              		.loc 1 24 10 view .LVU5
+  46 0006 0028     		cmp	r0, #0
+  47 0008 00D1     		bne	.L3
+  25:glitchsimple.c ****         putch(*(s++));
+  26:glitchsimple.c ****     }
+  27:glitchsimple.c **** }
+  48              		.loc 1 27 1 view .LVU6
+  49              		@ sp needed
+  50              	.LVL2:
+  51              		.loc 1 27 1 view .LVU7
+  52 000a 10BD     		pop	{r4, pc}
+  53              	.LVL3:
+  54              	.L3:
+  25:glitchsimple.c ****         putch(*(s++));
+  55              		.loc 1 25 9 is_stmt 1 view .LVU8
+  25:glitchsimple.c ****         putch(*(s++));
+  56              		.loc 1 25 18 is_stmt 0 view .LVU9
+  57 000c 0134     		adds	r4, r4, #1
+  58              	.LVL4:
+  25:glitchsimple.c ****         putch(*(s++));
+  59              		.loc 1 25 9 view .LVU10
+  60 000e FFF7FEFF 		bl	putch
+  61              	.LVL5:
+  62 0012 F7E7     		b	.L2
+  63              		.cfi_endproc
+  64              	.LFE3:
+  66              		.section	.rodata.str1.1,"aMS",%progbits,1
+  67              	.LC0:
+  68 0000 256C7520 		.ascii	"%lu %d %d %d\012\000"
+  68      25642025 
+  68      64202564 
+  68      0A00
+  69              		.section	.text.glitch_infinite,"ax",%progbits
+  70              		.align	1
+  71              		.global	glitch_infinite
+  72              		.syntax unified
+  73              		.code	16
+  74              		.thumb_func
+  75              		.fpu softvfp
+  77              	glitch_infinite:
+  78              	.LFB4:
+  28:glitchsimple.c **** 
+  29:glitchsimple.c **** void glitch_infinite(void)
+  30:glitchsimple.c **** {
+  79              		.loc 1 30 1 is_stmt 1 view -0
+  80              		.cfi_startproc
+  81              		@ args = 0, pretend = 0, frame = 72
+  82              		@ frame_needed = 0, uses_anonymous_args = 0
+  31:glitchsimple.c ****     char str[64];
+  83              		.loc 1 31 5 view .LVU12
+  32:glitchsimple.c ****     unsigned int k = 0;
+  84              		.loc 1 32 5 view .LVU13
+  85              	.LVL6:
+  30:glitchsimple.c ****     char str[64];
+  86              		.loc 1 30 1 is_stmt 0 view .LVU14
+  87 0000 70B5     		push	{r4, r5, r6, lr}
+  88              	.LCFI1:
+  89              		.cfi_def_cfa_offset 16
+  90              		.cfi_offset 4, -16
+  91              		.cfi_offset 5, -12
+  92              		.cfi_offset 6, -8
+  93              		.cfi_offset 14, -4
+  94              		.loc 1 32 18 view .LVU15
+  95 0002 0024     		movs	r4, #0
+  33:glitchsimple.c ****     //Declared volatile to avoid optimizing away loop.
+  34:glitchsimple.c ****     //This also adds lots of SRAM access
+  35:glitchsimple.c ****     volatile uint16_t i, j;
+  36:glitchsimple.c ****     volatile uint32_t cnt;
+  37:glitchsimple.c ****     while(1){
+  38:glitchsimple.c ****         cnt = 0;
+  96              		.loc 1 38 13 view .LVU16
+  97 0004 2500     		movs	r5, r4
+  30:glitchsimple.c ****     char str[64];
+  98              		.loc 1 30 1 view .LVU17
+  99 0006 94B0     		sub	sp, sp, #80
+ 100              	.LCFI2:
+ 101              		.cfi_def_cfa_offset 96
+ 102              	.LVL7:
+ 103              	.L9:
+  35:glitchsimple.c ****     volatile uint32_t cnt;
+ 104              		.loc 1 35 5 is_stmt 1 view .LVU18
+  36:glitchsimple.c ****     while(1){
+ 105              		.loc 1 36 5 view .LVU19
+  37:glitchsimple.c ****         cnt = 0;
+ 106              		.loc 1 37 5 view .LVU20
+ 107              		.loc 1 38 9 view .LVU21
+ 108              		.loc 1 38 13 is_stmt 0 view .LVU22
+ 109 0008 0395     		str	r5, [sp, #12]
+  39:glitchsimple.c ****         trigger_high();
+ 110              		.loc 1 39 9 is_stmt 1 view .LVU23
+ 111 000a FFF7FEFF 		bl	trigger_high
+ 112              	.LVL8:
+  40:glitchsimple.c ****         trigger_low();
+ 113              		.loc 1 40 9 view .LVU24
+ 114 000e FFF7FEFF 		bl	trigger_low
+ 115              	.LVL9:
+  41:glitchsimple.c ****         for(i=0; i<200; i++){
+ 116              		.loc 1 41 9 view .LVU25
+ 117 0012 0A21     		movs	r1, #10
+ 118              		.loc 1 41 14 is_stmt 0 view .LVU26
+ 119 0014 02AB     		add	r3, sp, #8
+ 120 0016 1D80     		strh	r5, [r3]
+ 121 0018 6944     		add	r1, r1, sp
+ 122              	.L5:
+ 123              		.loc 1 41 18 is_stmt 1 discriminator 1 view .LVU27
+ 124              		.loc 1 41 19 is_stmt 0 discriminator 1 view .LVU28
+ 125 001a 1A88     		ldrh	r2, [r3]
+ 126              		.loc 1 41 9 discriminator 1 view .LVU29
+ 127 001c C72A     		cmp	r2, #199
+ 128 001e 0FD9     		bls	.L8
+  42:glitchsimple.c ****             for(j=0; j<200; j++){
+  43:glitchsimple.c ****                 cnt++;
+  44:glitchsimple.c ****             }
+  45:glitchsimple.c ****         }
+  46:glitchsimple.c ****         sprintf(str, "%lu %d %d %d\n", cnt, i, j, k++);
+ 129              		.loc 1 46 9 is_stmt 1 view .LVU30
+ 130 0020 039A     		ldr	r2, [sp, #12]
+ 131 0022 1B88     		ldrh	r3, [r3]
+ 132 0024 0988     		ldrh	r1, [r1]
+ 133 0026 9BB2     		uxth	r3, r3
+ 134 0028 0194     		str	r4, [sp, #4]
+ 135 002a 0091     		str	r1, [sp]
+ 136 002c 04A8     		add	r0, sp, #16
+ 137 002e 0D49     		ldr	r1, .L10
+ 138 0030 FFF7FEFF 		bl	sprintf
+ 139              	.LVL10:
+ 140 0034 661C     		adds	r6, r4, #1
+ 141              	.LVL11:
+  47:glitchsimple.c ****         uart_puts(str);
+ 142              		.loc 1 47 9 view .LVU31
+ 143 0036 04A8     		add	r0, sp, #16
+ 144 0038 FFF7FEFF 		bl	uart_puts
+ 145              	.LVL12:
+  37:glitchsimple.c ****         cnt = 0;
+ 146              		.loc 1 37 10 view .LVU32
+  46:glitchsimple.c ****         uart_puts(str);
+ 147              		.loc 1 46 9 is_stmt 0 view .LVU33
+ 148 003c 3400     		movs	r4, r6
+  38:glitchsimple.c ****         trigger_high();
+ 149              		.loc 1 38 13 view .LVU34
+ 150 003e E3E7     		b	.L9
+ 151              	.LVL13:
+ 152              	.L8:
+  42:glitchsimple.c ****                 cnt++;
+ 153              		.loc 1 42 13 is_stmt 1 view .LVU35
+  42:glitchsimple.c ****                 cnt++;
+ 154              		.loc 1 42 18 is_stmt 0 view .LVU36
+ 155 0040 0D80     		strh	r5, [r1]
+ 156              	.L6:
+  42:glitchsimple.c ****                 cnt++;
+ 157              		.loc 1 42 22 is_stmt 1 discriminator 1 view .LVU37
+  42:glitchsimple.c ****                 cnt++;
+ 158              		.loc 1 42 23 is_stmt 0 discriminator 1 view .LVU38
+ 159 0042 0A88     		ldrh	r2, [r1]
+  42:glitchsimple.c ****                 cnt++;
+ 160              		.loc 1 42 13 discriminator 1 view .LVU39
+ 161 0044 C72A     		cmp	r2, #199
+ 162 0046 04D9     		bls	.L7
+  41:glitchsimple.c ****             for(j=0; j<200; j++){
+ 163              		.loc 1 41 25 is_stmt 1 discriminator 2 view .LVU40
+  41:glitchsimple.c ****             for(j=0; j<200; j++){
+ 164              		.loc 1 41 26 is_stmt 0 discriminator 2 view .LVU41
+ 165 0048 1A88     		ldrh	r2, [r3]
+ 166 004a 0132     		adds	r2, r2, #1
+ 167 004c 92B2     		uxth	r2, r2
+ 168 004e 1A80     		strh	r2, [r3]
+ 169 0050 E3E7     		b	.L5
+ 170              	.L7:
+  43:glitchsimple.c ****             }
+ 171              		.loc 1 43 17 is_stmt 1 discriminator 3 view .LVU42
+  43:glitchsimple.c ****             }
+ 172              		.loc 1 43 20 is_stmt 0 discriminator 3 view .LVU43
+ 173 0052 039A     		ldr	r2, [sp, #12]
+ 174 0054 0132     		adds	r2, r2, #1
+ 175 0056 0392     		str	r2, [sp, #12]
+  42:glitchsimple.c ****                 cnt++;
+ 176              		.loc 1 42 29 is_stmt 1 discriminator 3 view .LVU44
+  42:glitchsimple.c ****                 cnt++;
+ 177              		.loc 1 42 30 is_stmt 0 discriminator 3 view .LVU45
+ 178 0058 0A88     		ldrh	r2, [r1]
+ 179 005a 0132     		adds	r2, r2, #1
+ 180 005c 92B2     		uxth	r2, r2
+ 181 005e 0A80     		strh	r2, [r1]
+ 182 0060 EFE7     		b	.L6
+ 183              	.L11:
+ 184 0062 C046     		.align	2
+ 185              	.L10:
+ 186 0064 00000000 		.word	.LC0
+ 187              		.cfi_endproc
+ 188              	.LFE4:
+ 190              		.section	.rodata.str1.1
+ 191              	.LC2:
+ 192 000e 31323334 		.ascii	"1234\000"
+ 192      00
+ 193              		.section	.text.glitch1,"ax",%progbits
+ 194              		.align	1
+ 195              		.global	glitch1
+ 196              		.syntax unified
+ 197              		.code	16
+ 198              		.thumb_func
+ 199              		.fpu softvfp
+ 201              	glitch1:
+ 202              	.LFB5:
+  48:glitchsimple.c ****     }
+  49:glitchsimple.c **** }
+  50:glitchsimple.c **** 
+  51:glitchsimple.c **** void glitch1(void)
+  52:glitchsimple.c **** {
+ 203              		.loc 1 52 1 is_stmt 1 view -0
+ 204              		.cfi_startproc
+ 205              		@ Volatile: function does not return.
+ 206              		@ args = 0, pretend = 0, frame = 8
+ 207              		@ frame_needed = 0, uses_anonymous_args = 0
+  53:glitchsimple.c ****     led_ok(1);
+ 208              		.loc 1 53 14 view .LVU47
+  54:glitchsimple.c ****     led_error(0);
+ 209              		.loc 1 54 17 view .LVU48
+  55:glitchsimple.c **** 
+  56:glitchsimple.c ****     //Some fake variable
+  57:glitchsimple.c ****     volatile uint8_t a = 0;
+ 210              		.loc 1 57 5 view .LVU49
+  52:glitchsimple.c ****     led_ok(1);
+ 211              		.loc 1 52 1 is_stmt 0 view .LVU50
+ 212 0000 13B5     		push	{r0, r1, r4, lr}
+ 213              	.LCFI3:
+ 214              		.cfi_def_cfa_offset 16
+ 215              		.cfi_offset 0, -16
+ 216              		.cfi_offset 1, -12
+ 217              		.cfi_offset 4, -8
+ 218              		.cfi_offset 14, -4
+ 219              		.loc 1 57 22 view .LVU51
+ 220 0002 6B46     		mov	r3, sp
+ 221 0004 DC1D     		adds	r4, r3, #7
+ 222 0006 0023     		movs	r3, #0
+  58:glitchsimple.c **** 
+  59:glitchsimple.c ****     putch('A');
+ 223              		.loc 1 59 5 view .LVU52
+ 224 0008 4120     		movs	r0, #65
+  57:glitchsimple.c **** 
+ 225              		.loc 1 57 22 view .LVU53
+ 226 000a 2370     		strb	r3, [r4]
+ 227              		.loc 1 59 5 is_stmt 1 view .LVU54
+ 228 000c FFF7FEFF 		bl	putch
+ 229              	.LVL14:
+  60:glitchsimple.c **** 
+  61:glitchsimple.c ****     //External trigger logic
+  62:glitchsimple.c ****     trigger_high();
+ 230              		.loc 1 62 5 view .LVU55
+ 231 0010 FFF7FEFF 		bl	trigger_high
+ 232              	.LVL15:
+  63:glitchsimple.c ****     trigger_low();
+ 233              		.loc 1 63 5 view .LVU56
+ 234 0014 FFF7FEFF 		bl	trigger_low
+ 235              	.LVL16:
+  64:glitchsimple.c **** 
+  65:glitchsimple.c ****     //Should be an infinite loop
+  66:glitchsimple.c ****     while(a != 2){
+ 236              		.loc 1 66 5 view .LVU57
+ 237              	.L13:
+  67:glitchsimple.c ****     ;
+ 238              		.loc 1 67 5 discriminator 1 view .LVU58
+  66:glitchsimple.c ****     ;
+ 239              		.loc 1 66 10 discriminator 1 view .LVU59
+  66:glitchsimple.c ****     ;
+ 240              		.loc 1 66 13 is_stmt 0 discriminator 1 view .LVU60
+ 241 0018 2378     		ldrb	r3, [r4]
+  66:glitchsimple.c ****     ;
+ 242              		.loc 1 66 10 discriminator 1 view .LVU61
+ 243 001a 022B     		cmp	r3, #2
+ 244 001c FCD1     		bne	.L13
+  68:glitchsimple.c ****     }
+  69:glitchsimple.c **** 
+  70:glitchsimple.c ****     led_error(1);
+ 245              		.loc 1 70 17 is_stmt 1 view .LVU62
+  71:glitchsimple.c ****     led_error(1);
+ 246              		.loc 1 71 17 view .LVU63
+  72:glitchsimple.c ****     led_error(1);
+ 247              		.loc 1 72 17 view .LVU64
+  73:glitchsimple.c ****     led_error(1);
+ 248              		.loc 1 73 17 view .LVU65
+  74:glitchsimple.c ****     led_error(1);
+ 249              		.loc 1 74 17 view .LVU66
+  75:glitchsimple.c ****     led_error(1);
+ 250              		.loc 1 75 17 view .LVU67
+  76:glitchsimple.c ****     led_error(1);
+ 251              		.loc 1 76 17 view .LVU68
+  77:glitchsimple.c ****     led_error(1);
+ 252              		.loc 1 77 17 view .LVU69
+  78:glitchsimple.c ****     led_error(1);
+ 253              		.loc 1 78 17 view .LVU70
+  79:glitchsimple.c **** 
+  80:glitchsimple.c ****     uart_puts("1234");
+ 254              		.loc 1 80 5 view .LVU71
+ 255 001e 0248     		ldr	r0, .L16
+ 256 0020 FFF7FEFF 		bl	uart_puts
+ 257              	.LVL17:
+ 258              	.L14:
+  81:glitchsimple.c **** 
+  82:glitchsimple.c ****     led_error(1);
+ 259              		.loc 1 82 17 discriminator 1 view .LVU72
+  83:glitchsimple.c ****     led_error(1);
+ 260              		.loc 1 83 17 discriminator 1 view .LVU73
+  84:glitchsimple.c ****     led_error(1);
+ 261              		.loc 1 84 17 discriminator 1 view .LVU74
+  85:glitchsimple.c ****     led_error(1);
+ 262              		.loc 1 85 17 discriminator 1 view .LVU75
+  86:glitchsimple.c ****     led_error(1);
+ 263              		.loc 1 86 17 discriminator 1 view .LVU76
+  87:glitchsimple.c ****     led_error(1);
+ 264              		.loc 1 87 17 discriminator 1 view .LVU77
+  88:glitchsimple.c ****     led_error(1);
+ 265              		.loc 1 88 17 discriminator 1 view .LVU78
+  89:glitchsimple.c ****     led_error(1);
+ 266              		.loc 1 89 17 discriminator 1 view .LVU79
+  90:glitchsimple.c **** 
+  91:glitchsimple.c ****     //Several loops in order to try and prevent restarting
+  92:glitchsimple.c ****     while(1){
+ 267              		.loc 1 92 5 discriminator 1 view .LVU80
+  93:glitchsimple.c ****     ;
+ 268              		.loc 1 93 5 discriminator 1 view .LVU81
+  92:glitchsimple.c ****     ;
+ 269              		.loc 1 92 10 discriminator 1 view .LVU82
+ 270 0024 FEE7     		b	.L14
+ 271              	.L17:
+ 272 0026 C046     		.align	2
+ 273              	.L16:
+ 274 0028 0E000000 		.word	.LC2
+ 275              		.cfi_endproc
+ 276              	.LFE5:
+ 278              		.section	.text.glitch2,"ax",%progbits
+ 279              		.align	1
+ 280              		.global	glitch2
+ 281              		.syntax unified
+ 282              		.code	16
+ 283              		.thumb_func
+ 284              		.fpu softvfp
+ 286              	glitch2:
+ 287              	.LFB6:
+  94:glitchsimple.c ****     }
+  95:glitchsimple.c ****     while(1){
+  96:glitchsimple.c ****     ;
+  97:glitchsimple.c ****     }
+  98:glitchsimple.c ****     while(1){
+  99:glitchsimple.c ****     ;
+ 100:glitchsimple.c ****     }
+ 101:glitchsimple.c ****     while(1){
+ 102:glitchsimple.c ****     ;
+ 103:glitchsimple.c ****     }
+ 104:glitchsimple.c ****     while(1){
+ 105:glitchsimple.c ****     ;
+ 106:glitchsimple.c ****     }
+ 107:glitchsimple.c **** }
+ 108:glitchsimple.c **** 
+ 109:glitchsimple.c **** 
+ 110:glitchsimple.c **** void glitch2(void)
+ 111:glitchsimple.c **** {
+ 288              		.loc 1 111 1 view -0
+ 289              		.cfi_startproc
+ 290              		@ args = 0, pretend = 0, frame = 0
+ 291              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112:glitchsimple.c ****     char c;
+ 292              		.loc 1 112 5 view .LVU84
+ 113:glitchsimple.c **** 
+ 114:glitchsimple.c ****     putch('B');
+ 293              		.loc 1 114 5 view .LVU85
+ 111:glitchsimple.c ****     char c;
+ 294              		.loc 1 111 1 is_stmt 0 view .LVU86
+ 295 0000 10B5     		push	{r4, lr}
+ 296              	.LCFI4:
+ 297              		.cfi_def_cfa_offset 8
+ 298              		.cfi_offset 4, -8
+ 299              		.cfi_offset 14, -4
+ 300              		.loc 1 114 5 view .LVU87
+ 301 0002 4220     		movs	r0, #66
+ 302 0004 FFF7FEFF 		bl	putch
+ 303              	.LVL18:
+ 115:glitchsimple.c **** 
+ 116:glitchsimple.c ****     c = getch();
+ 304              		.loc 1 116 5 is_stmt 1 view .LVU88
+ 305              		.loc 1 116 9 is_stmt 0 view .LVU89
+ 306 0008 FFF7FEFF 		bl	getch
+ 307              	.LVL19:
+ 308 000c 0400     		movs	r4, r0
+ 309              	.LVL20:
+ 117:glitchsimple.c **** 
+ 118:glitchsimple.c ****     trigger_high();
+ 310              		.loc 1 118 5 is_stmt 1 view .LVU90
+ 311 000e FFF7FEFF 		bl	trigger_high
+ 312              	.LVL21:
+ 119:glitchsimple.c ****     trigger_low();
+ 313              		.loc 1 119 5 view .LVU91
+ 314 0012 FFF7FEFF 		bl	trigger_low
+ 315              	.LVL22:
+ 120:glitchsimple.c **** 
+ 121:glitchsimple.c ****     if (c != 'q'){
+ 316              		.loc 1 121 5 view .LVU92
+ 122:glitchsimple.c ****         putch('1');
+ 317              		.loc 1 122 9 is_stmt 0 view .LVU93
+ 318 0016 3120     		movs	r0, #49
+ 121:glitchsimple.c ****         putch('1');
+ 319              		.loc 1 121 8 view .LVU94
+ 320 0018 712C     		cmp	r4, #113
+ 321 001a 00D1     		bne	.L21
+ 123:glitchsimple.c ****     } else {
+ 124:glitchsimple.c ****         putch('2');
+ 322              		.loc 1 124 9 is_stmt 1 view .LVU95
+ 323 001c 3220     		movs	r0, #50
+ 324              	.L21:
+ 325 001e FFF7FEFF 		bl	putch
+ 326              	.LVL23:
+ 125:glitchsimple.c ****     }
+ 126:glitchsimple.c ****     putch('\n');
+ 327              		.loc 1 126 5 view .LVU96
+ 328 0022 0A20     		movs	r0, #10
+ 329 0024 FFF7FEFF 		bl	putch
+ 330              	.LVL24:
+ 127:glitchsimple.c ****     putch('\n');
+ 331              		.loc 1 127 5 view .LVU97
+ 332 0028 0A20     		movs	r0, #10
+ 333 002a FFF7FEFF 		bl	putch
+ 334              	.LVL25:
+ 128:glitchsimple.c ****     putch('\n');
+ 335              		.loc 1 128 5 view .LVU98
+ 336 002e 0A20     		movs	r0, #10
+ 337 0030 FFF7FEFF 		bl	putch
+ 338              	.LVL26:
+ 129:glitchsimple.c ****     putch('\n');
+ 339              		.loc 1 129 5 view .LVU99
+ 340 0034 0A20     		movs	r0, #10
+ 341 0036 FFF7FEFF 		bl	putch
+ 342              	.LVL27:
+ 130:glitchsimple.c **** }
+ 343              		.loc 1 130 1 is_stmt 0 view .LVU100
+ 344              		@ sp needed
+ 345              	.LVL28:
+ 346              		.loc 1 130 1 view .LVU101
+ 347 003a 10BD     		pop	{r4, pc}
+ 348              		.cfi_endproc
+ 349              	.LFE6:
+ 351              		.section	.rodata.str1.1
+ 352              	.LC4:
+ 353 0013 50617373 		.ascii	"Password:\000"
+ 353      776F7264 
+ 353      3A00
+ 354              	.LC8:
+ 355 001d 44656E69 		.ascii	"Denied\012\000"
+ 355      65640A00 
+ 356              	.LC10:
+ 357 0025 57656C63 		.ascii	"Welcome\012\000"
+ 357      6F6D650A 
+ 357      00
+ 358              	.LC6:
+ 359 002e 746F7563 		.ascii	"touch\000"
+ 359      6800
+ 360              		.section	.text.glitch3,"ax",%progbits
+ 361              		.align	1
+ 362              		.global	glitch3
+ 363              		.syntax unified
+ 364              		.code	16
+ 365              		.thumb_func
+ 366              		.fpu softvfp
+ 368              	glitch3:
+ 369              	.LFB7:
+ 131:glitchsimple.c **** 
+ 132:glitchsimple.c **** 
+ 133:glitchsimple.c **** void glitch3(void)
+ 134:glitchsimple.c **** {
+ 370              		.loc 1 134 1 is_stmt 1 view -0
+ 371              		.cfi_startproc
+ 372              		@ args = 0, pretend = 0, frame = 24
+ 373              		@ frame_needed = 0, uses_anonymous_args = 0
+ 135:glitchsimple.c ****     char inp[16];
+ 374              		.loc 1 135 5 view .LVU103
+ 136:glitchsimple.c ****     char c = 'A';
+ 375              		.loc 1 136 5 view .LVU104
+ 376              	.LVL29:
+ 137:glitchsimple.c ****     unsigned char cnt = 0;
+ 377              		.loc 1 137 5 view .LVU105
+ 138:glitchsimple.c ****     uart_puts("Password:");
+ 378              		.loc 1 138 5 view .LVU106
+ 134:glitchsimple.c ****     char inp[16];
+ 379              		.loc 1 134 1 is_stmt 0 view .LVU107
+ 380 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 381              	.LCFI5:
+ 382              		.cfi_def_cfa_offset 20
+ 383              		.cfi_offset 4, -20
+ 384              		.cfi_offset 5, -16
+ 385              		.cfi_offset 6, -12
+ 386              		.cfi_offset 7, -8
+ 387              		.cfi_offset 14, -4
+ 388              		.loc 1 138 5 view .LVU108
+ 389 0002 1848     		ldr	r0, .L31
+ 134:glitchsimple.c ****     char inp[16];
+ 390              		.loc 1 134 1 view .LVU109
+ 391 0004 87B0     		sub	sp, sp, #28
+ 392              	.LCFI6:
+ 393              		.cfi_def_cfa_offset 48
+ 394              		.loc 1 138 5 view .LVU110
+ 395 0006 FFF7FEFF 		bl	uart_puts
+ 396              	.LVL30:
+ 139:glitchsimple.c **** 
+ 140:glitchsimple.c ****     while((c != '\n') & (cnt < 16)){
+ 397              		.loc 1 140 5 is_stmt 1 view .LVU111
+ 398              		.loc 1 140 10 view .LVU112
+ 138:glitchsimple.c **** 
+ 399              		.loc 1 138 5 is_stmt 0 view .LVU113
+ 400 000a 0025     		movs	r5, #0
+ 401              		.loc 1 140 23 view .LVU114
+ 402 000c 0F27     		movs	r7, #15
+ 403              	.LVL31:
+ 404              	.L23:
+ 141:glitchsimple.c ****         c = getch();
+ 405              		.loc 1 141 9 is_stmt 1 view .LVU115
+ 406              		.loc 1 141 13 is_stmt 0 view .LVU116
+ 407 000e FFF7FEFF 		bl	getch
+ 408              	.LVL32:
+ 142:glitchsimple.c ****         inp[cnt] = c;
+ 409              		.loc 1 142 9 is_stmt 1 view .LVU117
+ 140:glitchsimple.c ****         c = getch();
+ 410              		.loc 1 140 23 is_stmt 0 view .LVU118
+ 411 0012 0023     		movs	r3, #0
+ 412              		.loc 1 142 18 view .LVU119
+ 413 0014 02AE     		add	r6, sp, #8
+ 414 0016 A855     		strb	r0, [r5, r6]
+ 143:glitchsimple.c ****         cnt++;
+ 415              		.loc 1 143 9 is_stmt 1 view .LVU120
+ 416              	.LVL33:
+ 140:glitchsimple.c ****         c = getch();
+ 417              		.loc 1 140 10 view .LVU121
+ 140:glitchsimple.c ****         c = getch();
+ 418              		.loc 1 140 23 is_stmt 0 view .LVU122
+ 419 0018 0135     		adds	r5, r5, #1
+ 420              	.LVL34:
+ 140:glitchsimple.c ****         c = getch();
+ 421              		.loc 1 140 23 view .LVU123
+ 422 001a EAB2     		uxtb	r2, r5
+ 423 001c 0A38     		subs	r0, r0, #10
+ 424              	.LVL35:
+ 140:glitchsimple.c ****         c = getch();
+ 425              		.loc 1 140 23 view .LVU124
+ 426 001e 9742     		cmp	r7, r2
+ 427 0020 5B41     		adcs	r3, r3, r3
+ 428 0022 421E     		subs	r2, r0, #1
+ 429 0024 9041     		sbcs	r0, r0, r2
+ 430 0026 0400     		movs	r4, r0
+ 431 0028 1C40     		ands	r4, r3
+ 140:glitchsimple.c ****         c = getch();
+ 432              		.loc 1 140 10 view .LVU125
+ 433 002a 1842     		tst	r0, r3
+ 434 002c EFD1     		bne	.L23
+ 144:glitchsimple.c ****     }
+ 145:glitchsimple.c **** 
+ 146:glitchsimple.c ****     char passwd[] = "touch";
+ 435              		.loc 1 146 5 is_stmt 1 view .LVU126
+ 436              		.loc 1 146 10 is_stmt 0 view .LVU127
+ 437 002e 0622     		movs	r2, #6
+ 438 0030 0D49     		ldr	r1, .L31+4
+ 439 0032 6846     		mov	r0, sp
+ 440 0034 FFF7FEFF 		bl	memcpy
+ 441              	.LVL36:
+ 147:glitchsimple.c ****     char passok = 1;
+ 442              		.loc 1 147 5 is_stmt 1 view .LVU128
+ 148:glitchsimple.c **** 
+ 149:glitchsimple.c ****     trigger_high();
+ 443              		.loc 1 149 5 view .LVU129
+ 444 0038 FFF7FEFF 		bl	trigger_high
+ 445              	.LVL37:
+ 150:glitchsimple.c ****     trigger_low();
+ 446              		.loc 1 150 5 view .LVU130
+ 447 003c FFF7FEFF 		bl	trigger_low
+ 448              	.LVL38:
+ 151:glitchsimple.c **** 
+ 152:glitchsimple.c ****     //Simple test - doesn't check for too-long password!
+ 153:glitchsimple.c ****     for(cnt = 0; cnt < 5; cnt++){
+ 449              		.loc 1 153 5 view .LVU131
+ 450              		.loc 1 153 18 view .LVU132
+ 147:glitchsimple.c **** 
+ 451              		.loc 1 147 10 is_stmt 0 view .LVU133
+ 452 0040 0123     		movs	r3, #1
+ 453              	.LVL39:
+ 454              	.L25:
+ 154:glitchsimple.c ****         if (inp[cnt] != passwd[cnt]){
+ 455              		.loc 1 154 9 is_stmt 1 view .LVU134
+ 456              		.loc 1 154 12 is_stmt 0 view .LVU135
+ 457 0042 6A46     		mov	r2, sp
+ 458 0044 315D     		ldrb	r1, [r6, r4]
+ 459 0046 125D     		ldrb	r2, [r2, r4]
+ 460 0048 9142     		cmp	r1, r2
+ 461 004a 00D0     		beq	.L24
+ 155:glitchsimple.c ****             passok = 0;
+ 462              		.loc 1 155 20 view .LVU136
+ 463 004c 0023     		movs	r3, #0
+ 464              	.LVL40:
+ 465              	.L24:
+ 153:glitchsimple.c ****         if (inp[cnt] != passwd[cnt]){
+ 466              		.loc 1 153 27 is_stmt 1 discriminator 2 view .LVU137
+ 153:glitchsimple.c ****         if (inp[cnt] != passwd[cnt]){
+ 467              		.loc 1 153 18 discriminator 2 view .LVU138
+ 468 004e 0134     		adds	r4, r4, #1
+ 469              	.LVL41:
+ 153:glitchsimple.c ****         if (inp[cnt] != passwd[cnt]){
+ 470              		.loc 1 153 5 is_stmt 0 discriminator 2 view .LVU139
+ 471 0050 052C     		cmp	r4, #5
+ 472 0052 F6D1     		bne	.L25
+ 156:glitchsimple.c ****         }
+ 157:glitchsimple.c ****     }
+ 158:glitchsimple.c **** 
+ 159:glitchsimple.c ****     if (!passok){
+ 473              		.loc 1 159 5 is_stmt 1 view .LVU140
+ 160:glitchsimple.c ****         uart_puts("Denied\n");
+ 474              		.loc 1 160 9 is_stmt 0 view .LVU141
+ 475 0054 0548     		ldr	r0, .L31+8
+ 159:glitchsimple.c ****         uart_puts("Denied\n");
+ 476              		.loc 1 159 8 view .LVU142
+ 477 0056 002B     		cmp	r3, #0
+ 478 0058 00D0     		beq	.L30
+ 161:glitchsimple.c ****     } else {
+ 162:glitchsimple.c ****         uart_puts("Welcome\n");
+ 479              		.loc 1 162 9 is_stmt 1 view .LVU143
+ 480 005a 0548     		ldr	r0, .L31+12
+ 481              	.L30:
+ 482 005c FFF7FEFF 		bl	uart_puts
+ 483              	.LVL42:
+ 163:glitchsimple.c ****     }
+ 164:glitchsimple.c **** }
+ 484              		.loc 1 164 1 is_stmt 0 view .LVU144
+ 485 0060 07B0     		add	sp, sp, #28
+ 486              		@ sp needed
+ 487 0062 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 488              	.L32:
+ 489              		.align	2
+ 490              	.L31:
+ 491 0064 13000000 		.word	.LC4
+ 492 0068 2E000000 		.word	.LC6
+ 493 006c 1D000000 		.word	.LC8
+ 494 0070 25000000 		.word	.LC10
+ 495              		.cfi_endproc
+ 496              	.LFE7:
+ 498              		.section	.text.startup.main,"ax",%progbits
+ 499              		.align	1
+ 500              		.global	main
+ 501              		.syntax unified
+ 502              		.code	16
+ 503              		.thumb_func
+ 504              		.fpu softvfp
+ 506              	main:
+ 507              	.LFB8:
+ 165:glitchsimple.c **** 
+ 166:glitchsimple.c **** int main(void){
+ 508              		.loc 1 166 15 is_stmt 1 view -0
+ 509              		.cfi_startproc
+ 510              		@ Volatile: function does not return.
+ 511              		@ args = 0, pretend = 0, frame = 0
+ 512              		@ frame_needed = 0, uses_anonymous_args = 0
+ 167:glitchsimple.c **** 
+ 168:glitchsimple.c ****     platform_init();
+ 513              		.loc 1 168 5 view .LVU146
+ 166:glitchsimple.c **** 
+ 514              		.loc 1 166 15 is_stmt 0 view .LVU147
+ 515 0000 10B5     		push	{r4, lr}
+ 516              	.LCFI7:
+ 517              		.cfi_def_cfa_offset 8
+ 518              		.cfi_offset 4, -8
+ 519              		.cfi_offset 14, -4
+ 520              		.loc 1 168 5 view .LVU148
+ 521 0002 FFF7FEFF 		bl	platform_init
+ 522              	.LVL43:
+ 169:glitchsimple.c ****   init_uart();
+ 523              		.loc 1 169 3 is_stmt 1 view .LVU149
+ 524 0006 FFF7FEFF 		bl	init_uart
+ 525              	.LVL44:
+ 170:glitchsimple.c ****   trigger_setup();
+ 526              		.loc 1 170 3 view .LVU150
+ 527 000a FFF7FEFF 		bl	trigger_setup
+ 528              	.LVL45:
+ 171:glitchsimple.c **** 
+ 172:glitchsimple.c ****   /* Uncomment this to get a HELLO message for debug */
+ 173:glitchsimple.c ****   putch('h');
+ 529              		.loc 1 173 3 view .LVU151
+ 530 000e 6820     		movs	r0, #104
+ 531 0010 FFF7FEFF 		bl	putch
+ 532              	.LVL46:
+ 174:glitchsimple.c ****   putch('e');
+ 533              		.loc 1 174 3 view .LVU152
+ 534 0014 6520     		movs	r0, #101
+ 535 0016 FFF7FEFF 		bl	putch
+ 536              	.LVL47:
+ 175:glitchsimple.c ****   putch('l');
+ 537              		.loc 1 175 3 view .LVU153
+ 538 001a 6C20     		movs	r0, #108
+ 539 001c FFF7FEFF 		bl	putch
+ 540              	.LVL48:
+ 176:glitchsimple.c ****   putch('l');
+ 541              		.loc 1 176 3 view .LVU154
+ 542 0020 6C20     		movs	r0, #108
+ 543 0022 FFF7FEFF 		bl	putch
+ 544              	.LVL49:
+ 177:glitchsimple.c ****   putch('o');
+ 545              		.loc 1 177 3 view .LVU155
+ 546 0026 6F20     		movs	r0, #111
+ 547 0028 FFF7FEFF 		bl	putch
+ 548              	.LVL50:
+ 178:glitchsimple.c ****   putch('\n');
+ 549              		.loc 1 178 3 view .LVU156
+ 550 002c 0A20     		movs	r0, #10
+ 551 002e FFF7FEFF 		bl	putch
+ 552              	.LVL51:
+ 179:glitchsimple.c **** 
+ 180:glitchsimple.c ****     //This is needed on XMEGA examples, but not normally on ARM. ARM doesn't have this macro normal
+ 181:glitchsimple.c ****     #ifdef __AVR__
+ 182:glitchsimple.c ****     _delay_ms(20);
+ 183:glitchsimple.c ****     #endif
+ 184:glitchsimple.c **** 
+ 185:glitchsimple.c **** 
+ 186:glitchsimple.c ****     while(1){
+ 553              		.loc 1 186 5 view .LVU157
+ 187:glitchsimple.c **** #if defined(GLITCH1)
+ 188:glitchsimple.c ****             glitch1();
+ 554              		.loc 1 188 13 view .LVU158
+ 555 0032 FFF7FEFF 		bl	glitch1
+ 556              	.LVL52:
+ 557              		.cfi_endproc
+ 558              	.LFE8:
+ 560              		.text
+ 561              	.Letext0:
+ 562              		.file 2 "/usr/include/newlib/machine/_default_types.h"
+ 563              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 564              		.file 4 "/usr/include/newlib/sys/_types.h"
+ 565              		.file 5 "/usr/include/newlib/sys/reent.h"
+ 566              		.file 6 "/usr/include/newlib/sys/lock.h"
+ 567              		.file 7 "/usr/include/newlib/sys/_stdint.h"
+ 568              		.file 8 ".././hal/hal.h"
+ 569              		.file 9 ".././hal/stm32f0/stm32f0_hal.h"
+ 570              		.file 10 "/usr/include/newlib/stdio.h"
+ 571              		.file 11 "<built-in>"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 glitchsimple.c
+     /tmp/ccTRQwPn.s:16     .text.uart_puts:0000000000000000 $t
+     /tmp/ccTRQwPn.s:24     .text.uart_puts:0000000000000000 uart_puts
+     /tmp/ccTRQwPn.s:70     .text.glitch_infinite:0000000000000000 $t
+     /tmp/ccTRQwPn.s:77     .text.glitch_infinite:0000000000000000 glitch_infinite
+     /tmp/ccTRQwPn.s:186    .text.glitch_infinite:0000000000000064 $d
+     /tmp/ccTRQwPn.s:194    .text.glitch1:0000000000000000 $t
+     /tmp/ccTRQwPn.s:201    .text.glitch1:0000000000000000 glitch1
+     /tmp/ccTRQwPn.s:274    .text.glitch1:0000000000000028 $d
+     /tmp/ccTRQwPn.s:279    .text.glitch2:0000000000000000 $t
+     /tmp/ccTRQwPn.s:286    .text.glitch2:0000000000000000 glitch2
+     /tmp/ccTRQwPn.s:361    .text.glitch3:0000000000000000 $t
+     /tmp/ccTRQwPn.s:368    .text.glitch3:0000000000000000 glitch3
+     /tmp/ccTRQwPn.s:491    .text.glitch3:0000000000000064 $d
+     /tmp/ccTRQwPn.s:499    .text.startup.main:0000000000000000 $t
+     /tmp/ccTRQwPn.s:506    .text.startup.main:0000000000000000 main
+
+UNDEFINED SYMBOLS
+putch
+trigger_high
+trigger_low
+sprintf
+getch
+memcpy
+platform_init
+init_uart
+trigger_setup
